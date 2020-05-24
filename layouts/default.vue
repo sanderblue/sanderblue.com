@@ -5,10 +5,6 @@
 </template>
 
 <style lang="scss">
-$linear-gradient-dark: linear-gradient(
-  rgba(15, 15, 15, 0.5),
-  rgba(15, 15, 15, 0.5)
-);
 $background-image: $linear-gradient-dark, url('/images/20180831-IMGP3418.jpg');
 
 html {

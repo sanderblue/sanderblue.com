@@ -1,3 +1,5 @@
+const { colors } = require('tailwindcss/defaultTheme');
+
 module.exports = {
   purge: [],
   target: 'relaxed',
@@ -5,6 +7,23 @@ module.exports = {
   important: false,
   separator: ':',
   theme: {
+    extend: {
+      colors: {
+        black: {
+          solid: '#000',
+          0: 'rgba(15, 15, 15, 1.0)',
+          1: 'rgba(15, 15, 15, 0.1)',
+          2: 'rgba(15, 15, 15, 0.2)',
+          3: 'rgba(15, 15, 15, 0.3)',
+          4: 'rgba(15, 15, 15, 0.4)',
+          5: 'rgba(15, 15, 15, 0.5)',
+          6: 'rgba(15, 15, 15, 0.6)',
+          7: 'rgba(15, 15, 15, 0.7)',
+          8: 'rgba(15, 15, 15, 0.8)',
+          9: 'rgba(15, 15, 15, 0.9)',
+        },
+      },
+    },
     screens: {
       sm: '640px',
       md: '768px',

@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@nuxt/typescript-build": "^0.6.0",
+    "@nuxtjs/style-resources": "^1.0.0",
     "@nuxtjs/tailwindcss": "^1.0.0",
     "node-sass": "^4.14.1",
     "sass": "^1.26.5",
