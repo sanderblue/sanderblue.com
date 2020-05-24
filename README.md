@@ -1,2 +1,3 @@
 # sanderblue.com
-This is my personal website.
+
+> My personal website built with Nuxt.js
