@@ -1,5 +1,5 @@
 <template>
-  <div class="full-name wrapper">
+  <div class="full-name wrapper font-bold">
     <span class="first-name">
       <span class="s">s</span>
       <span class="a">a</span>
@@ -25,6 +25,10 @@
   width: inherit;
   color: rgba(245, 245, 245, 0.93);
   text-shadow: 1px 1px 3px rgba(20, 20, 20, 0.5);
+
+  @media (min-width: 38rem) {
+    font-size: 5rem;
+  }
 
   .first-name,
   .last-name {

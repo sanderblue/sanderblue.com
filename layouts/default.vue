@@ -4,10 +4,15 @@
   </div>
 </template>
 
-<style>
+<style lang="scss">
+$linear-gradient-dark: linear-gradient(
+  rgba(15, 15, 15, 0.5),
+  rgba(15, 15, 15, 0.5)
+);
+$background-image: $linear-gradient-dark, url('/images/20180831-IMGP3418.jpg');
+
 html {
-  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Avenir', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 16px;
   word-spacing: 1px;
   -ms-text-size-adjust: 100%;
@@ -51,5 +56,9 @@ html {
 .button--grey:hover {
   color: #fff;
   background-color: #35495e;
+}
+
+.bg-image {
+  background-image: $background-image;
 }
 </style>
