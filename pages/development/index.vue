@@ -1,20 +1,29 @@
 <template>
   <div id="page" class="container">
-    <div class="relative w-5/6">
+    <div class="relative flex items-center justify-center">
       <div
-        v-for="item in items"
-        :key="item.message"
-        class="max-w-sm rounded overflow-hidden shadow-lg mb-12"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-8 mb-16"
       >
-        <a :href="item.demo" target="_blank" class="block">
-          <img class="w-full" :src="item.thumbnail" alt="" />
-          <div class="px-6 py-4 bg-white">
-            <div class="font-bold text-xl mb-2">{{ item.title }}</div>
-            <p class="text-gray-700 text-base">
-              {{ item.description }}
-            </p>
-          </div>
-        </a>
+        <div
+          v-for="item in items"
+          :key="item.message"
+          class="flex items-center justify-center rounded overflow-hidden shadow-lg"
+        >
+          <a :href="item.demo" target="_blank" class="sm:block">
+            <img
+              class="object-cover w-full h-64 md:h-84"
+              :src="item.thumbnail"
+              alt=""
+            />
+
+            <div class="px-6 py-4 bg-white h-40">
+              <div class="font-bold text-xl mb-2">{{ item.title }}</div>
+              <p class="text-gray-700 text-base">
+                {{ item.description }}
+              </p>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
   </div>

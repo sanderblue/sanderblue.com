@@ -14,9 +14,7 @@ $bg-gradient-dark: linear-gradient(
 
 $bg-gradient-color: rgba(15, 15, 15, 0.5);
 $bg-gradient: linear-gradient($bg-gradient-color, $bg-gradient-color);
-
-// $background-image: $linear-gradient-dark, url('/images/20180831-IMGP3418.jpg');
+$bg-image: url('/images/20180831-IMGP3418.jpg');
 
 $background-image: $bg-gradient,
-  $bg-gradient-color url('/images/20180831-IMGP3418.jpg') no-repeat center
-    center fixed;
+  $bg-gradient-color $bg-image no-repeat center center fixed;
