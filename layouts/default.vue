@@ -1,5 +1,5 @@
 <template>
-  <main class="bg-image bg-cover bg-center">
+  <main class="pt-28">
     <Nav />
     <nuxt />
   </main>
@@ -28,10 +28,12 @@ html {
   box-sizing: border-box;
 }
 
-.bg-image {
-  background-image: $background-image;
+.bg-cover-image {
+  background: $bg-gradient,
+    $bg-gradient-color url('/images/20180831-IMGP3418.jpg') no-repeat center
+      center fixed;
+  background-size: cover;
 }
-
 *,
 *:before,
 *:after {

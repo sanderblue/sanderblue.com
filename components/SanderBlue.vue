@@ -1,5 +1,5 @@
 <template>
-  <div class="full-name wrapper font-bold">
+  <div class="full-name wrapper font-bold mb-48">
     <span class="first-name">
       <span class="s">s</span>
       <span class="a">a</span>

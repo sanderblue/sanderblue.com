@@ -26,7 +26,7 @@ export default {
   /**
    * Global CSS
    */
-  css: ['~assets/scss/variables.scss'],
+  css: ['~assets/scss/global.scss'],
 
   /**
    * Global Sass

@@ -1,0 +1,22 @@
+$breakpoints: (
+  'xs': '375px',
+  'sm': '640px',
+  'md': '768px',
+  'lg': '1024px',
+  'xl': '1280px',
+  'xxl': '1440px',
+);
+
+$bg-gradient-dark: linear-gradient(
+  rgba(15, 15, 15, 0.4),
+  rgba(15, 15, 15, 0.4)
+);
+
+$bg-gradient-color: rgba(15, 15, 15, 0.5);
+$bg-gradient: linear-gradient($bg-gradient-color, $bg-gradient-color);
+
+// $background-image: $linear-gradient-dark, url('/images/20180831-IMGP3418.jpg');
+
+$background-image: $bg-gradient,
+  $bg-gradient-color url('/images/20180831-IMGP3418.jpg') no-repeat center
+    center fixed;
