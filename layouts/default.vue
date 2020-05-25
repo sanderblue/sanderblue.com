@@ -1,5 +1,5 @@
 <template>
-  <main>
+  <main class="bg-image bg-cover bg-center">
     <Nav />
     <nuxt />
   </main>
@@ -17,8 +17,6 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
-$background-image: $linear-gradient-dark, url('/images/20180831-IMGP3418.jpg');
-
 html {
   font-family: 'Avenir', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 16px;
@@ -28,6 +26,10 @@ html {
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
+}
+
+.bg-image {
+  background-image: $background-image;
 }
 
 *,
@@ -64,9 +66,5 @@ html {
 .button--grey:hover {
   color: #fff;
   background-color: #35495e;
-}
-
-.bg-image {
-  background-image: $background-image;
 }
 </style>
