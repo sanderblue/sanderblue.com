@@ -1,0 +1,69 @@
+name: Build and deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build, push, and deploy
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@master
+
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        env:
+          cache-name: node-modules-cache
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build && npm run generate
+
+      - name: Copy files to VPS via scp
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY_PRIVATE_BLUE_PROJECT_VPS }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE_BLUE_PROJECT_VPS }}
+          source: './dist'
+          target: '/var/www/sanderblue.com'
+      # - name: Restart wx-backend service
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     with:
+      #     host: ${{ secrets.SSH_HOST }}
+      #     username: ${{ secrets.SSH_USER }}
+      #     key: ${{ secrets.SSH_KEY_PRIVATE_BLUE_PROJECT_VPS }}
+      #     passphrase: ${{ secrets.SSH_PASSPHRASE_BLUE_PROJECT_VPS }}
+      #     script:
+      # - name: Set Release Version from Tag
+      #   run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF:10}
+      # - name: Create New Relic deployment marker
+      #   uses: newrelic/deployment-marker-action@v1
+      #   with:
+      #     apiKey: ${{ secrets.NEW_RELIC_API_KEY }}
+      #     accountId: ${{ secrets.NEW_RELIC_ACCOUNT_ID }}
+      #     applicationId: ${{ secrets.NEW_RELIC_APPLICATION_ID }}
+      #     revision: '${{ env.RELEASE_VERSION }}'

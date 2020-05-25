@@ -49,7 +49,7 @@ export default Vue.extend({
 }
 
 .appear {
-  animation: 0.5s appear;
+  animation: 0.3s appear;
   opacity: 1;
 }
 
