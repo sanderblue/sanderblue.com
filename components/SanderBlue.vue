@@ -17,7 +17,7 @@
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 // Styles copied from previous personal website
 .full-name {
   font-size: 2rem;

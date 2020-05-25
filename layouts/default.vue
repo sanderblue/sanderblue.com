@@ -1,8 +1,20 @@
 <template>
-  <div>
+  <main>
+    <Nav />
     <nuxt />
-  </div>
+  </main>
 </template>
+
+<script>
+import Vue from 'vue';
+import Nav from '~/components/Nav.vue';
+
+export default Vue.extend({
+  components: {
+    Nav,
+  },
+});
+</script>
 
 <style lang="scss">
 $background-image: $linear-gradient-dark, url('/images/20180831-IMGP3418.jpg');

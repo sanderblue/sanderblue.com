@@ -22,13 +22,23 @@ module.exports = {
           8: 'rgba(15, 15, 15, 0.8)',
           9: 'rgba(15, 15, 15, 0.9)',
         },
+        blue: {
+          ...colors.blue,
+          logo: '#00B0F0',
+        },
+        green: {
+          ...colors.green,
+          logo: '#3EE050',
+        },
       },
     },
     screens: {
+      xs: '375px',
       sm: '640px',
       md: '768px',
       lg: '1024px',
       xl: '1280px',
+      xxl: '1440px',
     },
     colors: {
       transparent: 'transparent',

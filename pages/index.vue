@@ -7,15 +7,11 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Logo from '~/components/Logo.vue';
-import Nav from '~/components/Nav.vue';
 import SanderBlue from '~/components/SanderBlue.vue';
 
 export default Vue.extend({
   components: {
-    Logo,
     SanderBlue,
-    Nav,
   },
 });
 </script>
@@ -53,7 +49,8 @@ export default Vue.extend({
 }
 
 .appear {
-  animation: 1s appear;
+  animation: 0.5s appear;
+  opacity: 1;
 }
 
 @keyframes appear {
