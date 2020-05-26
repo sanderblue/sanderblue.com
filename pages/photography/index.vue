@@ -33,8 +33,8 @@ import S3 from 'aws-sdk/clients/s3';
 
 const s3 = new S3({
   endpoint: 'sfo2.digitaloceanspaces.com',
-  accessKeyId: 'OKEDT5C5SPIP7MT7FG75',
-  secretAccessKey: 't085pMrS7JUHfM4dbYE/obqQwUspLrMuQ0N4Tqo2cvs',
+  accessKeyId: process.env.DIGITALOCEAN_SPACES_ACCESS_KEY_ID,
+  secretAccessKey: process.env.DIGITALOCEAN_SPACES_ACCESS_SECRET_KEY,
 });
 
 export default Vue.extend({
