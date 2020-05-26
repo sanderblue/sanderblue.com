@@ -1,6 +1,6 @@
 <template>
-  <div id="page" class="container">
-    <div class="relative flex items-center justify-center">
+  <div class="container">
+    <div class="relative flex items-center justify-center px-2">
       <div
         class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-8 mb-16"
       >
@@ -15,8 +15,7 @@
               :src="item.thumbnail"
               alt=""
             />
-
-            <div class="px-6 py-4 bg-white h-40">
+            <div class="px-6 py-4 bg-white h-40 border-t">
               <div class="font-bold text-xl mb-2">{{ item.title }}</div>
               <p class="text-gray-700 text-base">
                 {{ item.description }}
