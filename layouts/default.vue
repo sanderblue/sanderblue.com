@@ -30,10 +30,10 @@ html {
 
 .bg-cover-image {
   background: $bg-gradient,
-    $bg-gradient-color url('/images/20180831-IMGP3418.jpg') no-repeat center
-      center fixed;
+    $bg-gradient-color $bg-image no-repeat center center fixed;
   background-size: cover;
 }
+
 *,
 *:before,
 *:after {
