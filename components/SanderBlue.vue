@@ -18,6 +18,24 @@
 </template>
 
 <style lang="scss" scoped>
+@keyframes animateBubble {
+  0% {
+    top: 0%;
+  }
+  100% {
+    margin-top: 10%;
+  }
+}
+
+@keyframes sideWays {
+  0% {
+    left: -3%;
+  }
+  100% {
+    left: 3%;
+  }
+}
+
 // Styles copied from previous personal website
 .full-name {
   font-size: 2rem;
@@ -47,6 +65,8 @@
         border-radius: 50%;
         position: absolute;
         opacity: 0.5;
+        animation: animateBubble 5s linear infinite,
+          sideWays 2s ease-in-out infinite alternate;
       }
 
       &.s {
