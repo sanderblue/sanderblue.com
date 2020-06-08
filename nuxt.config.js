@@ -5,14 +5,20 @@ export default {
    * Headers of the page
    */
   head: {
-    title: process.env.npm_package_name || '',
+    title: process.env.npm_package_name || 'Sander Blue',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       {
         hid: 'description',
         name: 'description',
-        content: process.env.npm_package_description || '',
+        content:
+          process.env.npm_package_description ||
+          "Hi, my name is Sander Blue and I'm a software engineer.",
+      },
+      {
+        name: 'author',
+        content: 'Sander Blue',
       },
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
