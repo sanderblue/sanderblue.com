@@ -13,7 +13,7 @@
   "dependencies": {
     "@nuxt/content": "^1.0.0",
     "@nuxt/typescript-runtime": "^0.4.0",
-    "aws-sdk": "^2.683.0",
+    "aws-sdk": "^2.1373.0",
     "nuxt": "^2.0.0"
   },
   "devDependencies": {
