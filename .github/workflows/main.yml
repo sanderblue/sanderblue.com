@@ -1,0 +1,89 @@
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      NODE_VERSION: "24"
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || '/var/www/sanderblue' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Detect build directory
+        id: detect
+        run: |
+          # Prefer Next export 'out', then Vite 'dist', then CRA 'build'
+          if [ -d "out" ]; then
+            echo "dir=out" >> $GITHUB_OUTPUT
+          elif [ -d "dist" ]; then
+            echo "dir=dist" >> $GITHUB_OUTPUT
+          elif [ -d "build" ]; then
+            echo "dir=build" >> $GITHUB_OUTPUT
+          else
+            echo "No build directory found (out/, dist/, or build/)."
+            exit 1
+          fi
+          echo "Detected build directory: $(cat $GITHUB_OUTPUT)"
+
+      - name: Prepare artifact
+        run: |
+          mkdir -p artifact
+          cp -r ${{ steps.detect.outputs.dir }}/* artifact/
+
+      - name: Upload artifact (for logs/debug)
+        uses: actions/upload-artifact@v4
+        with:
+          name: static-site
+          path: artifact
+
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+
+      - name: Known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.DO_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Rsync release to droplet
+        run: |
+          RELEASE_DIR="${DEPLOY_PATH}/releases/${GITHUB_SHA}"
+          ssh ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }} "mkdir -p ${RELEASE_DIR}"
+          rsync -az --delete artifact/ ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }}:${RELEASE_DIR}/
+
+      - name: Activate release and prune old
+        run: |
+          CURRENT_LINK="${DEPLOY_PATH}/current"
+          RELEASE_DIR="${DEPLOY_PATH}/releases/${GITHUB_SHA}"
+
+          ssh ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }} bash -lc "
+            set -euo pipefail
+            # Flip symlink atomically
+            ln -sfn ${RELEASE_DIR} ${CURRENT_LINK}
+            # Ensure correct permissions
+            chown -h ${USER}:www-data ${CURRENT_LINK} || true
+            find ${DEPLOY_PATH}/releases -maxdepth 1 -mindepth 1 -type d -printf '%T@ %p\n' \
+              | sort -nr \
+              | awk 'NR>3 {print \$2}' \
+              | xargs -r rm -rf
+            # Reload nginx
+            sudo nginx -t && sudo systemctl reload nginx
+          "
