@@ -5,7 +5,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react"
 const WORDS = ["Software", "AI", "Platform", "Product"] as const
 const INTERVAL_MS = 5000
 
-type TransitionKind = "fade" | "crossBlur"
+type TransitionKind = "fade" | "crossBlur" | "scale"
 
 interface RotatingWordProps {
   className?: string
@@ -39,9 +39,9 @@ export function RotatingWord({ className }: RotatingWordProps) {
     const id = window.setInterval(() => {
       const nextTransition: TransitionKind = isFirstChange.current
         ? "fade"
-        : Math.random() < 0.5
-          ? "fade"
-          : "crossBlur"
+        : (["fade", "crossBlur", "scale"] as const)[
+            Math.floor(Math.random() * 3)
+          ]
       isFirstChange.current = false
       setPrevIndex((_) => index)
       setIndex((i) => (i + 1) % WORDS.length)
@@ -54,10 +54,10 @@ export function RotatingWord({ className }: RotatingWordProps) {
   const measuredWidth = widths[index]
   const widthStyle = measuredWidth ? `${Math.ceil(measuredWidth)}px` : undefined
   const hasStarted = animKey > 0
-  const inAnimClass =
-    transition === "fade" ? "rotating-word-in--fade" : "rotating-word-in--blur"
-  const outAnimClass =
-    transition === "fade" ? "rotating-word-out--fade" : "rotating-word-out--blur"
+  const animSuffix =
+    transition === "fade" ? "fade" : transition === "crossBlur" ? "blur" : "scale"
+  const inAnimClass = `rotating-word-in--${animSuffix}`
+  const outAnimClass = `rotating-word-out--${animSuffix}`
 
   return (
     <>

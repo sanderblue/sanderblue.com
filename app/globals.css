@@ -5,39 +5,69 @@
 
 :root {
   /* Updated color tokens to match the design brief for Sander Blue's minimalist aesthetic */
-  --background: oklch(1 0 0); /* #ffffff */
-  --foreground: oklch(0.556 0.014 258.338); /* #475569 */
-  --card: oklch(0.984 0.013 180.695); /* #ecfeff */
-  --card-foreground: oklch(0.398 0.071 227.392); /* #164e63 */
-  --popover: oklch(1 0 0); /* #ffffff */
-  --popover-foreground: oklch(0.556 0.014 258.338); /* #475569 */
-  --primary: oklch(0.398 0.071 227.392); /* #164e63 */
-  --primary-foreground: oklch(1 0 0); /* #ffffff */
-  --secondary: oklch(0.696 0.17 162.48); /* #10b981 */
-  --secondary-foreground: oklch(1 0 0); /* #ffffff */
-  --muted: oklch(0.976 0.006 258.338); /* #f1f5f9 */
-  --muted-foreground: oklch(0.556 0.014 258.338); /* #475569 */
-  --accent: oklch(0.696 0.17 162.48); /* #10b981 */
-  --accent-foreground: oklch(1 0 0); /* #ffffff */
+  --background: oklch(1 0 0);
+  /* #ffffff */
+  --foreground: oklch(0.556 0.014 258.338);
+  /* #475569 */
+  --card: oklch(0.984 0.013 180.695);
+  /* #ecfeff */
+  --card-foreground: oklch(0.398 0.071 227.392);
+  /* #164e63 */
+  --popover: oklch(1 0 0);
+  /* #ffffff */
+  --popover-foreground: oklch(0.556 0.014 258.338);
+  /* #475569 */
+  --primary: oklch(0.398 0.071 227.392);
+  /* #164e63 */
+  --primary-foreground: oklch(1 0 0);
+  /* #ffffff */
+  --secondary: oklch(0.696 0.17 162.48);
+  /* #10b981 */
+  --secondary-foreground: oklch(1 0 0);
+  /* #ffffff */
+  --muted: oklch(0.976 0.006 258.338);
+  /* #f1f5f9 */
+  --muted-foreground: oklch(0.556 0.014 258.338);
+  /* #475569 */
+  --accent: oklch(0.696 0.17 162.48);
+  /* #10b981 */
+  --accent-foreground: oklch(1 0 0);
+  /* #ffffff */
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.984 0.013 180.695); /* #ecfeff */
-  --input: oklch(1 0 0); /* #ffffff */
-  --ring: oklch(0.696 0.17 162.48 / 0.5); /* rgba(16, 185, 129, 0.5) */
-  --chart-1: oklch(0.627 0.265 162.48); /* #059669 */
-  --chart-2: oklch(0.696 0.17 162.48); /* #10b981 */
-  --chart-3: oklch(0.398 0.071 227.392); /* #164e63 */
-  --chart-4: oklch(0.556 0.014 258.338); /* #475569 */
-  --chart-5: oklch(0.984 0.013 180.695); /* #ecfeff */
+  --border: oklch(0.984 0.013 180.695);
+  /* #ecfeff */
+  --input: oklch(1 0 0);
+  /* #ffffff */
+  --ring: oklch(0.696 0.17 162.48 / 0.5);
+  /* rgba(16, 185, 129, 0.5) */
+  --chart-1: oklch(0.627 0.265 162.48);
+  /* #059669 */
+  --chart-2: oklch(0.696 0.17 162.48);
+  /* #10b981 */
+  --chart-3: oklch(0.398 0.071 227.392);
+  /* #164e63 */
+  --chart-4: oklch(0.556 0.014 258.338);
+  /* #475569 */
+  --chart-5: oklch(0.984 0.013 180.695);
+  /* #ecfeff */
   --radius: 0.5rem;
-  --sidebar: oklch(1 0 0); /* #ffffff */
-  --sidebar-foreground: oklch(0.556 0.014 258.338); /* #475569 */
-  --sidebar-primary: oklch(0.696 0.17 162.48); /* #10b981 */
-  --sidebar-primary-foreground: oklch(1 0 0); /* #ffffff */
-  --sidebar-accent: oklch(0.398 0.071 227.392); /* #164e63 */
-  --sidebar-accent-foreground: oklch(1 0 0); /* #ffffff */
-  --sidebar-border: oklch(0.984 0.013 180.695); /* #ecfeff */
-  --sidebar-ring: oklch(0.696 0.17 162.48 / 0.5); /* rgba(16, 185, 129, 0.5) */
+  --sidebar: oklch(1 0 0);
+  /* #ffffff */
+  --sidebar-foreground: oklch(0.556 0.014 258.338);
+  /* #475569 */
+  --sidebar-primary: oklch(0.696 0.17 162.48);
+  /* #10b981 */
+  --sidebar-primary-foreground: oklch(1 0 0);
+  /* #ffffff */
+  --sidebar-accent: oklch(0.398 0.071 227.392);
+  /* #164e63 */
+  --sidebar-accent-foreground: oklch(1 0 0);
+  /* #ffffff */
+  --sidebar-border: oklch(0.984 0.013 180.695);
+  /* #ecfeff */
+  --sidebar-ring: oklch(0.696 0.17 162.48 / 0.5);
+  /* rgba(16, 185, 129, 0.5) */
   /* Updated font variables to use Inter for sleeker typography */
   --font-inter: "Inter", sans-serif;
   --font-playfair: "Playfair Display", serif;
@@ -126,6 +156,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -140,10 +171,12 @@
   pointer-events: none;
   white-space: nowrap;
 }
-.rotating-word-measurer > span {
+
+.rotating-word-measurer>span {
   display: inline-block;
   margin-right: 1rem;
 }
+
 .rotating-word {
   display: inline-block;
   position: relative;
@@ -151,10 +184,12 @@
   white-space: nowrap;
   transition: width 700ms cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .rotating-word-ruler {
   display: inline-block;
   visibility: hidden;
 }
+
 .rotating-word-layer {
   position: absolute;
   top: 0;
@@ -162,40 +197,111 @@
   white-space: nowrap;
   will-change: opacity, filter;
 }
+
 .rotating-word-in--fade {
   animation: rotating-word-in-fade 700ms ease-out both;
 }
+
 .rotating-word-out--fade {
   animation: rotating-word-out-fade 700ms ease-out both;
 }
+
 .rotating-word-in--blur {
   animation: rotating-word-in-blur 700ms ease-out both;
 }
+
 .rotating-word-out--blur {
   animation: rotating-word-out-blur 700ms ease-out both;
 }
+
 @keyframes rotating-word-in-fade {
-  0%, 50% { opacity: 0; }
-  100% { opacity: 1; }
+
+  0%,
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
+
 @keyframes rotating-word-out-fade {
-  0% { opacity: 1; }
-  50%, 100% { opacity: 0; }
+  0% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
 }
+
 @keyframes rotating-word-in-blur {
-  0% { opacity: 0; filter: blur(8px); }
-  100% { opacity: 1; filter: blur(0); }
+  0% {
+    opacity: 0;
+    filter: blur(8px);
+  }
+
+  100% {
+    opacity: 1;
+    filter: blur(0);
+  }
 }
+
 @keyframes rotating-word-out-blur {
-  0% { opacity: 1; filter: blur(0); }
-  100% { opacity: 0; filter: blur(8px); }
+  0% {
+    opacity: 1;
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 0;
+    filter: blur(8px);
+  }
 }
+
+.rotating-word-in--scale {
+  animation: rotating-word-in-scale 700ms ease-out both;
+}
+
+.rotating-word-out--scale {
+  animation: rotating-word-out-scale 700ms ease-out both;
+}
+
+@keyframes rotating-word-in-scale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rotating-word-out-scale {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+
   .rotating-word,
   .rotating-word-in--fade,
   .rotating-word-out--fade,
   .rotating-word-in--blur,
-  .rotating-word-out--blur {
+  .rotating-word-out--blur,
+  .rotating-word-in--scale,
+  .rotating-word-out--scale {
     transition: none !important;
     animation: none !important;
   }
