@@ -195,7 +195,7 @@
   top: 0;
   left: 0;
   white-space: nowrap;
-  will-change: opacity, filter;
+  will-change: opacity, filter, transform;
 }
 
 .rotating-word-in--fade {
@@ -293,6 +293,74 @@
   }
 }
 
+.rotating-word-in--slide-up {
+  animation: rotating-word-in-slide-up 700ms ease-out both;
+}
+
+.rotating-word-out--slide-up {
+  animation: rotating-word-out-slide-up 700ms ease-out both;
+}
+
+@keyframes rotating-word-in-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(40%);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rotating-word-out-slide-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-40%);
+  }
+}
+
+.rotating-word-in--explode {
+  animation: rotating-word-in-explode 700ms ease-out both;
+}
+
+.rotating-word-out--explode {
+  animation: rotating-word-out-explode 700ms ease-out both;
+}
+
+@keyframes rotating-word-in-explode {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+    filter: blur(6px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes rotating-word-out-explode {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+    filter: blur(6px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
 
   .rotating-word,
@@ -301,7 +369,11 @@
   .rotating-word-in--blur,
   .rotating-word-out--blur,
   .rotating-word-in--scale,
-  .rotating-word-out--scale {
+  .rotating-word-out--scale,
+  .rotating-word-in--slide-up,
+  .rotating-word-out--slide-up,
+  .rotating-word-in--explode,
+  .rotating-word-out--explode {
     transition: none !important;
     animation: none !important;
   }
