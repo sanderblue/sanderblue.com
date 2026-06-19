@@ -1,4 +1,5 @@
 import { Linkedin, Instagram, Github, Mail } from "lucide-react"
+import { RotatingWord } from "@/components/rotating-word"
 
 export default function Home() {
   return (
@@ -17,7 +18,10 @@ export default function Home() {
           {/* Name and Info */}
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-gray-900 mb-2 font-mono">Sander Blue</h1>
-            <p className="text-lg font-mono font-medium mb-3 text-gray-700">Software Engineer</p>
+            <p className="text-lg font-mono font-medium mb-3 text-gray-700">
+              <RotatingWord />
+              {" Engineer"}
+            </p>
             <div className="flex gap-3 justify-start">
               <a
                 href="https://github.com/sanderblue"

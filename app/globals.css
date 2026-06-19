@@ -130,3 +130,73 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Rotating word animation primitives */
+.rotating-word-measurer {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  visibility: hidden;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.rotating-word-measurer > span {
+  display: inline-block;
+  margin-right: 1rem;
+}
+.rotating-word {
+  display: inline-block;
+  position: relative;
+  vertical-align: baseline;
+  white-space: nowrap;
+  transition: width 700ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.rotating-word-ruler {
+  display: inline-block;
+  visibility: hidden;
+}
+.rotating-word-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+  will-change: opacity, filter;
+}
+.rotating-word-in--fade {
+  animation: rotating-word-in-fade 700ms ease-out both;
+}
+.rotating-word-out--fade {
+  animation: rotating-word-out-fade 700ms ease-out both;
+}
+.rotating-word-in--blur {
+  animation: rotating-word-in-blur 700ms ease-out both;
+}
+.rotating-word-out--blur {
+  animation: rotating-word-out-blur 700ms ease-out both;
+}
+@keyframes rotating-word-in-fade {
+  0%, 50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes rotating-word-out-fade {
+  0% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@keyframes rotating-word-in-blur {
+  0% { opacity: 0; filter: blur(8px); }
+  100% { opacity: 1; filter: blur(0); }
+}
+@keyframes rotating-word-out-blur {
+  0% { opacity: 1; filter: blur(0); }
+  100% { opacity: 0; filter: blur(8px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rotating-word,
+  .rotating-word-in--fade,
+  .rotating-word-out--fade,
+  .rotating-word-in--blur,
+  .rotating-word-out--blur {
+    transition: none !important;
+    animation: none !important;
+  }
+}
