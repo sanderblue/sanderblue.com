@@ -1,0 +1,221 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><script>(function(l){if(l.protocol!=="file:"&&!/(\/|\.html?)$/.test(l.pathname))l.replace(l.pathname+"/"+l.search+l.hash)})(location)</script><style>[hidden]{display:none!important}</style></head><body style="margin:0">
+<title>Rime Cabin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+<!--@include styles.css-->
+</style>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Owner-built mountain cabin &middot; 24 &times; 32 ft &middot; 4,000 to 8,000 ft &middot; Rev <span id="rev">B</span></span>
+    <h1>Rime Cabin</h1>
+    <p class="lede">A small getaway for one, built for snow. Two bedrooms, one shower, and a living room that takes up most of the floor. Heated by propane, a wood stove, or both.</p>
+    <div class="facts">
+      <span>768 sq ft</span><span>2 bed &middot; 1 bath</span><span>4:12 shed roof</span><span>Est. <b id="stat-total">$207k</b> built, <b id="stat-sf">$200 per sq ft, house</b></span>
+    </div>
+    <nav class="jump" aria-label="Sections">
+      <a href="#model">3D model</a><a href="#plan-sec">Plan</a><a href="#cost">Cost</a><a href="#build">Build</a><a href="#drawings">Drawings</a><a href="#checks">Checks</a><a href="#notes">Notes</a>
+    </nav>
+  </header>
+
+  <section class="sec" id="model" aria-labelledby="h-model">
+    <h2 id="h-model">Walk around it</h2>
+    <div class="stage">
+      <div id="viewer">
+        <canvas id="cv" aria-label="Interactive 3D model of the cabin. Drag to orbit, scroll to zoom, click a part for details."></canvas>
+        <div id="dimlayer"></div>
+        <div class="bar">
+          <div role="group" aria-label="Camera views">
+            <button type="button" class="chip" data-view="se" aria-pressed="true">Outside</button>
+            <button type="button" class="chip" data-view="nw" aria-pressed="false">Back</button>
+            <button type="button" class="chip" data-view="inside" aria-pressed="false">Inside</button>
+            <button type="button" class="chip" data-view="plan" aria-pressed="false">Plan</button>
+            <button type="button" class="chip" data-view="garage" aria-pressed="false">Garage</button>
+            <span class="elev" role="group" aria-label="Elevations"><button type="button" class="chip sm" data-view="N" aria-pressed="false" title="North elevation">N</button><button type="button" class="chip sm" data-view="E" aria-pressed="false" title="East elevation">E</button><button type="button" class="chip sm" data-view="S" aria-pressed="false" title="South elevation">S</button><button type="button" class="chip sm" data-view="W" aria-pressed="false" title="West elevation">W</button></span>
+          </div>
+          <div role="group" aria-label="Show or hide">
+            <button type="button" class="chip" data-toggle="roof" aria-pressed="true">Roof</button>
+            <button type="button" class="chip" data-toggle="snow" aria-pressed="false">Snow</button>
+            <button type="button" class="chip" data-toggle="see" aria-pressed="false">See-through</button>
+            <button type="button" class="chip" data-toggle="dims" aria-pressed="false">Sizes</button>
+          </div>
+        </div>
+        <div id="info" class="info" hidden></div>
+        <div class="sunbar">
+          <div class="seasons" role="group" aria-label="Season">
+            <button type="button" class="chip" data-season="winter" aria-pressed="true">Winter</button>
+            <button type="button" class="chip" data-season="summer" aria-pressed="false">Summer</button>
+          </div>
+          <input type="range" id="hour" min="6" max="18" step="0.5" value="12" aria-label="Time of day">
+          <span id="sunread"></span>
+        </div>
+        <div id="glnote" hidden><p>The 3D view needs WebGL, and this browser does not offer it. The plan, costs and drawings below still work.</p></div>
+      </div>
+      <aside class="rail" aria-label="Model controls">
+        <div class="card">
+          <h3>Take it apart</h3>
+          <label class="slider"><span>Explode</span><input type="range" id="explode" min="0" max="100" step="1" value="0" aria-label="Explode layers"><output id="explode-out">0%</output></label>
+          <div class="cutrow">
+            <span class="mini">Section cut</span>
+            <div class="seg" role="group" aria-label="Section cut">
+              <button type="button" class="segbtn sm" data-cut="" aria-pressed="true">Off</button>
+              <button type="button" class="segbtn sm" data-cut="x" aria-pressed="false">From east</button>
+              <button type="button" class="segbtn sm" data-cut="z" aria-pressed="false">From south</button>
+              <button type="button" class="segbtn sm" data-cut="y" aria-pressed="false">From top</button>
+            </div>
+            <input type="range" id="cutpos" min="0" max="32" step="0.25" value="12" aria-label="Cut position" disabled>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Layers</h3>
+          <div class="seg" role="group" aria-label="Layer sets">
+            <button type="button" class="segbtn sm" data-set="finished" aria-pressed="true">Finished</button>
+            <button type="button" class="segbtn sm" data-set="framing" aria-pressed="false">Framing</button>
+            <button type="button" class="segbtn sm" data-set="systems" aria-pressed="false">Systems</button>
+            <button type="button" class="segbtn sm" data-set="all" aria-pressed="false">All</button>
+          </div>
+          <ul id="layers" class="layers"></ul>
+        </div>
+        <div class="card">
+          <h3>Rooms</h3>
+          <div id="roomlist"></div>
+          <p id="roominfo">Pick a room. The roof lifts so you can see it.</p>
+        </div>
+      </aside>
+    </div>
+    <p class="hint">Drag to orbit. Scroll or pinch to zoom. Click any part to see what it is, what it costs and which drawing shows it.</p>
+  </section>
+
+  <section class="sec" id="plan-sec" aria-labelledby="h-plan">
+    <h2 id="h-plan">The plan</h2>
+    <p class="hint planhint">Slide the plan sideways to see the bedrooms.</p>
+    <div class="two">
+      <div class="planbox"><svg id="plan" role="img" aria-label="Floor plan, north at the top"></svg></div>
+      <ul id="tricks"></ul>
+    </div>
+  </section>
+
+  <section class="sec" id="cost" aria-labelledby="h-cost">
+    <h2 id="h-cost">What it costs</h2>
+    <p>Prices are 2026 dollars with mountain delivery. You do most of the building. Change a choice and the 3D model, drawings and totals all follow. The small number on a button is what switching to it does to the total.</p>
+    <div class="ctlbox" id="ctl"></div>
+    <div class="costtop">
+      <div id="totals"></div>
+    </div>
+    <div class="two even">
+      <div class="panel"><h3>By system</h3><div id="bysys"></div></div>
+      <div class="panel"><h3>Summary</h3><table class="sum" id="summary"></table></div>
+    </div>
+    <div class="tablehead">
+      <h3>Parts list <span class="count" id="bomcount"></span></h3>
+      <div class="tools">
+        <button type="button" class="segbtn sm" id="openall">Open all</button>
+        <button type="button" class="segbtn sm" id="grouptoggle" aria-pressed="true">Group by system</button>
+        <button type="button" class="btn sm" id="dl-csv" hidden>Download CSV</button>
+      </div>
+    </div>
+    <div class="tablewrap"><table id="bom"></table></div>
+    <p class="legend"><span class="chk" style="margin:0">&#9679;</span> Price compared with a 2026 source. No dot means my estimate. Click a system to open it, or a column name to sort every line. &ldquo;Sheet&rdquo; is the drawing that shows the part.</p>
+    <div class="two even">
+      <div>
+        <h3>Not in the total</h3>
+        <p class="sub">These depend on your lot. They can add up to as much as the cabin itself, so check them before you buy land.</p>
+        <div class="tablewrap"><table style="min-width:420px"><tbody id="site"></tbody></table></div>
+      </div>
+      <div>
+        <h3>Ways to spend less</h3>
+        <p class="sub">Savings include tax and the surprise fund. Ones marked as my estimate are not in the model yet.</p>
+        <div class="tablewrap"><table style="min-width:420px"><tbody id="ve"></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="build" aria-labelledby="h-build">
+    <h2 id="h-build">How it gets built</h2>
+    <p id="buildlede"></p>
+    <div class="panel ganttbox"><div id="gantt"></div></div>
+    <div class="cards4">
+      <div class="panel"><h3>Deliveries</h3><ol id="drops" class="plain"></ol></div>
+      <div class="panel"><h3>Rentals and trades</h3><ul id="trades" class="plain"></ul></div>
+      <div class="panel"><h3>Inspections</h3><ol id="insp" class="plain"></ol></div>
+      <div class="panel"><h3>Season and altitude</h3><ul id="weather" class="plain"></ul></div>
+    </div>
+  </section>
+
+  <section class="sec" id="drawings" aria-labelledby="h-dwg">
+    <h2 id="h-dwg">Drawings</h2>
+    <p>Drawn from the same data as the model and the parts list, so they change when you change a choice above. For planning and permit prep only. The single-sheet download matches your current choices; the PDF set shows the default choices.</p>
+    <div class="dwgbar">
+      <div class="seg" id="sheetlist" role="group" aria-label="Sheets"></div>
+    </div>
+    <div class="dwgtools">
+      <span id="sheettitle" class="sheettitle"></span>
+      <span class="seg" role="group" aria-label="Zoom">
+        <button type="button" class="segbtn sm" data-zoom="1" aria-pressed="true">Fit</button>
+        <button type="button" class="segbtn sm" data-zoom="2" aria-pressed="false">2&times;</button>
+        <button type="button" class="segbtn sm" data-zoom="4" aria-pressed="false">4&times;</button>
+      </span>
+      <button type="button" class="btn sm" id="dl-svg" hidden>This sheet (SVG)</button>
+      <button type="button" class="btn sm" id="dl-pdf" hidden>Drawing set (PDF)</button>
+    </div>
+    <div id="sheetbox" class="sheetbox" tabindex="0" aria-label="Drawing sheet. Scroll to pan when zoomed."></div>
+  </section>
+
+  <section class="sec" id="checks" aria-labelledby="h-checks">
+    <h2 id="h-checks">Checks</h2>
+    <p>Run on the model every time you change a choice. &ldquo;Engineer&rdquo; means a licensed engineer must confirm it.</p>
+    <div class="tablewrap"><table id="checktable" style="min-width:560px"></table></div>
+    <div class="two even">
+      <div><h3>What I assumed</h3><ul id="assume" class="plain"></ul></div>
+      <div><h3>What I could not verify</h3><ul id="unver" class="plain"></ul></div>
+    </div>
+  </section>
+
+  <section class="sec" id="notes" aria-labelledby="h-notes">
+    <h2 id="h-notes">Good to know</h2>
+    <div class="notes">
+      <div><h3>Snow</h3><p>Mountain counties set their own snow load, often 40 to 120 pounds per square foot or more depending on elevation and town. The model lets you pick 60, 100 or 150. Rafter spacing, headers and pier footings change with it. An engineer sizes the real members.</p></div>
+      <div><h3>Heat</h3><p>My rough estimate is 15,000 to 19,000 BTU an hour at 0 to &minus;15&deg;F. The 21,500 BTU propane furnace turns down to 8,200, so it fits. A wood stove of 25,000 to 35,000 BTU will run hot; burn small, hot fires. A three-week winter stay uses roughly 60 to 90 gallons of propane (my estimate).</p></div>
+      <div><h3>Walls and roof</h3><p>Fiber-cement board and batten, not metal, which holds up in wildfire zones. The roof is a true cold roof: an air channel above the lower deck keeps the metal cold so snow does not melt and refreeze at the eave. Nothing sits under the low north eave except snow.</p></div>
+      <div><h3>Between trips</h3><p>Every water line runs inside the insulated floor, never in an outside wall. Drain the house at the low-point valve under the kitchen sink, blow out the lines, and add RV antifreeze to the traps before you leave it cold.</p></div>
+      <div><h3>Prices checked</h3>
+        <ul class="src" id="sources"></ul>
+      </div>
+      <div><h3>Downloads</h3><p id="dlnote">Parts list as a spreadsheet file, the data model, and the drawing set.</p>
+        <div class="dlrow"><button type="button" class="btn sm" id="dl-csv2" hidden>Parts list (CSV)</button><button type="button" class="btn sm" id="dl-json" hidden>Data model (JSON)</button><button type="button" class="btn sm" id="dl-pdf2" hidden>Drawing set (PDF)</button></div>
+      </div>
+    </div>
+    <p class="disclaimer" id="disclaimer"></p>
+  </section>
+</div>
+<script>
+<!--@include vendor/three.min.js-->
+</script><script>
+<!--@include vendor/OrbitControls.js-->
+</script>
+<script>var MODEL = <!--@include model.json-->;</script>
+<script>
+<!--@include engine/core.js-->
+<!--@include engine/skins.js-->
+<!--@include engine/systems.js-->
+<!--@include engine/garage.js-->
+<!--@include engine/structure.js-->
+<!--@include engine/generate.js-->
+<!--@include scene.js-->
+<!--@include viewer.js-->
+<!--@include plan.js-->
+<!--@include drawings/frame.js-->
+<!--@include drawings/projections.js-->
+<!--@include drawings/architectural.js-->
+<!--@include drawings/general.js-->
+<!--@include drawings/garage.js-->
+<!--@include drawings/mep.js-->
+<!--@include drawings/site-structural.js-->
+<!--@include page/app.js-->
+<!--@include page/cost.js-->
+<!--@include page/build.js-->
+<!--@include page/drawings.js-->
+APP.start();
+</script>
+
+</body></html>

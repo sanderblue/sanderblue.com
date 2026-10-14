@@ -1,0 +1,8508 @@
+{
+ "meta": {
+  "name": "Rime Cabin",
+  "project": "Owner-built mountain cabin",
+  "rev": "F",
+  "revDate": "2026-10-10",
+  "revNote": "Shared data model. Framing, foundation options, plumbing, wiring, vents. Drawing set. Fixes from an independent review.",
+  "revHistory": [
+   [
+    "A",
+    "2026-10-08",
+    "Concept model and estimate"
+   ],
+   [
+    "B",
+    "2026-10-09",
+    "Data model, framing, systems, drawings; review fixes"
+   ],
+   [
+    "C",
+    "2026-10-09",
+    "Attached 1-car garage; panel, meter and hood duct moved for it"
+   ],
+   [
+    "D",
+    "2026-10-10",
+    "North roof extended to the garage eave: covered open-air area"
+   ],
+   [
+    "E",
+    "2026-10-10",
+    "Garage roof carried south over the entry; new entry deck"
+   ],
+   [
+    "F",
+    "2026-10-10",
+    "Structural fixes: floor raised 7 in, footings sized from loads, simple-span rafters, garage roof joined to the house, new posts and headers, steel glass-wall posts, wind bracing with hold-down piers"
+   ]
+  ],
+  "owner": "Sander Blue",
+  "drawnBy": "Claude (AI)",
+  "site": "Summit County, Colorado (Breckenridge area), about 9,500 to 10,000 ft. Lot not chosen yet.",
+  "status": "FOR PLANNING AND PERMIT PREP ONLY. NOT FOR CONSTRUCTION.",
+  "disclaimer": "This design is for planning and permit preparation. Structural members, foundations, snow and wind loads, and all code items must be reviewed and stamped by a licensed engineer and approved by the local building department before construction.",
+  "units": "Feet. Plan X runs west to east (0 to 32). Plan Z runs north to south (0 to 24). Y is height above finished grade."
+ },
+ "inputs": {
+  "defaults": {
+   "found": "piers",
+   "snow": "100",
+   "heat": "both",
+   "power": "grid",
+   "glass": "full",
+   "roof": "seam",
+   "loft": false,
+   "wd": true,
+   "help": true,
+   "garage": true,
+   "cover": true,
+   "entry": true
+  },
+  "lean": {
+   "found": "piers",
+   "snow": "100",
+   "heat": "propane",
+   "power": "grid",
+   "glass": "lean",
+   "roof": "rib",
+   "loft": false,
+   "wd": false,
+   "help": false,
+   "garage": true,
+   "cover": false,
+   "entry": false
+  },
+  "options": [
+   {
+    "key": "found",
+    "label": "Foundation",
+    "list": [
+     [
+      "piers",
+      "Concrete piers"
+     ],
+     [
+      "crawl",
+      "Insulated crawlspace"
+     ]
+    ]
+   },
+   {
+    "key": "snow",
+    "label": "Roof snow load",
+    "list": [
+     [
+      "60",
+      "60 psf"
+     ],
+     [
+      "100",
+      "100 psf"
+     ],
+     [
+      "150",
+      "150 psf"
+     ]
+    ]
+   },
+   {
+    "key": "heat",
+    "label": "Heat",
+    "list": [
+     [
+      "both",
+      "Propane + wood stove"
+     ],
+     [
+      "propane",
+      "Propane only"
+     ],
+     [
+      "wood",
+      "Wood stove only"
+     ]
+    ]
+   },
+   {
+    "key": "power",
+    "label": "Power",
+    "list": [
+     [
+      "grid",
+      "Utility power"
+     ],
+     [
+      "off",
+      "Off-grid solar"
+     ]
+    ]
+   },
+   {
+    "key": "glass",
+    "label": "South glass",
+    "list": [
+     [
+      "full",
+      "Full wall, 3 bays"
+     ],
+     [
+      "lean",
+      "Lean, 2 bays"
+     ]
+    ]
+   },
+   {
+    "key": "roof",
+    "label": "Roof metal",
+    "list": [
+     [
+      "seam",
+      "Standing seam"
+     ],
+     [
+      "rib",
+      "Ribbed panels"
+     ]
+    ]
+   }
+  ],
+  "switches": [
+   [
+    "garage",
+    "Attached garage"
+   ],
+   [
+    "cover",
+    "Covered area, north"
+   ],
+   [
+    "entry",
+    "Covered entry, west"
+   ],
+   [
+    "loft",
+    "Gear loft + spiral stair"
+   ],
+   [
+    "wd",
+    "Washer-dryer"
+   ],
+   [
+    "help",
+    "Paid framing help"
+   ]
+  ]
+ },
+ "rates": {
+  "tax": 0.075,
+  "taxNote": "Sales tax on materials, about 7.5% (my estimate; Colorado state plus county and town rates vary by lot)",
+  "contingency": 0.1
+ },
+ "geo": {
+  "W": 32,
+  "D": 24,
+  "ff": 2.5833,
+  "ceil": 9,
+  "rise": 0.333333,
+  "eaveN": 1.5,
+  "eaveS": 3,
+  "rake": 1.5,
+  "t6": 0.4583,
+  "t4": 0.2917,
+  "plate": 0.125,
+  "dw": 0.0417,
+  "zip": 0.12,
+  "siding": 0.11,
+  "joist": 0.9896,
+  "sub": 0.0625,
+  "beamW": 0.4375,
+  "rim": 0.0938,
+  "oc": 1.3333,
+  "frost": 4,
+  "tube": 1,
+  "ftgH": 0.83,
+  "deck1": 0.052,
+  "sleeper": 0.2917,
+  "deck2": 0.042,
+  "metal": 0.06,
+  "pine": 0.0625,
+  "cj": 0.7708,
+  "loftDeck": 0.0625
+ },
+ "structure": {
+  "60": {
+   "rafter": "ROF-IJ16",
+   "oc": 16,
+   "hdrS": "2-ply 1 3/4 x 11 7/8 LVL",
+   "rafterTxt": "16 in heavy-flange I-joist at 16 in o.c.",
+   "pier": "12 in tube on a bell footing sized from the loads (see S-101)"
+  },
+  "100": {
+   "rafter": "ROF-IJ16",
+   "oc": 12,
+   "hdrS": "2-ply 1 3/4 x 11 7/8 LVL",
+   "rafterTxt": "16 in heavy-flange I-joist at 12 in o.c.",
+   "pier": "12 in tube on a bell footing sized from the loads (see S-101)"
+  },
+  "150": {
+   "rafter": "ROF-LVL16",
+   "oc": 12,
+   "hdrS": "3-ply 1 3/4 x 11 7/8 LVL",
+   "rafterTxt": "1 3/4 x 16 LVL at 12 in o.c.",
+   "pier": "12 in tube on a bell footing sized from the loads (see S-101)"
+  },
+  "dead": 21,
+  "wind": "115 mph, Exposure C (Summit County lists 115 mph; C in open areas, B where treed)",
+  "soil": "2,000 psf presumptive (assumed; get a soils report)",
+  "frost": "48 in used (Summit County lists 40 in; verify for the lot)",
+  "pierX": [
+   0.7,
+   6.82,
+   12.94,
+   19.06,
+   25.18,
+   31.3
+  ],
+  "beamZ": [
+   0.21875,
+   15.3,
+   23.78125
+  ],
+  "deadOpen": 17,
+  "floorDead": 12,
+  "seismic": "Seismic Design Category B (Summit County)",
+  "snowNote": "Summit County gives roof snow loads directly, 70 to 100 psf by subdivision. The model uses the chosen value everywhere, garage included."
+ },
+ "rooms": [
+  {
+   "id": "living",
+   "name": "Living / kitchen / entry",
+   "b": [
+    0.5,
+    21.8125,
+    0.5,
+    23.5
+   ],
+   "ceil": "vault",
+   "note": "One tall room. Gear bay by the door, kitchenette on the north wall, stove and sofa in the middle, desk at the glass."
+  },
+  {
+   "id": "br1",
+   "name": "Bedroom 1",
+   "b": [
+    22.1875,
+    31.5,
+    0.5,
+    9.7292
+   ],
+   "ceil": 9,
+   "bed": true,
+   "note": "Queen platform bed with drawers. Sliding door. Egress casement on the east wall."
+  },
+  {
+   "id": "bath",
+   "name": "Bath + laundry",
+   "b": [
+    22.1875,
+    31.5,
+    10.2708,
+    15.1125
+   ],
+   "ceil": 9,
+   "note": "34 x 36 in shower with 24 in clear in front, toilet, 18 in vanity. Washer-dryer, tankless water heater and the water manifold share the southeast corner."
+  },
+  {
+   "id": "br2",
+   "name": "Bedroom 2",
+   "b": [
+    22.1875,
+    31.5,
+    15.4875,
+    23.5
+   ],
+   "ceil": 9,
+   "bed": true,
+   "note": "Twin bunks for a guest or your daughter. Egress casement on the south wall."
+  }
+ ],
+ "walls": [
+  {
+   "id": "N",
+   "name": "North wall",
+   "axis": "x",
+   "u": [
+    0,
+    32
+   ],
+   "face": 0,
+   "in": 1,
+   "bearing": true
+  },
+  {
+   "id": "S",
+   "name": "South wall",
+   "axis": "x",
+   "u": [
+    0,
+    32
+   ],
+   "face": 24,
+   "in": -1,
+   "bearing": true
+  },
+  {
+   "id": "W",
+   "name": "West wall",
+   "axis": "z",
+   "u": [
+    0.4583,
+    23.5417
+   ],
+   "face": 0,
+   "in": 1,
+   "bearing": false
+  },
+  {
+   "id": "E",
+   "name": "East wall",
+   "axis": "z",
+   "u": [
+    0.4583,
+    23.5417
+   ],
+   "face": 32,
+   "in": -1,
+   "bearing": false
+  }
+ ],
+ "openings": [
+  {
+   "id": "N1",
+   "wall": "N",
+   "it": "OPN-AWN30",
+   "u": [
+    11,
+    13.5
+   ],
+   "v": [
+    4,
+    6.5
+   ],
+   "note": "Over the sink"
+  },
+  {
+   "id": "N2",
+   "wall": "N",
+   "it": "OPN-CAS36",
+   "u": [
+    17.5,
+    20.5
+   ],
+   "v": [
+    3.5,
+    6.5
+   ],
+   "note": "By the table, opens for cross-breeze"
+  },
+  {
+   "id": "S4",
+   "wall": "S",
+   "it": "OPN-EGR",
+   "u": [
+    24.2,
+    27.2
+   ],
+   "v": [
+    3,
+    7
+   ],
+   "room": "br2",
+   "egress": true
+  },
+  {
+   "id": "E1",
+   "wall": "E",
+   "it": "OPN-EGR",
+   "u": [
+    3.5,
+    6.5
+   ],
+   "v": [
+    3,
+    7
+   ],
+   "room": "br1",
+   "egress": true
+  },
+  {
+   "id": "E2",
+   "wall": "E",
+   "it": "OPN-LOFTWIN",
+   "u": [
+    19.8,
+    22.8
+   ],
+   "v": [
+    10.6,
+    13.6
+   ],
+   "when": {
+    "loft": [
+     true
+    ]
+   },
+   "note": "Loft light and air"
+  },
+  {
+   "id": "W1",
+   "wall": "W",
+   "it": "OPN-ENTRY",
+   "u": [
+    14.5,
+    17.5
+   ],
+   "v": [
+    0,
+    6.9
+   ],
+   "door": true
+  },
+  {
+   "id": "W3",
+   "wall": "W",
+   "it": "OPN-FIX38",
+   "u": [
+    19.8,
+    23
+   ],
+   "hd": 0.46,
+   "tiers": [
+    [
+     0.9,
+     6.9,
+     "OPN-FIX38"
+    ],
+    [
+     7.05,
+     13,
+     "OPN-FIX38"
+    ],
+    [
+     13.15,
+     14.8,
+     "OPN-FIX38T"
+    ]
+   ],
+   "note": "Tall corner window, half a south bay wide. Mullions line up with the south glass"
+  },
+  {
+   "id": "W4",
+   "wall": "W",
+   "it": "OPN-FIX36T",
+   "u": [
+    14.5,
+    17.5
+   ],
+   "v": [
+    8.25,
+    13
+   ],
+   "hd": 0.46,
+   "over": "W1",
+   "note": "Clerestory over the entry door, above the porch roof. Head lines up with the glass mullions"
+  },
+  {
+   "id": "GH",
+   "wall": "W",
+   "it": "GAR-HDOOR",
+   "u": [
+    2.25,
+    5.25
+   ],
+   "v": [
+    0,
+    6.9
+   ],
+   "door": true,
+   "solid": true,
+   "when": {
+    "garage": [
+     true
+    ]
+   },
+   "note": "Door to the garage by the gear bench. Solid-core steel, self-closing and self-latching"
+  }
+ ],
+ "southBays": {
+  "full": [
+   [
+    1,
+    7.4
+   ],
+   [
+    8,
+    14.4
+   ],
+   [
+    15,
+    21.4
+   ]
+  ],
+  "lean": [
+   [
+    2,
+    8.4
+   ],
+   [
+    13,
+    19.4
+   ]
+  ],
+  "tiers": [
+   [
+    0.9,
+    6.9,
+    "OPN-FIX77"
+   ],
+   [
+    7.05,
+    13,
+    "OPN-FIX77"
+   ],
+   [
+    13.15,
+    15.5,
+    "top"
+   ]
+  ],
+  "header": [
+   15.6,
+   16.59
+  ]
+ },
+ "partitions": [
+  {
+   "id": "P1",
+   "axis": "z",
+   "u": [
+    0.4583,
+    23.5417
+   ],
+   "c": 22,
+   "t": 0.2917,
+   "doors": [
+    {
+     "id": "D2",
+     "room": "br1",
+     "u": [
+      3,
+      5.8
+     ],
+     "slide": 1
+    },
+    {
+     "id": "D3",
+     "room": "bath",
+     "u": [
+      12.6,
+      15
+     ],
+     "slide": 1
+    },
+    {
+     "id": "D4",
+     "room": "br2",
+     "u": [
+      17.9,
+      20.6
+     ],
+     "slide": 1
+    }
+   ]
+  },
+  {
+   "id": "P2",
+   "axis": "x",
+   "u": [
+    22.146,
+    31.5417
+   ],
+   "c": 10,
+   "t": 0.4583,
+   "wet": true
+  },
+  {
+   "id": "P3",
+   "axis": "x",
+   "u": [
+    22.146,
+    31.5417
+   ],
+   "c": 15.3,
+   "t": 0.2917
+  }
+ ],
+ "stair": {
+  "c": [
+   19.5,
+   10.6
+  ],
+  "r": 2.25,
+  "risers": 13,
+  "it": "LFT-STAIR"
+ },
+ "fixtures": [
+  {
+   "n": "Queen bed platform",
+   "it": "INT-BUILTIN",
+   "m": "wood",
+   "b": [
+    24.5,
+    0,
+    0.6,
+    5,
+    1.4,
+    6.7
+   ]
+  },
+  {
+   "n": "Queen mattress",
+   "it": "INT-FURN",
+   "m": "white",
+   "b": [
+    24.5,
+    1.4,
+    0.7,
+    5,
+    0.5,
+    6.5
+   ]
+  },
+  {
+   "n": "Pillow",
+   "it": "INT-FURN",
+   "m": "fab",
+   "b": [
+    24.8,
+    1.9,
+    0.9,
+    2,
+    0.35,
+    1.1
+   ]
+  },
+  {
+   "n": "Pillow",
+   "it": "INT-FURN",
+   "m": "fab",
+   "b": [
+    27.2,
+    1.9,
+    0.9,
+    2,
+    0.35,
+    1.1
+   ]
+  },
+  {
+   "n": "Wardrobe",
+   "it": "INT-BUILTIN",
+   "m": "wood",
+   "b": [
+    22.4,
+    0,
+    8.7,
+    1.6,
+    6.2,
+    0.9
+   ]
+  },
+  {
+   "n": "Lower bunk",
+   "it": "INT-BUILTIN",
+   "m": "white",
+   "b": [
+    28.2,
+    1.2,
+    15.8,
+    3.3,
+    0.5,
+    6.6
+   ]
+  },
+  {
+   "n": "Upper bunk",
+   "it": "INT-BUILTIN",
+   "m": "white",
+   "b": [
+    28.2,
+    4.4,
+    15.8,
+    3.3,
+    0.5,
+    6.6
+   ]
+  },
+  {
+   "n": "Bunk post",
+   "it": "INT-BUILTIN",
+   "m": "wood",
+   "b": [
+    28.2,
+    0,
+    15.8,
+    0.2,
+    5.4,
+    0.2
+   ]
+  },
+  {
+   "n": "Bunk post",
+   "it": "INT-BUILTIN",
+   "m": "wood",
+   "b": [
+    31.1,
+    0,
+    15.8,
+    0.2,
+    5.4,
+    0.2
+   ]
+  },
+  {
+   "n": "Bunk post",
+   "it": "INT-BUILTIN",
+   "m": "wood",
+   "b": [
+    28.2,
+    0,
+    22.2,
+    0.2,
+    5.4,
+    0.2
+   ]
+  },
+  {
+   "n": "Bunk post",
+   "it": "INT-BUILTIN",
+   "m": "wood",
+   "b": [
+    31.1,
+    0,
+    22.2,
+    0.2,
+    5.4,
+    0.2
+   ]
+  },
+  {
+   "n": "Bunk bedding",
+   "it": "INT-FURN",
+   "m": "fab",
+   "b": [
+    28.2,
+    4.9,
+    20.2,
+    3.3,
+    0.35,
+    2
+   ]
+  },
+  {
+   "n": "Shower pan",
+   "it": "FIX-SHOWER",
+   "m": "white",
+   "b": [
+    28.5,
+    0,
+    10.2708,
+    3,
+    0.25,
+    2.829
+   ]
+  },
+  {
+   "n": "Shower glass, south",
+   "it": "FIX-SHOWER",
+   "m": "glass",
+   "b": [
+    28.5,
+    0.25,
+    13.05,
+    3,
+    6.5,
+    0.05
+   ]
+  },
+  {
+   "n": "Shower glass and door, west",
+   "it": "FIX-SHOWER",
+   "m": "glass",
+   "b": [
+    28.5,
+    0.25,
+    10.2708,
+    0.05,
+    6.5,
+    2.83
+   ]
+  },
+  {
+   "n": "Toilet bowl",
+   "it": "FIX-TOILET",
+   "m": "white",
+   "b": [
+    23.25,
+    0,
+    10.85,
+    0.9,
+    1.3,
+    1.75
+   ]
+  },
+  {
+   "n": "Toilet tank",
+   "it": "FIX-TOILET",
+   "m": "white",
+   "b": [
+    23,
+    1.3,
+    10.2708,
+    1.4,
+    1.1,
+    0.6
+   ]
+  },
+  {
+   "n": "Vanity",
+   "it": "FIX-VANITY",
+   "m": "wood",
+   "b": [
+    25,
+    0,
+    10.2708,
+    1.5,
+    2.75,
+    1.5
+   ]
+  },
+  {
+   "n": "Vanity top",
+   "it": "FIX-VANITY",
+   "m": "white",
+   "b": [
+    25,
+    2.75,
+    10.2708,
+    1.5,
+    0.1,
+    1.55
+   ]
+  },
+  {
+   "n": "Mirror",
+   "it": "FIX-VANITY",
+   "m": "steel",
+   "b": [
+    25.1,
+    4.2,
+    10.2708,
+    1.3,
+    2.2,
+    0.05
+   ]
+  },
+  {
+   "n": "Washer-dryer combo",
+   "it": "FIX-WD",
+   "m": "white",
+   "b": [
+    28.9,
+    0,
+    13.1,
+    2.1,
+    2.8,
+    2
+   ],
+   "when": {
+    "wd": [
+     true
+    ]
+   }
+  },
+  {
+   "n": "Tankless water heater",
+   "it": "MEC-WH",
+   "m": "steel",
+   "b": [
+    31,
+    4.3,
+    13.4,
+    0.5,
+    2.2,
+    1.5
+   ]
+  },
+  {
+   "n": "Water manifold",
+   "it": "PLB-MANIFOLD",
+   "m": "steel",
+   "b": [
+    31.3,
+    3.1,
+    13.35,
+    0.2,
+    0.7,
+    1.3
+   ]
+  },
+  {
+   "n": "Gear bench",
+   "it": "INT-BUILTIN",
+   "m": "wood",
+   "b": [
+    0.6,
+    0,
+    0.6,
+    5,
+    1.5,
+    1.2
+   ]
+  },
+  {
+   "n": "Hook rail and boot shelf",
+   "it": "INT-BUILTIN",
+   "m": "cedar",
+   "b": [
+    0.6,
+    4.6,
+    0.55,
+    5,
+    2.4,
+    0.15
+   ]
+  },
+  {
+   "n": "Jacket",
+   "it": "INT-FURN",
+   "m": "fab",
+   "b": [
+    1.2,
+    4,
+    0.75,
+    0.5,
+    1.6,
+    0.2
+   ]
+  },
+  {
+   "n": "Jacket",
+   "it": "INT-FURN",
+   "m": "fab2",
+   "b": [
+    2.2,
+    4,
+    0.75,
+    0.5,
+    1.6,
+    0.2
+   ]
+  },
+  {
+   "n": "Jacket",
+   "it": "INT-FURN",
+   "m": "fab",
+   "b": [
+    3.2,
+    4,
+    0.75,
+    0.5,
+    1.6,
+    0.2
+   ]
+  },
+  {
+   "n": "Snowboard",
+   "it": "INT-FURN",
+   "m": "fab2",
+   "b": [
+    6.2,
+    0,
+    0.65,
+    1,
+    5.3,
+    0.12
+   ]
+  },
+  {
+   "n": "Snowboard",
+   "it": "INT-FURN",
+   "m": "fab",
+   "b": [
+    7,
+    0,
+    0.65,
+    1,
+    5.3,
+    0.12
+   ]
+  },
+  {
+   "n": "Refrigerator",
+   "it": "FIX-FRIDGE",
+   "m": "steel",
+   "b": [
+    8.6,
+    0,
+    0.5,
+    2,
+    5.5,
+    2.1
+   ]
+  },
+  {
+   "n": "Base cabinets",
+   "it": "INT-CAB",
+   "m": "fab",
+   "b": [
+    10.6,
+    0,
+    0.5,
+    5.5,
+    2.9,
+    2
+   ]
+  },
+  {
+   "n": "Counter",
+   "it": "INT-CAB",
+   "m": "wood",
+   "b": [
+    10.6,
+    2.9,
+    0.5,
+    5.5,
+    0.15,
+    2.1
+   ]
+  },
+  {
+   "n": "Sink and faucet",
+   "it": "FIX-SINK",
+   "m": "steel",
+   "b": [
+    11.45,
+    3.05,
+    0.95,
+    1.6,
+    0.06,
+    1.2
+   ]
+  },
+  {
+   "n": "2-burner cooktop",
+   "it": "FIX-COOK",
+   "m": "black",
+   "b": [
+    13.8,
+    3.05,
+    0.9,
+    2,
+    0.05,
+    1.3
+   ]
+  },
+  {
+   "n": "Range hood",
+   "it": "FIX-HOOD",
+   "m": "steel",
+   "b": [
+    13.9,
+    5.6,
+    0.5,
+    2.4,
+    0.7,
+    1.5
+   ]
+  },
+  {
+   "n": "Upper cabinet",
+   "it": "INT-CAB",
+   "m": "fab",
+   "b": [
+    14,
+    6.3,
+    0.5,
+    2.1,
+    2,
+    1.1
+   ]
+  },
+  {
+   "n": "Duct soffit",
+   "it": "INT-BUILTIN",
+   "m": "white",
+   "b": [
+    0.5,
+    8.3,
+    0.46,
+    15.65,
+    0.65,
+    1.15
+   ]
+  },
+  {
+   "n": "Duct soffit",
+   "it": "INT-BUILTIN",
+   "m": "white",
+   "b": [
+    0.46,
+    8.3,
+    1.61,
+    1.15,
+    0.65,
+    9.6
+   ],
+   "when": {
+    "garage": [
+     true
+    ]
+   }
+  },
+  {
+   "n": "Dining table",
+   "it": "INT-FURN",
+   "m": "wood",
+   "b": [
+    12.5,
+    2.5,
+    5,
+    5,
+    0.15,
+    2.5
+   ]
+  },
+  {
+   "n": "Table leg",
+   "it": "INT-FURN",
+   "m": "dark",
+   "b": [
+    12.7,
+    0,
+    5.2,
+    0.15,
+    2.5,
+    0.15
+   ]
+  },
+  {
+   "n": "Table leg",
+   "it": "INT-FURN",
+   "m": "dark",
+   "b": [
+    17.15,
+    0,
+    5.2,
+    0.15,
+    2.5,
+    0.15
+   ]
+  },
+  {
+   "n": "Table leg",
+   "it": "INT-FURN",
+   "m": "dark",
+   "b": [
+    12.7,
+    0,
+    7.15,
+    0.15,
+    2.5,
+    0.15
+   ]
+  },
+  {
+   "n": "Table leg",
+   "it": "INT-FURN",
+   "m": "dark",
+   "b": [
+    17.15,
+    0,
+    7.15,
+    0.15,
+    2.5,
+    0.15
+   ]
+  },
+  {
+   "n": "Stool",
+   "it": "INT-FURN",
+   "m": "fab2",
+   "cyl": [
+    13.8,
+    0,
+    4,
+    0.6,
+    1.9
+   ]
+  },
+  {
+   "n": "Stool",
+   "it": "INT-FURN",
+   "m": "fab2",
+   "cyl": [
+    16,
+    0,
+    4,
+    0.6,
+    1.9
+   ]
+  },
+  {
+   "n": "Stool",
+   "it": "INT-FURN",
+   "m": "fab2",
+   "cyl": [
+    13.8,
+    0,
+    8.4,
+    0.6,
+    1.9
+   ]
+  },
+  {
+   "n": "Stool",
+   "it": "INT-FURN",
+   "m": "fab2",
+   "cyl": [
+    16,
+    0,
+    8.4,
+    0.6,
+    1.9
+   ]
+  },
+  {
+   "n": "Rug",
+   "it": "INT-FURN",
+   "m": "rug",
+   "b": [
+    5,
+    0,
+    17.2,
+    9,
+    0.03,
+    6
+   ]
+  },
+  {
+   "n": "Sofa seat",
+   "it": "INT-FURN",
+   "m": "fab",
+   "b": [
+    6,
+    0,
+    18.55,
+    7,
+    1.4,
+    2.1
+   ]
+  },
+  {
+   "n": "Sofa back",
+   "it": "INT-FURN",
+   "m": "fab",
+   "b": [
+    6,
+    1.4,
+    17.95,
+    7,
+    1.6,
+    0.6
+   ]
+  },
+  {
+   "n": "Armchair",
+   "it": "INT-FURN",
+   "m": "fab2",
+   "b": [
+    13,
+    0,
+    18.6,
+    2.6,
+    1.3,
+    2.6
+   ]
+  },
+  {
+   "n": "Armchair back",
+   "it": "INT-FURN",
+   "m": "fab2",
+   "b": [
+    15.1,
+    1.3,
+    18.6,
+    0.5,
+    1.5,
+    2.6
+   ]
+  },
+  {
+   "n": "Coffee table",
+   "it": "INT-FURN",
+   "m": "wood",
+   "b": [
+    7.6,
+    0,
+    21.4,
+    3.5,
+    1.3,
+    1.3
+   ]
+  },
+  {
+   "n": "Desk top",
+   "it": "INT-BUILTIN",
+   "m": "wood",
+   "b": [
+    16.8,
+    2.5,
+    21.5,
+    4.5,
+    0.15,
+    1.8
+   ]
+  },
+  {
+   "n": "Desk support",
+   "it": "INT-BUILTIN",
+   "m": "dark",
+   "b": [
+    16.9,
+    0,
+    21.6,
+    0.15,
+    2.5,
+    1.6
+   ]
+  },
+  {
+   "n": "Desk support",
+   "it": "INT-BUILTIN",
+   "m": "dark",
+   "b": [
+    21,
+    0,
+    21.6,
+    0.15,
+    2.5,
+    1.6
+   ]
+  },
+  {
+   "n": "Desk chair",
+   "it": "INT-FURN",
+   "m": "fab",
+   "cyl": [
+    18.4,
+    0,
+    20,
+    0.7,
+    2.1
+   ]
+  },
+  {
+   "n": "Monitor",
+   "it": "INT-FURN",
+   "m": "black",
+   "b": [
+    18,
+    2.65,
+    22.4,
+    1.5,
+    1,
+    0.1
+   ]
+  },
+  {
+   "n": "Hearth pad",
+   "it": "MEC-HEARTH",
+   "m": "dark",
+   "b": [
+    8,
+    0,
+    11.3,
+    4,
+    0.15,
+    4
+   ],
+   "when": {
+    "heat": [
+     "both",
+     "wood"
+    ]
+   }
+  },
+  {
+   "n": "Wood stove",
+   "it": "MEC-STOVE",
+   "m": "black",
+   "b": [
+    9.1,
+    0.15,
+    12.65,
+    1.8,
+    2.2,
+    1.3
+   ],
+   "when": {
+    "heat": [
+     "both",
+     "wood"
+    ]
+   }
+  },
+  {
+   "n": "Propane wall furnace",
+   "it": "MEC-FURN",
+   "m": "steel",
+   "b": [
+    0.5,
+    1,
+    9,
+    0.7,
+    2.2,
+    2.2
+   ],
+   "when": {
+    "heat": [
+     "both",
+     "propane"
+    ]
+   }
+  },
+  {
+   "n": "Gear bin",
+   "it": "INT-FURN",
+   "m": "fab2",
+   "b": [
+    24.5,
+    9.875,
+    8,
+    2.4,
+    1.6,
+    1.4
+   ],
+   "when": {
+    "loft": [
+     true
+    ]
+   }
+  },
+  {
+   "n": "Gear bin",
+   "it": "INT-FURN",
+   "m": "fab",
+   "b": [
+    27,
+    9.875,
+    8,
+    2.4,
+    1.6,
+    1.4
+   ],
+   "when": {
+    "loft": [
+     true
+    ]
+   }
+  }
+ ],
+ "porch": {
+  "deck": [
+   -6,
+   0,
+   12,
+   6,
+   6.7
+  ],
+  "posts": [
+   [
+    -5.8,
+    12.1
+   ],
+   [
+    -5.8,
+    18.3
+   ]
+  ],
+  "roofY": 7.6,
+  "steps": {
+   "x": -6,
+   "z": [
+    15,
+    18
+   ],
+   "risers": 3,
+   "tread": 1.1
+  },
+  "rack": [
+   -5.6,
+   12.2,
+   5.2,
+   3.6,
+   1.3
+  ]
+ },
+ "site": {
+  "road": "west",
+  "slope": "Gentle fall to the northeast (assumed). Snow and runoff go north and east, away from the entry.",
+  "tank": [
+   46,
+   8
+  ],
+  "well": [
+   -60,
+   -40
+  ],
+  "septicTank": [
+   52,
+   -30
+  ],
+  "leach": [
+   62,
+   -70,
+   44,
+   26
+  ],
+  "pv": [
+   -4,
+   36,
+   26,
+   9
+  ],
+  "gen": [
+   -34,
+   -17
+  ],
+  "drive": [
+   [
+    -120,
+    3
+   ],
+   [
+    -46,
+    3
+   ]
+  ],
+  "parking": [
+   -46,
+   -9.5,
+   22,
+   22
+  ],
+  "lot": [
+   -120,
+   -110,
+   260,
+   230
+  ],
+  "setback": 25,
+  "walk": [
+   -24,
+   14,
+   14.1,
+   5
+  ]
+ },
+ "garage": {
+  "box": [
+   -24,
+   -7.5,
+   24,
+   16
+  ],
+  "slab": 0.75,
+  "attached": true,
+  "note": "Attached 1-car garage, 16 x 24 ft, on the north half of the west wall. Its roof is the house roof carried on in the same plane. A 10 x 8 ft door faces west to the parking; a solid self-closing door opens into the house by the gear bench, up three steps with a landing. Not insulated; a propane wall heater takes the chill off.",
+  "openings": [
+   {
+    "id": "GD",
+    "wall": "W",
+    "it": "GAR-ODOOR",
+    "u": [
+     -2.5,
+     7.5
+    ],
+    "v": [
+     0,
+     8
+    ],
+    "door": true,
+    "ohd": true,
+    "hd": 0.99,
+    "hit": "GAR-HDRL",
+    "note": "10 x 8 ft overhead door, dark flush steel, with opener"
+   },
+   {
+    "id": "GC1",
+    "wall": "S",
+    "it": "GAR-CLR",
+    "u": [
+     -21.1,
+     -13.1
+    ],
+    "v": [
+     8.5,
+     11.75
+    ],
+    "cols": 2,
+    "note": "Clerestory, two fixed units",
+    "hit": "GAR-HDRL"
+   },
+   {
+    "id": "GC2",
+    "wall": "S",
+    "it": "GAR-CLR",
+    "u": [
+     -12.5,
+     -4.5
+    ],
+    "v": [
+     8.5,
+     11.75
+    ],
+    "cols": 2,
+    "note": "Clerestory, two fixed units",
+    "hit": "GAR-HDRL"
+   }
+  ],
+  "heater": {
+   "x": -1.55,
+   "btu": 30000
+  },
+  "panel": [
+   -5.3,
+   3,
+   7.67,
+   1.2,
+   2.5,
+   0.33
+  ],
+  "meter": [
+   -5,
+   4.5,
+   8.73,
+   0.6,
+   1.5,
+   0.33,
+   "S"
+  ],
+  "car": {
+   "x": -22,
+   "z": -0.65,
+   "len": 16,
+   "w": 6.3
+  },
+  "steps": {
+   "u": [
+    2.1,
+    5.4
+   ]
+  }
+ },
+ "cover": {
+  "z": -7.5,
+  "x": [
+   0,
+   32
+  ],
+  "posts": [
+   2.5,
+   10.8,
+   21.2,
+   31.4
+  ],
+  "beam": [
+   0.4375,
+   0.99
+  ],
+  "post": 0.4583,
+  "note": "The house roof carried 7 ft-6 in past the north wall, flush with the garage eave. Open to the north and east (the garage closes the west side): a beam on four posts, cedar ceiling, gravel underfoot. Snow rails on the roof above keep sliding snow off it."
+ },
+ "entry": {
+  "deck": [
+   -8,
+   0,
+   11.5,
+   7.7,
+   12.1
+  ],
+  "top": -0.25,
+  "posts": [],
+  "steps": {
+   "x": -8,
+   "z": [
+    13.5,
+    19.5
+   ],
+   "risers": 3,
+   "tread": 0.92
+  },
+  "rack": [
+   -17.5,
+   9,
+   10.4,
+   3.6,
+   1.3,
+   0
+  ],
+  "beam": {
+   "z": 24,
+   "x": [
+    -24,
+    0
+   ],
+   "w": 0.4375,
+   "d": 1.33
+  },
+  "posts8": [
+   -23.69,
+   -12,
+   -3
+  ],
+  "post": 0.625,
+  "note": "The garage roof carried south to the house's south eave on an LVL beam and three 8x8 posts on their own footings. The beam stops short of the house. The entry deck stands on its own posts, not tied to the house. Open to the west and south."
+ },
+ "catalog": {
+  "groups": [
+   [
+    "FND",
+    "Foundation"
+   ],
+   [
+    "FLR",
+    "Floor structure"
+   ],
+   [
+    "WAL",
+    "Walls and sheathing"
+   ],
+   [
+    "ROF",
+    "Roof structure"
+   ],
+   [
+    "ENV",
+    "Insulation and air sealing"
+   ],
+   [
+    "RFG",
+    "Roofing"
+   ],
+   [
+    "OPN",
+    "Windows and doors"
+   ],
+   [
+    "EXT",
+    "Exterior finish and porch"
+   ],
+   [
+    "INT",
+    "Interior finish and built-ins"
+   ],
+   [
+    "FIX",
+    "Fixtures and appliances"
+   ],
+   [
+    "PLB",
+    "Plumbing"
+   ],
+   [
+    "ELE",
+    "Electrical"
+   ],
+   [
+    "MEC",
+    "Heat, vents and propane"
+   ],
+   [
+    "LFT",
+    "Gear loft"
+   ],
+   [
+    "PWR",
+    "Off-grid power"
+   ],
+   [
+    "GAR",
+    "Attached garage"
+   ],
+   [
+    "GEN",
+    "Help, rentals and paperwork"
+   ]
+  ],
+  "layers": [
+   [
+    "found",
+    "Foundation"
+   ],
+   [
+    "floor",
+    "Floor framing"
+   ],
+   [
+    "wallf",
+    "Wall framing"
+   ],
+   [
+    "roof",
+    "Roof framing"
+   ],
+   [
+    "sheath",
+    "Sheathing and decks"
+   ],
+   [
+    "insul",
+    "Insulation"
+   ],
+   [
+    "roofing",
+    "Roofing"
+   ],
+   [
+    "ext",
+    "Exterior finish"
+   ],
+   [
+    "open",
+    "Windows and doors"
+   ],
+   [
+    "int",
+    "Interior finish"
+   ],
+   [
+    "fix",
+    "Fixtures and built-ins"
+   ],
+   [
+    "furn",
+    "Furniture"
+   ],
+   [
+    "plumb",
+    "Plumbing"
+   ],
+   [
+    "elec",
+    "Electrical"
+   ],
+   [
+    "mech",
+    "Heat, vents and gas"
+   ],
+   [
+    "site",
+    "Site and utilities"
+   ]
+  ],
+  "drops": [
+   [
+    "D1",
+    "Foundation",
+    "Forms, tubes, rebar, connectors. Concrete comes by truck on pour day."
+   ],
+   [
+    "D2",
+    "Floor and wall framing",
+    "Beams, I-joists, subfloor, studs, plates, headers, LSL, ZIP-R."
+   ],
+   [
+    "D3",
+    "Roof framing and decks",
+    "Rafters, blocking, ties, both roof decks, sleepers, underlayment."
+   ],
+   [
+    "D4",
+    "Windows and doors",
+    "Order at permit time. Lead time 6 to 10 weeks."
+   ],
+   [
+    "D5",
+    "Metal roofing",
+    "Panels are cut to length. Order 2 to 3 weeks ahead."
+   ],
+   [
+    "D6",
+    "Rough plumbing, electrical, gas, insulation",
+    "PEX, DWV, wire, boxes, panel, CSST, batts, cellulose."
+   ],
+   [
+    "D7",
+    "Siding, drywall, pine ceiling",
+    "Fiber-cement, trim, drywall, pine boards."
+   ],
+   [
+    "D8",
+    "Finishes, fixtures, appliances",
+    "Flooring, cabinets, fixtures, appliances, stove, stair."
+   ],
+   [
+    "D9",
+    "Garage package",
+    "Lumber, roofing, siding, windows and doors for the garage. Order the overhead door 4 to 6 weeks ahead."
+   ]
+  ],
+  "items": [
+   {
+    "id": "FND-STAKE",
+    "g": "FND",
+    "n": "Layout lumber and string lines",
+    "s": "Batter boards, stakes, paint",
+    "u": "lot",
+    "p": 150,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-101",
+    "allow": "Temporary layout material",
+    "drop": "D1"
+   },
+   {
+    "id": "FND-FTG",
+    "g": "FND",
+    "n": "Footing form (bell or pad)",
+    "s": "Plastic bell forms 24 to 48 in, or a formed pad: square pads, combined pads where two piers share one, and hold-down pads sized for uplift. Sizes on S-101",
+    "u": "sf",
+    "p": 14,
+    "q": {
+     "by": "area",
+     "waste": 1,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1 wk",
+    "sheet": "S-101",
+    "m": "conc",
+    "L": "found",
+    "ex": 0,
+    "drop": "D1"
+   },
+   {
+    "id": "FND-TUBE",
+    "g": "FND",
+    "n": "Form tube",
+    "s": "12 in at the house, covered-area, deck and hold-down piers, 18 in at the covered-entry posts, cut to height",
+    "u": "ea",
+    "p": 32,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-101",
+    "m": "conc",
+    "L": "found",
+    "ex": 0,
+    "drop": "D1"
+   },
+   {
+    "id": "FND-CONC",
+    "g": "FND",
+    "n": "Ready-mix concrete",
+    "s": "4,000 psi, air-entrained. Footings and piers",
+    "u": "cy",
+    "p": 260,
+    "q": {
+     "by": "vol",
+     "of": [
+      "FND-FTG",
+      "FND-TUBE"
+     ],
+     "div": 27,
+     "waste": 1.1,
+     "round": 0.5
+    },
+    "by": "Buy",
+    "sup": "Ready-mix plant",
+    "lead": "1 wk",
+    "sheet": "S-101",
+    "note": "Includes a short-load fee (my estimate).",
+    "drop": "D1"
+   },
+   {
+    "id": "FND-REBAR",
+    "g": "FND",
+    "n": "Rebar, #4",
+    "s": "4 bars per pier, hooked into the footing, plus a mat in each footing",
+    "u": "lf",
+    "p": 1.1,
+    "q": {
+     "by": "len",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-101",
+    "m": "rebar",
+    "L": "found",
+    "ex": 0,
+    "drop": "D1"
+   },
+   {
+    "id": "FND-CAP",
+    "g": "FND",
+    "n": "Beam-to-pier cap, uplift rated",
+    "s": "Cast-in steel beam seat (fabricated U-seat of 3/16 in plate with welded anchor straps, galvanized), 5 1/4 x 9 in bearing, through-bolted to the beam; rated for the uplift and side load on S-101",
+    "u": "ea",
+    "p": 58,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1 wk",
+    "sheet": "S-101",
+    "m": "galv",
+    "L": "found",
+    "ex": 0.5,
+    "drop": "D1"
+   },
+   {
+    "id": "FND-AUGER",
+    "g": "FND",
+    "n": "Auger and mini-excavator rental",
+    "s": "2 days with delivery",
+    "u": "lot",
+    "p": 900,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Rental yard",
+    "lead": "1 wk",
+    "sheet": "S-101",
+    "rent": true,
+    "allow": "Digs the 18 pier holes",
+    "when": {
+     "found": [
+      "piers"
+     ]
+    },
+    "tax": false
+   },
+   {
+    "id": "FND-CRAWL",
+    "g": "FND",
+    "n": "Crawlspace foundation by a concrete sub",
+    "s": "Dig, 20 x 10 in footing, 8 in stem wall, concrete included",
+    "u": "lf",
+    "p": 175,
+    "q": {
+     "by": "len"
+    },
+    "by": "Pro",
+    "sup": "Local concrete sub",
+    "lead": "3-6 wk",
+    "sheet": "S-101",
+    "m": "conc",
+    "L": "found",
+    "ex": 0,
+    "tax": false
+   },
+   {
+    "id": "FND-SILL",
+    "g": "FND",
+    "n": "Treated sill plate with gasket",
+    "s": "2x8 PT on stem wall",
+    "u": "lf",
+    "p": 3.2,
+    "q": {
+     "by": "len",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-101",
+    "m": "pt",
+    "L": "found",
+    "ex": 0.5,
+    "drop": "D2"
+   },
+   {
+    "id": "FND-ANCHOR",
+    "g": "FND",
+    "n": "Anchor bolt, 1/2 in",
+    "s": "At 6 ft o.c. and 12 in from plate ends",
+    "u": "ea",
+    "p": 4,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-101",
+    "m": "galv",
+    "L": "found",
+    "ex": 0.4,
+    "drop": "D1"
+   },
+   {
+    "id": "FND-HD",
+    "g": "FND",
+    "n": "Hold-down",
+    "s": "Sized on S-401 (HDU2 to HDU8 type). House: 5/8 in threaded rod cast into a pier (S-101) and run up through the floor framing. Garage: anchor cast into the footing",
+    "u": "ea",
+    "p": 68,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1 wk",
+    "sheet": "S-101",
+    "m": "galv",
+    "L": "found",
+    "ex": 0.5,
+    "drop": "D1"
+   },
+   {
+    "id": "FND-XPS",
+    "g": "FND",
+    "n": "Crawl wall insulation, R-15",
+    "s": "3 in XPS on the inside of the stem walls",
+    "u": "sf",
+    "p": 3,
+    "q": {
+     "by": "area",
+     "waste": 1.08
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1 wk",
+    "sheet": "A-501",
+    "m": "xps",
+    "L": "insul",
+    "ex": 0.3,
+    "drop": "D6"
+   },
+   {
+    "id": "FND-VB",
+    "g": "FND",
+    "n": "Crawl vapor barrier",
+    "s": "12 mil, taped seams, sealed to walls",
+    "u": "sf",
+    "p": 0.55,
+    "q": {
+     "by": "area",
+     "waste": 1.15
+    },
+    "by": "You",
+    "sup": "Online",
+    "lead": "1 wk",
+    "sheet": "A-501",
+    "m": "vb",
+    "L": "insul",
+    "ex": 0.1,
+    "drop": "D6"
+   },
+   {
+    "id": "FND-RADON",
+    "g": "FND",
+    "n": "Passive radon stack",
+    "s": "3 in PVC, sub-membrane loop, fan-ready",
+    "u": "lot",
+    "p": 320,
+    "q": "count",
+    "by": "You",
+    "sup": "Plumbing supply",
+    "lead": "Stock",
+    "sheet": "M-101",
+    "m": "pvc",
+    "L": "mech",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "FND-CRAWLFAN",
+    "g": "FND",
+    "n": "Crawl exhaust fan",
+    "s": "15 cfm continuous",
+    "u": "ea",
+    "p": 180,
+    "q": "count",
+    "by": "You",
+    "sup": "Online",
+    "lead": "1 wk",
+    "sheet": "M-101",
+    "m": "steel",
+    "L": "mech",
+    "ex": 0.4,
+    "drop": "D6"
+   },
+   {
+    "id": "FND-SKIRT",
+    "g": "FND",
+    "n": "Perimeter skirt",
+    "s": "Treated frame set outside the piers, fiber-cement panel, screened vents, access door; tucks under the siding drip cap",
+    "u": "lf",
+    "p": 16,
+    "q": {
+     "by": "len"
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1 wk",
+    "sheet": "A-201",
+    "m": "sidingPlain",
+    "L": "ext",
+    "ex": 0,
+    "drop": "D7"
+   },
+   {
+    "id": "FLR-BEAM",
+    "g": "FLR",
+    "n": "Floor beam, LVL",
+    "s": "3-ply 1 3/4 x 11 7/8, flush with the joists. Includes the end beams under the east and west walls (in concealed-flange hangers)",
+    "u": "lf",
+    "p": 22,
+    "q": {
+     "by": "len",
+     "waste": 1.05
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "S-101",
+    "m": "lvl",
+    "L": "floor",
+    "ex": 1,
+    "drop": "D2"
+   },
+   {
+    "id": "FLR-JOIST",
+    "g": "FLR",
+    "n": "Floor joist, I-joist",
+    "s": "11 7/8 in at 16 in o.c., TJI 210 or equal (checked on S-301 with the bedroom wall and loft load)",
+    "u": "lf",
+    "p": 3.6,
+    "q": {
+     "by": "len",
+     "waste": 1.05
+    },
+    "chk": true,
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "S-101",
+    "m": "ijoist",
+    "L": "floor",
+    "ex": 1,
+    "drop": "D2"
+   },
+   {
+    "id": "FLR-HANGER",
+    "g": "FLR",
+    "n": "I-joist hanger",
+    "s": "Face mount, sized to joist",
+    "u": "ea",
+    "p": 6.5,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-101",
+    "m": "galv",
+    "L": "floor",
+    "ex": 1,
+    "drop": "D2"
+   },
+   {
+    "id": "FLR-BHANGER",
+    "g": "FLR",
+    "n": "End beam hanger, concealed flange",
+    "s": "Concealed-flange hanger for 3-ply 1 3/4 x 11 7/8 LVL (HUCQ-type or equal), rated at least 3,100 lb down; hangs the end beams off beams B1 to B3 flush with their ends",
+    "u": "ea",
+    "p": 95,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-102",
+    "m": "galv",
+    "L": "floor",
+    "ex": 1,
+    "drop": "D2"
+   },
+   {
+    "id": "FLR-RIM",
+    "g": "FLR",
+    "n": "Rim board, LVL",
+    "s": "1 1/8 x 11 7/8 (crawlspace option, on the stem wall)",
+    "u": "lf",
+    "p": 4.4,
+    "q": {
+     "by": "len",
+     "waste": 1.05
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "S-101",
+    "m": "lvl",
+    "L": "floor",
+    "ex": 1,
+    "drop": "D2"
+   },
+   {
+    "id": "FLR-SUB",
+    "g": "FLR",
+    "n": "Subfloor",
+    "s": "3/4 in tongue-and-groove, glued and screwed",
+    "u": "sheet",
+    "p": 62,
+    "q": {
+     "by": "area",
+     "div": 32,
+     "waste": 1.08,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-101",
+    "m": "osb",
+    "L": "sheath",
+    "ex": 1.15,
+    "drop": "D2"
+   },
+   {
+    "id": "FLR-INS",
+    "g": "FLR",
+    "n": "Floor insulation, R-44",
+    "s": "Dense-pack cellulose in 11 7/8 in bays",
+    "u": "bag",
+    "p": 15,
+    "q": {
+     "by": "vol",
+     "div": 7.14,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Big-box store",
+    "lead": "Stock",
+    "sheet": "A-501",
+    "m": "cell",
+    "L": "insul",
+    "ex": 0.9,
+    "note": "Blower rental is free with the bag order at most big-box stores.",
+    "drop": "D6"
+   },
+   {
+    "id": "FLR-BELLY",
+    "g": "FLR",
+    "n": "Belly board",
+    "s": "1/2 in plywood with rodent mesh under the joists",
+    "u": "sheet",
+    "p": 42,
+    "q": {
+     "by": "area",
+     "div": 32,
+     "waste": 1.08,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-101",
+    "m": "ply",
+    "L": "sheath",
+    "ex": 0.75,
+    "drop": "D2"
+   },
+   {
+    "id": "FLR-MISC",
+    "g": "FLR",
+    "n": "Subfloor glue, screws, squash blocks",
+    "s": "",
+    "u": "lot",
+    "p": 380,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-101",
+    "allow": "Fasteners and adhesive",
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-STUD6",
+    "g": "WAL",
+    "n": "Stud, 2x6",
+    "s": "SPF, precut",
+    "u": "ea",
+    "p": 9.5,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-201",
+    "m": "spf",
+    "L": "wallf",
+    "ex": 2.2,
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-LSL",
+    "g": "WAL",
+    "n": "Stud, LSL 1 3/4 x 5 1/2",
+    "s": "For walls taller than 12 ft",
+    "u": "lf",
+    "p": 4.2,
+    "q": {
+     "by": "len",
+     "waste": 1.05
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "S-201",
+    "m": "lsl",
+    "L": "wallf",
+    "ex": 2.2,
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-PLATE6",
+    "g": "WAL",
+    "n": "Plate, 2x6",
+    "s": "Bottom and double top plates",
+    "u": "lf",
+    "p": 1.05,
+    "q": {
+     "by": "len",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-201",
+    "m": "spf",
+    "L": "wallf",
+    "ex": 2.2,
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-STUD4",
+    "g": "WAL",
+    "n": "Stud, 2x4",
+    "s": "Partitions",
+    "u": "ea",
+    "p": 5.5,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-101",
+    "m": "spf",
+    "L": "wallf",
+    "ex": 2.2,
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-PLATE4",
+    "g": "WAL",
+    "n": "Plate, 2x4",
+    "s": "Partitions",
+    "u": "lf",
+    "p": 0.75,
+    "q": {
+     "by": "len",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-101",
+    "m": "spf",
+    "L": "wallf",
+    "ex": 2.2,
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-HDRL",
+    "g": "WAL",
+    "n": "Header, LVL",
+    "s": "LVL, 2-ply or 3-ply 1 3/4 x 11 7/8 as sized on S-301, with 2 in foam to fill the wall",
+    "u": "lf",
+    "p": 15,
+    "q": {
+     "by": "len",
+     "waste": 1.05
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "S-201",
+    "m": "lvl",
+    "L": "wallf",
+    "ex": 2.2,
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-HDR2",
+    "g": "WAL",
+    "n": "Header, built-up 2x10",
+    "s": "Two 2x10 with 2 in foam between. End-wall openings only, where S-301 allows",
+    "u": "lf",
+    "p": 4.5,
+    "q": {
+     "by": "len",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-201",
+    "m": "spf",
+    "L": "wallf",
+    "ex": 2.2,
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-POST",
+    "g": "WAL",
+    "n": "Post between glass bays, steel",
+    "s": "HSS 5 x 3 x 1/4 steel tube (ASTM A500 Gr C), full height, 1/2 in base and cap plates and seat angles for the bay headers welded on, shop primed. A 2x wood buck lag-bolted on each side for the windows. Sized on S-301 (a 4-ply LSL post is too weak here)",
+    "u": "lf",
+    "p": 38,
+    "q": {
+     "by": "len"
+    },
+    "by": "Buy",
+    "sup": "Steel fabricator",
+    "lead": "2-3 wk",
+    "sheet": "S-201",
+    "m": "steel",
+    "L": "wallf",
+    "ex": 2.2,
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-HANGER",
+    "g": "WAL",
+    "n": "Header seat at the steel posts",
+    "s": "Steel seat angle welded to the post at each bay header end (on the post shop drawing); the LVL header sits on it and is through-bolted. The wood bucks stop under the header and start again above it",
+    "u": "ea",
+    "p": 40,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Steel fabricator",
+    "lead": "1 wk",
+    "sheet": "S-201",
+    "m": "galv",
+    "L": "wallf",
+    "ex": 2.2,
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-TRANSOM",
+    "g": "WAL",
+    "n": "Transom between stacked windows",
+    "s": "1 3/4 x 5 1/2 LVL laid flat between stacked units, screwed to the posts with angle brackets; carries wind across the bay and the upper unit's weight",
+    "u": "lf",
+    "p": 6,
+    "q": {
+     "by": "len",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "S-201",
+    "m": "lvl",
+    "L": "wallf",
+    "ex": 2.2,
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-SHEAR",
+    "g": "WAL",
+    "n": "Interior shear panel",
+    "s": "15/32 in rated sheathing on the inside face of the marked shear walls (S-401), 8d nails at 4 or 3 in on the edges, blocked. Drywall goes over it",
+    "u": "sheet",
+    "p": 34,
+    "q": {
+     "by": "area",
+     "div": 32,
+     "waste": 1.1,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-401",
+    "m": "ply",
+    "L": "sheath",
+    "ex": 2.2,
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-ZIPR",
+    "g": "WAL",
+    "n": "Wall sheathing, ZIP System R-6",
+    "s": "1 in foam bonded to 7/16 OSB, taped. Labeled R-6.6 continuous",
+    "u": "sheet",
+    "p": 105,
+    "q": {
+     "by": "area",
+     "div": 32,
+     "waste": 1.1,
+     "round": 1
+    },
+    "chk": true,
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "A-501",
+    "m": "zip",
+    "L": "sheath",
+    "ex": 2.2,
+    "out": 0.5,
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-TAPE",
+    "g": "WAL",
+    "n": "Sheathing tape and liquid flashing",
+    "s": "",
+    "u": "lot",
+    "p": 380,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-501",
+    "allow": "Seams and openings",
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-BEVEL",
+    "g": "WAL",
+    "n": "Beveled bearing plate",
+    "s": "2x8 ripped to 4:12 under the rafters at the walls and on top of the covered-area and covered-entry beams",
+    "u": "lf",
+    "p": 2.8,
+    "q": {
+     "by": "len",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-201",
+    "m": "spf",
+    "L": "wallf",
+    "ex": 3.4,
+    "roofy": true,
+    "drop": "D3"
+   },
+   {
+    "id": "WAL-LEDGER",
+    "g": "WAL",
+    "n": "Ledger, LVL",
+    "s": "Carries bedroom ceiling joists at the south wall",
+    "u": "lf",
+    "p": 9,
+    "q": {
+     "by": "len"
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "S-201",
+    "m": "lvl",
+    "L": "wallf",
+    "ex": 2.2,
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-STRAP",
+    "g": "WAL",
+    "n": "Wall-to-floor strap",
+    "s": "Coiled strap at corners and beside big openings",
+    "u": "ea",
+    "p": 22,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-201",
+    "m": "galv",
+    "L": "wallf",
+    "ex": 2.2,
+    "drop": "D2"
+   },
+   {
+    "id": "WAL-FASTEN",
+    "g": "WAL",
+    "n": "Nails, screws, framing connectors",
+    "s": "",
+    "u": "lot",
+    "p": 950,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "G-002",
+    "allow": "Fasteners for walls and roof",
+    "drop": "D2"
+   },
+   {
+    "id": "ROF-IJ16",
+    "g": "ROF",
+    "n": "Rafter, 16 in I-joist",
+    "s": "Heavy flange, 12 or 16 in o.c. by snow load. Simple spans: house rafters from the north wall to the south eave, separate rafters over the covered area. Web stiffeners at bearings",
+    "u": "lf",
+    "p": 7.2,
+    "q": {
+     "by": "len",
+     "waste": 1.03
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "S-201",
+    "m": "ijoist",
+    "L": "roof",
+    "ex": 3.6,
+    "roofy": true,
+    "drop": "D3"
+   },
+   {
+    "id": "ROF-LVL16",
+    "g": "ROF",
+    "n": "Rafter, LVL 1 3/4 x 16",
+    "s": "Used at 150 psf",
+    "u": "lf",
+    "p": 12.5,
+    "q": {
+     "by": "len",
+     "waste": 1.03
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "2-3 wk",
+    "sheet": "S-201",
+    "m": "lvl",
+    "L": "roof",
+    "ex": 3.6,
+    "roofy": true,
+    "drop": "D3"
+   },
+   {
+    "id": "ROF-BLOCK",
+    "g": "ROF",
+    "n": "Blocking panel at bearings",
+    "s": "I-joist or LVL between rafters",
+    "u": "ea",
+    "p": 9,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-201",
+    "m": "ijoist",
+    "L": "roof",
+    "ex": 3.6,
+    "roofy": true,
+    "drop": "D3"
+   },
+   {
+    "id": "ROF-TIE",
+    "g": "ROF",
+    "n": "Rafter tie",
+    "s": "Rafter-to-plate tie rated about 455 lb uplift in SPF at every bearing (H2.5A-type for I-joists)",
+    "u": "ea",
+    "p": 2.4,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-201",
+    "m": "galv",
+    "L": "roof",
+    "ex": 3.6,
+    "roofy": true,
+    "drop": "D3"
+   },
+   {
+    "id": "ROF-CBEAM",
+    "g": "ROF",
+    "n": "Beam, covered area",
+    "s": "3-ply 1 3/4 x 11 7/8 LVL on four posts, 7 ft-6 in out from the north wall, under the rafters on a beveled plate. Its west end stops short of the garage",
+    "u": "lf",
+    "p": 15,
+    "q": {
+     "by": "len",
+     "waste": 1.05
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "S-201",
+    "m": "lvl",
+    "L": "ext",
+    "drop": "D3",
+    "when": {
+     "cover": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "ROF-FLY",
+    "g": "ROF",
+    "n": "Rake framing",
+    "s": "2x4 outriggers on edge at 24 in in the vent layer (3 ft back span, screwed to the lower deck and rafters), 2x6 sub-fascia, 2x4 soffit nailers",
+    "u": "lf",
+    "p": 1.2,
+    "q": {
+     "by": "len",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-201",
+    "m": "spf",
+    "L": "roof",
+    "ex": 3.6,
+    "roofy": true,
+    "drop": "D3"
+   },
+   {
+    "id": "RFG-SNOW",
+    "g": "RFG",
+    "n": "Snow retention rail",
+    "s": "Two rows of clamp-on snow rail (S-5 type) above the north eave, house and garage, so sliding snow does not land on the covered area or pile on the garage wall",
+    "u": "lf",
+    "p": 26,
+    "q": {
+     "by": "len",
+     "waste": 1.03
+    },
+    "by": "You",
+    "sup": "Roofing supplier",
+    "lead": "2-3 wk",
+    "sheet": "A-102",
+    "m": "steel",
+    "L": "roofing",
+    "ex": 5.6,
+    "roofy": true,
+    "drop": "D5"
+   },
+   {
+    "id": "ROF-CJ",
+    "g": "ROF",
+    "n": "Ceiling joist, 2x10",
+    "s": "Bedroom wing at 16 in o.c. Strong enough for the loft",
+    "u": "lf",
+    "p": 1.9,
+    "q": {
+     "by": "len",
+     "waste": 1.08
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-201",
+    "m": "spf",
+    "L": "roof",
+    "ex": 2.9,
+    "roofy": true,
+    "drop": "D2"
+   },
+   {
+    "id": "ROF-HANGER",
+    "g": "ROF",
+    "n": "Joist hanger, 2x10",
+    "s": "At the south ledger",
+    "u": "ea",
+    "p": 3.2,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-201",
+    "m": "galv",
+    "L": "roof",
+    "ex": 2.9,
+    "roofy": true,
+    "drop": "D2"
+   },
+   {
+    "id": "ROF-DECK1",
+    "g": "ROF",
+    "n": "Roof deck, lower",
+    "s": "5/8 in OSB, taped as the air barrier",
+    "u": "sheet",
+    "p": 30,
+    "q": {
+     "by": "area",
+     "div": 32,
+     "waste": 1.08,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-401",
+    "m": "osb",
+    "L": "sheath",
+    "ex": 4.3,
+    "roofy": true,
+    "drop": "D3"
+   },
+   {
+    "id": "ROF-SLEEPER",
+    "g": "ROF",
+    "n": "Vent sleepers",
+    "s": "2x4 on edge directly over the rafters (every second rafter at 12 in o.c., every rafter at 16 in), screwed through the lower deck into the rafter flanges. Makes the cold-roof air channel",
+    "u": "lf",
+    "p": 0.85,
+    "q": {
+     "by": "len",
+     "waste": 1.08
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-401",
+    "m": "spf",
+    "L": "roof",
+    "ex": 4.6,
+    "roofy": true,
+    "drop": "D3"
+   },
+   {
+    "id": "ROF-DECK2",
+    "g": "ROF",
+    "n": "Roof deck, upper",
+    "s": "23/32 in OSB (48/24 span rating) over the vent space, the nail base for the metal",
+    "u": "sheet",
+    "p": 38,
+    "q": {
+     "by": "area",
+     "div": 32,
+     "waste": 1.08,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-401",
+    "m": "osb",
+    "L": "sheath",
+    "ex": 4.9,
+    "roofy": true,
+    "drop": "D3"
+   },
+   {
+    "id": "ENV-WALL",
+    "g": "ENV",
+    "n": "Wall insulation, R-23",
+    "s": "Mineral wool batts in 2x6 walls",
+    "u": "sf",
+    "p": 1.45,
+    "q": {
+     "by": "area",
+     "waste": 1.05
+    },
+    "by": "You",
+    "sup": "Big-box store",
+    "lead": "Stock",
+    "sheet": "A-501",
+    "m": "wool",
+    "L": "insul",
+    "ex": 2.2,
+    "out": 0.25,
+    "drop": "D6"
+   },
+   {
+    "id": "ENV-ROOF",
+    "g": "ENV",
+    "n": "Roof insulation, about R-60",
+    "s": "Dense-pack cellulose fills the 16 in rafter bays",
+    "u": "bag",
+    "p": 15,
+    "q": {
+     "by": "vol",
+     "div": 7.14,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Big-box store",
+    "lead": "Stock",
+    "sheet": "A-501",
+    "m": "cell",
+    "L": "insul",
+    "ex": 3.9,
+    "roofy": true,
+    "drop": "D6"
+   },
+   {
+    "id": "ENV-MEMB",
+    "g": "ENV",
+    "n": "Smart vapor retarder",
+    "s": "Under the rafters and flat ceilings, taped to the walls",
+    "u": "sf",
+    "p": 0.45,
+    "q": {
+     "by": "area",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Online",
+    "lead": "1-2 wk",
+    "sheet": "A-501",
+    "m": "memb",
+    "L": "insul",
+    "ex": 3.3,
+    "roofy": true,
+    "drop": "D6"
+   },
+   {
+    "id": "ENV-AIR",
+    "g": "ENV",
+    "n": "Air sealing kit",
+    "s": "Foam, gaskets, tapes, caulk, blower-door fix list",
+    "u": "lot",
+    "p": 450,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Big-box store",
+    "lead": "Stock",
+    "sheet": "A-501",
+    "allow": "Seals the air barrier line on A-501",
+    "drop": "D6"
+   },
+   {
+    "id": "RFG-IW",
+    "g": "RFG",
+    "n": "Ice and water membrane",
+    "s": "High-temp, 6 ft up from both eaves",
+    "u": "sf",
+    "p": 1.1,
+    "q": {
+     "by": "area",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Roofing supplier",
+    "lead": "Stock",
+    "sheet": "A-102",
+    "m": "iw",
+    "L": "roofing",
+    "ex": 5.2,
+    "roofy": true,
+    "drop": "D3"
+   },
+   {
+    "id": "RFG-SYN",
+    "g": "RFG",
+    "n": "Synthetic underlayment",
+    "s": "Rest of the roof",
+    "u": "sf",
+    "p": 0.22,
+    "q": {
+     "by": "area",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Roofing supplier",
+    "lead": "Stock",
+    "sheet": "A-102",
+    "m": "syn",
+    "L": "roofing",
+    "ex": 5.2,
+    "roofy": true,
+    "drop": "D3"
+   },
+   {
+    "id": "RFG-SEAM",
+    "g": "RFG",
+    "n": "Standing seam panels",
+    "s": "24 ga steel, snap-lock, clips",
+    "u": "sf",
+    "p": 5.9,
+    "q": {
+     "by": "area",
+     "waste": 1.03
+    },
+    "chk": true,
+    "by": "You",
+    "sup": "Roofing supplier",
+    "lead": "2-3 wk",
+    "sheet": "A-102",
+    "m": "seam",
+    "L": "roofing",
+    "ex": 5.6,
+    "roofy": true,
+    "drop": "D5"
+   },
+   {
+    "id": "RFG-RIB",
+    "g": "RFG",
+    "n": "Ribbed steel panels",
+    "s": "26 ga, exposed fasteners",
+    "u": "sf",
+    "p": 3.1,
+    "q": {
+     "by": "area",
+     "waste": 1.03
+    },
+    "chk": true,
+    "by": "You",
+    "sup": "Roofing supplier",
+    "lead": "1-2 wk",
+    "sheet": "A-102",
+    "m": "seam",
+    "L": "roofing",
+    "ex": 5.6,
+    "roofy": true,
+    "drop": "D5"
+   },
+   {
+    "id": "RFG-TRIM",
+    "g": "RFG",
+    "n": "Eave and rake trim",
+    "s": "Drip edge, closures, sealant",
+    "u": "lf",
+    "p": 6.5,
+    "q": {
+     "by": "len",
+     "waste": 1.05
+    },
+    "by": "You",
+    "sup": "Roofing supplier",
+    "lead": "2-3 wk",
+    "sheet": "A-102",
+    "m": "dark",
+    "L": "roofing",
+    "ex": 5.6,
+    "roofy": true,
+    "drop": "D5"
+   },
+   {
+    "id": "RFG-FASCIA",
+    "g": "RFG",
+    "n": "Fascia and sub-fascia",
+    "s": "2x sub-fascia, metal-wrapped",
+    "u": "lf",
+    "p": 5,
+    "q": {
+     "by": "len",
+     "waste": 1.05
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-401",
+    "m": "dark",
+    "L": "roofing",
+    "ex": 5.6,
+    "roofy": true,
+    "drop": "D3"
+   },
+   {
+    "id": "RFG-SOFFIT",
+    "g": "RFG",
+    "n": "Soffit, cedar",
+    "s": "Vented at both eaves to feed the cold-roof channel",
+    "u": "sf",
+    "p": 6,
+    "q": {
+     "by": "area",
+     "waste": 1.08
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1 wk",
+    "sheet": "A-401",
+    "m": "cedar",
+    "L": "roofing",
+    "ex": 5.6,
+    "roofy": true,
+    "drop": "D7"
+   },
+   {
+    "id": "RFG-BOOT",
+    "g": "RFG",
+    "n": "Pipe boot",
+    "s": "Metal-roof boot for vent pipes",
+    "u": "ea",
+    "p": 45,
+    "q": "count",
+    "by": "You",
+    "sup": "Roofing supplier",
+    "lead": "Stock",
+    "sheet": "A-102",
+    "m": "dark",
+    "L": "roofing",
+    "ex": 5.6,
+    "roofy": true,
+    "drop": "D5"
+   },
+   {
+    "id": "OPN-FIX77",
+    "g": "OPN",
+    "n": "Fixed window, 76 3/4 x 72 in",
+    "s": "Low-E, argon, U 0.30 or better. Two per glass bay",
+    "u": "ea",
+    "p": 1250,
+    "q": "count",
+    "chk": true,
+    "by": "Buy",
+    "sup": "Window dealer",
+    "lead": "6-10 wk",
+    "sheet": "A-501",
+    "L": "open",
+    "ex": 2.2,
+    "out": 1,
+    "drop": "D4"
+   },
+   {
+    "id": "OPN-TOPAWN",
+    "g": "OPN",
+    "n": "Awning window, 76 3/4 x 28 in",
+    "s": "High vent at the top of the end bays",
+    "u": "ea",
+    "p": 720,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Window dealer",
+    "lead": "6-10 wk",
+    "sheet": "A-501",
+    "L": "open",
+    "ex": 2.2,
+    "out": 1,
+    "drop": "D4"
+   },
+   {
+    "id": "OPN-TOPFIX",
+    "g": "OPN",
+    "n": "Fixed transom, 76 3/4 x 28 in",
+    "s": "Top of the middle bay",
+    "u": "ea",
+    "p": 520,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Window dealer",
+    "lead": "6-10 wk",
+    "sheet": "A-501",
+    "L": "open",
+    "ex": 2.2,
+    "out": 1,
+    "drop": "D4"
+   },
+   {
+    "id": "OPN-EGR",
+    "g": "OPN",
+    "n": "Casement, 36 x 48 in, egress",
+    "s": "Bedrooms. Sill 36 in above floor",
+    "u": "ea",
+    "p": 520,
+    "q": "count",
+    "chk": true,
+    "by": "Buy",
+    "sup": "Window dealer",
+    "lead": "6-10 wk",
+    "sheet": "A-501",
+    "L": "open",
+    "ex": 2.2,
+    "out": 1,
+    "drop": "D4"
+   },
+   {
+    "id": "OPN-CAS36",
+    "g": "OPN",
+    "n": "Casement, 36 x 36 in",
+    "s": "North wall by the table",
+    "u": "ea",
+    "p": 420,
+    "q": "count",
+    "chk": true,
+    "by": "Buy",
+    "sup": "Window dealer",
+    "lead": "6-10 wk",
+    "sheet": "A-501",
+    "L": "open",
+    "ex": 2.2,
+    "out": 1,
+    "drop": "D4"
+   },
+   {
+    "id": "OPN-AWN30",
+    "g": "OPN",
+    "n": "Awning, 30 x 30 in",
+    "s": "Over the sink",
+    "u": "ea",
+    "p": 380,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Window dealer",
+    "lead": "6-10 wk",
+    "sheet": "A-501",
+    "L": "open",
+    "ex": 2.2,
+    "out": 1,
+    "drop": "D4"
+   },
+   {
+    "id": "OPN-FIX38",
+    "g": "OPN",
+    "n": "Fixed window, 38 3/8 x 72 in",
+    "s": "Tall corner window on the west wall, stacked two high. Tempered. Half the width of a south bay unit",
+    "u": "ea",
+    "p": 700,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Window dealer",
+    "lead": "6-10 wk",
+    "sheet": "A-501",
+    "L": "open",
+    "ex": 2.2,
+    "out": 1,
+    "drop": "D4"
+   },
+   {
+    "id": "OPN-FIX38T",
+    "g": "OPN",
+    "n": "Fixed window, 38 3/8 x 20 in",
+    "s": "Top of the west corner window, under the sloped roof",
+    "u": "ea",
+    "p": 330,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Window dealer",
+    "lead": "6-10 wk",
+    "sheet": "A-501",
+    "L": "open",
+    "ex": 2.2,
+    "out": 1,
+    "drop": "D4"
+   },
+   {
+    "id": "OPN-FIX36T",
+    "g": "OPN",
+    "n": "Fixed window, 36 x 57 in",
+    "s": "Clerestory over the entry door, above the porch roof",
+    "u": "ea",
+    "p": 600,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Window dealer",
+    "lead": "6-10 wk",
+    "sheet": "A-501",
+    "L": "open",
+    "ex": 2.2,
+    "out": 1,
+    "drop": "D4"
+   },
+   {
+    "id": "OPN-LOFTWIN",
+    "g": "OPN",
+    "n": "Awning, 36 x 36 in",
+    "s": "Loft, east wall",
+    "u": "ea",
+    "p": 430,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Window dealer",
+    "lead": "6-10 wk",
+    "sheet": "A-501",
+    "L": "open",
+    "ex": 2.2,
+    "out": 1,
+    "drop": "D4"
+   },
+   {
+    "id": "OPN-ENTRY",
+    "g": "OPN",
+    "n": "Entry door, 36 in",
+    "s": "Insulated fiberglass with a glass lite",
+    "u": "ea",
+    "p": 1350,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Window dealer",
+    "lead": "4-6 wk",
+    "sheet": "A-501",
+    "L": "open",
+    "ex": 2.2,
+    "out": 1,
+    "drop": "D4"
+   },
+   {
+    "id": "OPN-BARN",
+    "g": "OPN",
+    "n": "Sliding barn door",
+    "s": "Slab and track, bedrooms and bath",
+    "u": "ea",
+    "p": 360,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Big-box store",
+    "lead": "1-2 wk",
+    "sheet": "A-501",
+    "m": "cedar",
+    "L": "open",
+    "ex": 2.2,
+    "drop": "D8"
+   },
+   {
+    "id": "OPN-HW",
+    "g": "OPN",
+    "n": "Door hardware",
+    "s": "Entry lockset, barn door pulls and locks",
+    "u": "lot",
+    "p": 180,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Buy",
+    "sup": "Big-box store",
+    "lead": "Stock",
+    "sheet": "A-501",
+    "allow": "Hardware",
+    "drop": "D8"
+   },
+   {
+    "id": "OPN-FLASH",
+    "g": "OPN",
+    "n": "Opening flashing kit",
+    "s": "Sill pan, tape, low-expansion foam, sealant",
+    "u": "ea",
+    "p": 38,
+    "q": {
+     "by": "count",
+     "of": [
+      "OPN-FIX77",
+      "OPN-TOPAWN",
+      "OPN-TOPFIX",
+      "OPN-EGR",
+      "OPN-CAS36",
+      "OPN-AWN30",
+      "OPN-FIX24",
+      "OPN-LOFTWIN",
+      "OPN-ENTRY"
+     ]
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-401",
+    "drop": "D4"
+   },
+   {
+    "id": "EXT-BB",
+    "g": "EXT",
+    "n": "Fiber-cement board and batten",
+    "s": "Primed panels and battens",
+    "u": "sf",
+    "p": 3.1,
+    "q": {
+     "by": "area",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "A-201",
+    "m": "siding",
+    "L": "ext",
+    "ex": 2.2,
+    "out": 1,
+    "drop": "D7"
+   },
+   {
+    "id": "EXT-RAIN",
+    "g": "EXT",
+    "n": "Rainscreen mat",
+    "s": "Drainage gap behind the siding",
+    "u": "sf",
+    "p": 0.6,
+    "q": {
+     "by": "area",
+     "of": [
+      "EXT-BB"
+     ],
+     "waste": 1.05
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1 wk",
+    "sheet": "A-401",
+    "drop": "D7"
+   },
+   {
+    "id": "EXT-PAINT",
+    "g": "EXT",
+    "n": "Exterior paint",
+    "s": "Primer plus two coats",
+    "u": "sf",
+    "p": 0.7,
+    "q": {
+     "by": "area",
+     "of": [
+      "EXT-BB"
+     ]
+    },
+    "by": "You",
+    "sup": "Big-box store",
+    "lead": "Stock",
+    "sheet": "A-201",
+    "drop": "D7"
+   },
+   {
+    "id": "EXT-TRIM",
+    "g": "EXT",
+    "n": "Trim, corners, flashing, caulk",
+    "s": "",
+    "u": "lot",
+    "p": 1000,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1 wk",
+    "sheet": "A-201",
+    "allow": "Trim package",
+    "drop": "D7"
+   },
+   {
+    "id": "EXT-PORCH",
+    "g": "EXT",
+    "n": "Entry porch",
+    "s": "6 x 8 ft deck, two posts, metal shed roof",
+    "u": "lot",
+    "p": 1400,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-201",
+    "m": "cedar",
+    "L": "ext",
+    "ex": 0,
+    "drop": "D7",
+    "when": {
+     "entryCover": [
+      false
+     ]
+    }
+   },
+   {
+    "id": "EXT-EDECK",
+    "g": "EXT",
+    "n": "Entry deck",
+    "s": "Cedar decking on treated 2x8 joists at 16 in, two doubled 2x10 beams on 6x6 posts and 18 in footings. Freestanding: not bolted to the house. 3 in below the door sill",
+    "u": "lot",
+    "p": 1250,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "m": "cedar",
+    "L": "ext",
+    "ex": 0,
+    "drop": "D7",
+    "when": {
+     "entryCover": [
+      true
+     ]
+    },
+    "note": "My estimate."
+   },
+   {
+    "id": "EXT-DFRAME",
+    "g": "EXT",
+    "n": "Entry deck framing",
+    "s": "Treated 2x8 joists at 16 in, doubled 2x10 beams, 6x6 posts",
+    "u": "lf",
+    "p": 2.6,
+    "q": {
+     "by": "len",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "m": "pt",
+    "L": "ext",
+    "ex": 0,
+    "drop": "D7",
+    "when": {
+     "entryCover": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "EXT-STEPS",
+    "g": "EXT",
+    "n": "Steps and firewood rack",
+    "s": "Treated lumber",
+    "u": "lot",
+    "p": 350,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-201",
+    "m": "cedar",
+    "L": "ext",
+    "ex": 0,
+    "drop": "D7"
+   },
+   {
+    "id": "EXT-CPOST",
+    "g": "EXT",
+    "n": "Post, covered area",
+    "s": "6x6 Douglas fir-larch No. 1, stained, uplift-rated post base and beam cap. Pier and footing are under Foundation",
+    "u": "ea",
+    "p": 310,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1 wk",
+    "sheet": "S-201",
+    "m": "cedar",
+    "L": "ext",
+    "drop": "D3",
+    "when": {
+     "cover": [
+      true
+     ]
+    },
+    "note": "My estimate, post and hardware."
+   },
+   {
+    "id": "INT-DW",
+    "g": "INT",
+    "n": "Drywall, 1/2 in",
+    "s": "Walls and flat ceilings. Moisture-resistant in the bath",
+    "u": "sheet",
+    "p": 18,
+    "q": {
+     "by": "area",
+     "div": 32,
+     "waste": 1.12,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Big-box store",
+    "lead": "Stock",
+    "sheet": "A-501",
+    "m": "drywall",
+    "L": "int",
+    "ex": 2.2,
+    "out": -0.2,
+    "drop": "D7"
+   },
+   {
+    "id": "INT-DWFIN",
+    "g": "INT",
+    "n": "Tape, mud, bead, screws",
+    "s": "",
+    "u": "lot",
+    "p": 380,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Big-box store",
+    "lead": "Stock",
+    "sheet": "A-501",
+    "allow": "Drywall finishing",
+    "drop": "D7"
+   },
+   {
+    "id": "INT-PAINT",
+    "g": "INT",
+    "n": "Interior primer and paint",
+    "s": "",
+    "u": "sf",
+    "p": 0.35,
+    "q": {
+     "by": "area",
+     "of": [
+      "INT-DW"
+     ]
+    },
+    "by": "You",
+    "sup": "Big-box store",
+    "lead": "Stock",
+    "sheet": "A-501",
+    "drop": "D8"
+   },
+   {
+    "id": "INT-PINE",
+    "g": "INT",
+    "n": "Pine tongue-and-groove ceiling",
+    "s": "Follows the roof slope",
+    "u": "sf",
+    "p": 2.6,
+    "q": {
+     "by": "area",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "A-501",
+    "m": "pine",
+    "L": "int",
+    "ex": 3.3,
+    "roofy": true,
+    "drop": "D7"
+   },
+   {
+    "id": "INT-FLOOR",
+    "g": "INT",
+    "n": "Flooring",
+    "s": "Rigid-core vinyl plank, wood look",
+    "u": "sf",
+    "p": 2.6,
+    "q": {
+     "by": "area",
+     "waste": 1.08
+    },
+    "by": "You",
+    "sup": "Big-box store",
+    "lead": "1 wk",
+    "sheet": "A-501",
+    "m": "floor",
+    "L": "int",
+    "ex": 1.3,
+    "drop": "D8"
+   },
+   {
+    "id": "INT-TRIM",
+    "g": "INT",
+    "n": "Base, casings and sills",
+    "s": "",
+    "u": "lot",
+    "p": 800,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1 wk",
+    "sheet": "A-501",
+    "allow": "Trim package",
+    "drop": "D8"
+   },
+   {
+    "id": "INT-BUILTIN",
+    "g": "INT",
+    "n": "Built-ins",
+    "s": "Gear bench and hooks, bed platform, wardrobe, bunks, desk",
+    "u": "lot",
+    "p": 1650,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1 wk",
+    "sheet": "A-101",
+    "L": "fix",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "INT-CAB",
+    "g": "INT",
+    "n": "Kitchen cabinets and counter",
+    "s": "7 ft run, stock boxes, wood top",
+    "u": "lot",
+    "p": 1500,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Big-box store",
+    "lead": "2-3 wk",
+    "sheet": "A-101",
+    "L": "fix",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "INT-FURN",
+    "g": "INT",
+    "n": "Loose furniture and bedding",
+    "s": "Shown in the model so the rooms read right",
+    "u": "lot",
+    "p": 0,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Owner",
+    "sup": "-",
+    "lead": "-",
+    "sheet": "A-101",
+    "note": "Not in the estimate.",
+    "L": "furn",
+    "ex": 1.6,
+    "tax": false
+   },
+   {
+    "id": "FIX-SINK",
+    "g": "FIX",
+    "n": "Kitchen sink and faucet",
+    "s": "24 in stainless",
+    "u": "ea",
+    "p": 320,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Buy",
+    "sup": "Plumbing supply",
+    "lead": "Stock",
+    "sheet": "P-101",
+    "L": "fix",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "FIX-FRIDGE",
+    "g": "FIX",
+    "n": "Refrigerator",
+    "s": "24 in, about 10 cu ft with freezer",
+    "u": "ea",
+    "p": 850,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Buy",
+    "sup": "Big-box store",
+    "lead": "1-2 wk",
+    "sheet": "A-101",
+    "L": "fix",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "FIX-COOK",
+    "g": "FIX",
+    "n": "2-burner cooktop",
+    "s": "Propane, 24 in",
+    "u": "ea",
+    "p": 400,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Buy",
+    "sup": "Online",
+    "lead": "1-2 wk",
+    "sheet": "M-101",
+    "L": "fix",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "FIX-HOOD",
+    "g": "FIX",
+    "n": "Range hood",
+    "s": "Ducted, up to 300 cfm",
+    "u": "ea",
+    "p": 220,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Buy",
+    "sup": "Big-box store",
+    "lead": "1 wk",
+    "sheet": "M-101",
+    "L": "fix",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "FIX-SHOWER",
+    "g": "FIX",
+    "n": "Shower",
+    "s": "34 x 36 in pan, wall kit, valve, glass panel and 22 in door",
+    "u": "lot",
+    "p": 1650,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Plumbing supply",
+    "lead": "2-3 wk",
+    "sheet": "P-101",
+    "L": "fix",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "FIX-TOILET",
+    "g": "FIX",
+    "n": "Toilet",
+    "s": "1.28 gpf, elongated",
+    "u": "ea",
+    "p": 280,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Buy",
+    "sup": "Plumbing supply",
+    "lead": "Stock",
+    "sheet": "P-101",
+    "L": "fix",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "FIX-VANITY",
+    "g": "FIX",
+    "n": "Vanity, top, faucet, mirror",
+    "s": "18 in",
+    "u": "lot",
+    "p": 480,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Buy",
+    "sup": "Big-box store",
+    "lead": "1 wk",
+    "sheet": "P-101",
+    "L": "fix",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "FIX-FAN",
+    "g": "FIX",
+    "n": "Bath fan",
+    "s": "50 cfm continuous, 80 cfm boost, humidity sensing",
+    "u": "ea",
+    "p": 210,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Electrical supply",
+    "lead": "Stock",
+    "sheet": "M-101",
+    "m": "white",
+    "L": "fix",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "FIX-WD",
+    "g": "FIX",
+    "n": "Washer-dryer combo",
+    "s": "24 in, ventless, 120 V",
+    "u": "ea",
+    "p": 1350,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Buy",
+    "sup": "Big-box store",
+    "lead": "1-2 wk",
+    "sheet": "P-101",
+    "L": "fix",
+    "ex": 1.6,
+    "when": {
+     "wd": [
+      true
+     ]
+    },
+    "drop": "D8"
+   },
+   {
+    "id": "PLB-PEX",
+    "g": "PLB",
+    "n": "PEX tubing and fittings",
+    "s": "Blue cold, red hot, home runs from a manifold",
+    "u": "lf",
+    "p": 1.6,
+    "q": {
+     "by": "len",
+     "waste": 1.15
+    },
+    "by": "You",
+    "sup": "Plumbing supply",
+    "lead": "Stock",
+    "sheet": "P-101",
+    "L": "plumb",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "PLB-MANIFOLD",
+    "g": "PLB",
+    "n": "PEX manifold with valves",
+    "s": "Hot and cold, labeled ports",
+    "u": "ea",
+    "p": 240,
+    "q": "count",
+    "by": "You",
+    "sup": "Plumbing supply",
+    "lead": "Stock",
+    "sheet": "P-101",
+    "L": "plumb",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "PLB-DWV",
+    "g": "PLB",
+    "n": "Drain and vent pipe",
+    "s": "ABS or PVC, 1 1/2 to 3 in, with fittings",
+    "u": "lf",
+    "p": 6.5,
+    "q": {
+     "by": "len",
+     "waste": 1.15
+    },
+    "by": "You",
+    "sup": "Plumbing supply",
+    "lead": "Stock",
+    "sheet": "P-101",
+    "m": "dwv",
+    "L": "plumb",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "PLB-CO",
+    "g": "PLB",
+    "n": "Cleanout",
+    "s": "",
+    "u": "ea",
+    "p": 25,
+    "q": "count",
+    "by": "You",
+    "sup": "Plumbing supply",
+    "lead": "Stock",
+    "sheet": "P-101",
+    "m": "dwv",
+    "L": "plumb",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "PLB-AAV",
+    "g": "PLB",
+    "n": "Air admittance valve",
+    "s": "Where a vent pipe would need an outside wall",
+    "u": "ea",
+    "p": 28,
+    "q": "count",
+    "by": "You",
+    "sup": "Plumbing supply",
+    "lead": "Stock",
+    "sheet": "P-101",
+    "m": "dwv",
+    "L": "plumb",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "PLB-ENTRY",
+    "g": "PLB",
+    "n": "Water entry",
+    "s": "Frost box, heat cable, main shutoff, drain-down valve, filter",
+    "u": "lot",
+    "p": 520,
+    "q": "count",
+    "by": "You",
+    "sup": "Plumbing supply",
+    "lead": "1 wk",
+    "sheet": "P-101",
+    "L": "plumb",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "PLB-DRAINBOX",
+    "g": "PLB",
+    "n": "Drain drop protection",
+    "s": "Insulated box and heat cable where the drain leaves the floor",
+    "u": "lot",
+    "p": 280,
+    "q": "count",
+    "by": "You",
+    "sup": "Plumbing supply",
+    "lead": "1 wk",
+    "sheet": "P-101",
+    "L": "plumb",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "PLB-PTANK",
+    "g": "PLB",
+    "n": "Pressure tank and pump control",
+    "s": "Small tank under the sink, constant-pressure control",
+    "u": "ea",
+    "p": 420,
+    "q": "count",
+    "by": "You",
+    "sup": "Plumbing supply",
+    "lead": "1 wk",
+    "sheet": "P-101",
+    "L": "plumb",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "PLB-VALVES",
+    "g": "PLB",
+    "n": "Stops, washer box, test caps",
+    "s": "",
+    "u": "lot",
+    "p": 220,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Plumbing supply",
+    "lead": "Stock",
+    "sheet": "P-101",
+    "allow": "Small plumbing parts",
+    "drop": "D6"
+   },
+   {
+    "id": "ELE-PANEL",
+    "g": "ELE",
+    "n": "Load center, 100 A",
+    "s": "20 spaces, main breaker. In the garage on the house wall when there is a garage",
+    "u": "ea",
+    "p": 260,
+    "q": "count",
+    "by": "You",
+    "sup": "Electrical supply",
+    "lead": "Stock",
+    "sheet": "E-101",
+    "m": "steel",
+    "L": "elec",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "ELE-BRK",
+    "g": "ELE",
+    "n": "Breakers",
+    "s": "GFCI, AFCI, dual-function (GFCI/AFCI) or standard, as scheduled on E-201",
+    "u": "ea",
+    "p": 55,
+    "q": {
+     "by": "n",
+     "key": "circuits"
+    },
+    "by": "You",
+    "sup": "Electrical supply",
+    "lead": "Stock",
+    "sheet": "E-101",
+    "drop": "D6"
+   },
+   {
+    "id": "ELE-METER",
+    "g": "ELE",
+    "n": "Meter base and service entrance",
+    "s": "Utility-approved. On the garage south wall when there is a garage, otherwise the west wall",
+    "u": "ea",
+    "p": 380,
+    "q": "count",
+    "by": "You",
+    "sup": "Electrical supply",
+    "lead": "1 wk",
+    "sheet": "E-101",
+    "m": "steel",
+    "L": "elec",
+    "ex": 2.2,
+    "out": 1,
+    "drop": "D6"
+   },
+   {
+    "id": "ELE-WIRE",
+    "g": "ELE",
+    "n": "Cable, 14/2 and 12/2",
+    "s": "Colored by circuit in the model",
+    "u": "lf",
+    "p": 0.85,
+    "q": {
+     "by": "len",
+     "waste": 1.2
+    },
+    "by": "You",
+    "sup": "Electrical supply",
+    "lead": "Stock",
+    "sheet": "E-101",
+    "L": "elec",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "ELE-BOX",
+    "g": "ELE",
+    "n": "Device and fixture boxes",
+    "s": "Airtight boxes on outside walls",
+    "u": "ea",
+    "p": 3.5,
+    "q": {
+     "by": "n",
+     "key": "devices"
+    },
+    "by": "You",
+    "sup": "Electrical supply",
+    "lead": "Stock",
+    "sheet": "E-101",
+    "drop": "D6"
+   },
+   {
+    "id": "ELE-DEV",
+    "g": "ELE",
+    "n": "Receptacle or switch",
+    "s": "Tamper-resistant",
+    "u": "ea",
+    "p": 9,
+    "q": "count",
+    "by": "You",
+    "sup": "Electrical supply",
+    "lead": "Stock",
+    "sheet": "E-101",
+    "m": "white",
+    "L": "elec",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "ELE-GFCI",
+    "g": "ELE",
+    "n": "GFCI receptacle",
+    "s": "Kitchen, bath, laundry, outside",
+    "u": "ea",
+    "p": 24,
+    "q": "count",
+    "by": "You",
+    "sup": "Electrical supply",
+    "lead": "Stock",
+    "sheet": "E-101",
+    "m": "white",
+    "L": "elec",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "ELE-LIGHT",
+    "g": "ELE",
+    "n": "LED light fixture",
+    "s": "Sconces, ceiling lights, pendant, track, porch",
+    "u": "ea",
+    "p": 65,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Electrical supply",
+    "lead": "1 wk",
+    "sheet": "E-101",
+    "m": "lamp",
+    "L": "elec",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "ELE-ALARM",
+    "g": "ELE",
+    "n": "Smoke or smoke/CO alarm",
+    "s": "Hardwired, interconnected, 10-year battery",
+    "u": "ea",
+    "p": 45,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Electrical supply",
+    "lead": "Stock",
+    "sheet": "E-101",
+    "m": "white",
+    "L": "elec",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "ELE-ELEC",
+    "g": "ELE",
+    "n": "Electrician",
+    "s": "Service hookup, panel, inspection",
+    "u": "lot",
+    "p": 1900,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Pro",
+    "sup": "Local electrician",
+    "lead": "2-4 wk",
+    "sheet": "E-101",
+    "allow": "Licensed work and sign-off",
+    "tax": false
+   },
+   {
+    "id": "ELE-TEMP",
+    "g": "ELE",
+    "n": "Temporary power for the build",
+    "s": "Temp pole or generator rental",
+    "u": "lot",
+    "p": 450,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Rental yard",
+    "lead": "1 wk",
+    "sheet": "C-101",
+    "rent": true,
+    "allow": "Power while building",
+    "tax": false
+   },
+   {
+    "id": "MEC-FURN",
+    "g": "MEC",
+    "n": "Propane wall furnace",
+    "s": "Direct vent, about 21,500 BTU, modulating",
+    "u": "ea",
+    "p": 2049,
+    "q": {
+     "fixed": 1
+    },
+    "chk": true,
+    "by": "Buy",
+    "sup": "Propane company",
+    "lead": "1-2 wk",
+    "sheet": "M-101",
+    "when": {
+     "heat": [
+      "both",
+      "propane"
+     ]
+    },
+    "L": "mech",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "MEC-FURNVENT",
+    "g": "MEC",
+    "n": "Furnace vent kit, snorkel extension and thermostat",
+    "s": "Raises the vent terminal above the snow line",
+    "u": "lot",
+    "p": 520,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Propane company",
+    "lead": "1-2 wk",
+    "sheet": "M-101",
+    "m": "steel",
+    "L": "mech",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "MEC-STOVE",
+    "g": "MEC",
+    "n": "Wood stove",
+    "s": "EPA certified, small firebox",
+    "u": "ea",
+    "p": 1900,
+    "q": {
+     "fixed": 1
+    },
+    "chk": true,
+    "by": "Buy",
+    "sup": "Hearth dealer",
+    "lead": "2-4 wk",
+    "sheet": "M-101",
+    "when": {
+     "heat": [
+      "both",
+      "wood"
+     ]
+    },
+    "L": "mech",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "MEC-CHIM",
+    "g": "MEC",
+    "n": "Insulated chimney, 6 in",
+    "s": "Class A, 48 in lengths",
+    "u": "ea",
+    "p": 420,
+    "q": {
+     "by": "len",
+     "div": 4,
+     "round": 1
+    },
+    "chk": true,
+    "by": "You",
+    "sup": "Hearth dealer",
+    "lead": "1-2 wk",
+    "sheet": "M-101",
+    "m": "steel",
+    "L": "mech",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "MEC-PIPE",
+    "g": "MEC",
+    "n": "Double-wall stove pipe, 6 in",
+    "s": "Stove to ceiling support",
+    "u": "lf",
+    "p": 38,
+    "q": {
+     "by": "len",
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Hearth dealer",
+    "lead": "1-2 wk",
+    "sheet": "M-101",
+    "m": "black",
+    "L": "mech",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "MEC-CHIMKIT",
+    "g": "MEC",
+    "n": "Chimney support, flashing, collar, cap, brace, snow splitter",
+    "s": "",
+    "u": "lot",
+    "p": 820,
+    "q": "count",
+    "by": "You",
+    "sup": "Hearth dealer",
+    "lead": "1-2 wk",
+    "sheet": "M-101",
+    "note": "Includes a snow splitter on the uphill side so sliding snow does not shear the chimney.",
+    "m": "dark",
+    "L": "mech",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "MEC-HEARTH",
+    "g": "MEC",
+    "n": "Hearth pad and heat shield",
+    "s": "Cement board with slate",
+    "u": "lot",
+    "p": 900,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Hearth dealer",
+    "lead": "1 wk",
+    "sheet": "M-101",
+    "when": {
+     "heat": [
+      "both",
+      "wood"
+     ]
+    },
+    "L": "mech",
+    "ex": 1.6,
+    "drop": "D8"
+   },
+   {
+    "id": "MEC-OAK",
+    "g": "MEC",
+    "n": "Outside air kit",
+    "s": "4 in duct from the stove to the west rim",
+    "u": "ea",
+    "p": 140,
+    "q": "count",
+    "by": "You",
+    "sup": "Hearth dealer",
+    "lead": "1-2 wk",
+    "sheet": "M-101",
+    "m": "galv",
+    "L": "mech",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "MEC-TANK",
+    "g": "MEC",
+    "n": "Propane tank, 500 gal",
+    "s": "ASME, set on a pad and regulated by the propane company. Many companies lease tanks instead",
+    "u": "lot",
+    "p": 3400,
+    "q": "count",
+    "by": "Pro",
+    "sup": "Propane company",
+    "lead": "2-4 wk",
+    "sheet": "C-101",
+    "note": "Sized for cold snaps: by the RegO D x L x K method a 500 gal tank 30% full gives about 315,000 BTU/h at 0 F and about 157,000 at -10 F (a 250 gal gives 197,000 and 99,000). Price is my estimate.",
+    "m": "tank",
+    "L": "mech",
+    "ex": 0,
+    "tax": false
+   },
+   {
+    "id": "MEC-GASLINE",
+    "g": "MEC",
+    "n": "Buried propane line and riser",
+    "s": "Installed by the propane company",
+    "u": "lf",
+    "p": 14,
+    "q": {
+     "by": "len"
+    },
+    "by": "Pro",
+    "sup": "Propane company",
+    "lead": "2-4 wk",
+    "sheet": "C-101",
+    "m": "gasPE",
+    "L": "mech",
+    "ex": 0,
+    "tax": false
+   },
+   {
+    "id": "MEC-REG",
+    "g": "MEC",
+    "n": "Second-stage regulator",
+    "s": "On the east wall",
+    "u": "ea",
+    "p": 75,
+    "q": "count",
+    "by": "Pro",
+    "sup": "Propane company",
+    "lead": "Stock",
+    "sheet": "M-101",
+    "m": "gas",
+    "L": "mech",
+    "ex": 2.2,
+    "drop": "D6"
+   },
+   {
+    "id": "MEC-CSST",
+    "g": "MEC",
+    "n": "CSST gas pipe and fittings",
+    "s": "Yellow jacket, bonded",
+    "u": "lf",
+    "p": 5.5,
+    "q": {
+     "by": "len",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Plumbing supply",
+    "lead": "Stock",
+    "sheet": "M-101",
+    "m": "gas",
+    "L": "mech",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "MEC-GASFIT",
+    "g": "MEC",
+    "n": "Gas fitter",
+    "s": "Connect appliances, pressure test, sign-off",
+    "u": "lot",
+    "p": 650,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Pro",
+    "sup": "Propane company",
+    "lead": "2-4 wk",
+    "sheet": "M-101",
+    "allow": "Licensed gas work",
+    "tax": false
+   },
+   {
+    "id": "MEC-WH",
+    "g": "MEC",
+    "n": "Tankless water heater",
+    "s": "Propane, indoor, about 140,000 BTU",
+    "u": "ea",
+    "p": 863,
+    "q": {
+     "fixed": 1
+    },
+    "chk": true,
+    "by": "Buy",
+    "sup": "Propane company",
+    "lead": "1-2 wk",
+    "sheet": "P-101",
+    "L": "mech",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "MEC-WHVENT",
+    "g": "MEC",
+    "n": "Water heater vent kit",
+    "s": "Concentric, through the east wall",
+    "u": "lot",
+    "p": 420,
+    "q": "count",
+    "by": "You",
+    "sup": "Propane company",
+    "lead": "1-2 wk",
+    "sheet": "M-101",
+    "m": "steel",
+    "L": "mech",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "MEC-FANDUCT",
+    "g": "MEC",
+    "n": "Bath fan duct and wall cap",
+    "s": "4 in insulated duct",
+    "u": "lf",
+    "p": 4,
+    "q": {
+     "by": "len",
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Big-box store",
+    "lead": "Stock",
+    "sheet": "M-101",
+    "m": "galv",
+    "L": "mech",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "MEC-HOODDUCT",
+    "g": "MEC",
+    "n": "Hood duct and wall cap",
+    "s": "6 in, in a soffit to the west wall, backdraft damper and wall cap",
+    "u": "lf",
+    "p": 9,
+    "q": {
+     "by": "len",
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Big-box store",
+    "lead": "Stock",
+    "sheet": "M-101",
+    "m": "galv",
+    "L": "mech",
+    "ex": 1.6,
+    "drop": "D6"
+   },
+   {
+    "id": "LFT-DECK",
+    "g": "LFT",
+    "n": "Loft deck",
+    "s": "3/4 in plywood on the ceiling joists",
+    "u": "sheet",
+    "p": 58,
+    "q": {
+     "by": "area",
+     "div": 32,
+     "waste": 1.08,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "S-201",
+    "m": "ply",
+    "L": "sheath",
+    "ex": 3.1,
+    "roofy": true,
+    "drop": "D7",
+    "when": {
+     "loft": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "LFT-RAIL",
+    "g": "LFT",
+    "n": "Loft guard rail",
+    "s": "36 in, wood",
+    "u": "lf",
+    "p": 24,
+    "q": {
+     "by": "len"
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-101",
+    "m": "wood",
+    "L": "fix",
+    "ex": 3.1,
+    "roofy": true,
+    "drop": "D8",
+    "when": {
+     "loft": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "LFT-STAIR",
+    "g": "LFT",
+    "n": "Spiral stair kit",
+    "s": "Steel, 4 ft 6 in across, 13 risers",
+    "u": "ea",
+    "p": 3200,
+    "q": {
+     "fixed": 1
+    },
+    "chk": true,
+    "by": "Buy",
+    "sup": "Online",
+    "lead": "4-6 wk",
+    "sheet": "A-101",
+    "m": "steelDark",
+    "L": "fix",
+    "ex": 1.6,
+    "drop": "D8",
+    "when": {
+     "loft": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "PWR-PV",
+    "g": "PWR",
+    "n": "Solar modules and ground mount",
+    "s": "4.4 kW, steep tilt to shed snow",
+    "u": "kW",
+    "p": 1300,
+    "q": {
+     "by": "n",
+     "key": "pvKw"
+    },
+    "by": "You",
+    "sup": "Solar distributor",
+    "lead": "2-4 wk",
+    "sheet": "E-101",
+    "note": "Off-grid parts total about $21,500. A 2026 guide puts installed systems this size at $28,000 to $38,000; doing it yourself saves a lot.",
+    "m": "pv",
+    "L": "elec",
+    "ex": 0,
+    "drop": "D6",
+    "when": {
+     "power": [
+      "off"
+     ]
+    }
+   },
+   {
+    "id": "PWR-BATT",
+    "g": "PWR",
+    "n": "Battery, LFP, self-heating",
+    "s": "15 kWh, sized for 2 to 3 cloudy days",
+    "u": "kWh",
+    "p": 420,
+    "q": {
+     "by": "n",
+     "key": "battKwh"
+    },
+    "by": "Buy",
+    "sup": "Solar distributor",
+    "lead": "2-4 wk",
+    "sheet": "E-101",
+    "m": "steel",
+    "L": "elec",
+    "ex": 1.6,
+    "drop": "D6",
+    "when": {
+     "power": [
+      "off"
+     ]
+    }
+   },
+   {
+    "id": "PWR-INV",
+    "g": "PWR",
+    "n": "Inverter/charger",
+    "s": "6 kW, 120/240 V split phase",
+    "u": "ea",
+    "p": 2800,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Solar distributor",
+    "lead": "2-4 wk",
+    "sheet": "E-101",
+    "m": "steel",
+    "L": "elec",
+    "ex": 1.6,
+    "drop": "D6",
+    "when": {
+     "power": [
+      "off"
+     ]
+    }
+   },
+   {
+    "id": "PWR-GEN",
+    "g": "PWR",
+    "n": "Propane generator",
+    "s": "7.5 kW with auto-start and pad",
+    "u": "ea",
+    "p": 3400,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Solar distributor",
+    "lead": "2-4 wk",
+    "sheet": "E-101",
+    "m": "steel",
+    "L": "elec",
+    "ex": 0,
+    "drop": "D6",
+    "when": {
+     "power": [
+      "off"
+     ]
+    }
+   },
+   {
+    "id": "PWR-BOS",
+    "g": "PWR",
+    "n": "Solar wiring and disconnects",
+    "s": "Combiner, disconnects, buried conduit, grounding",
+    "u": "lot",
+    "p": 1800,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Solar distributor",
+    "lead": "1-2 wk",
+    "sheet": "E-101",
+    "m": "pvc",
+    "L": "elec",
+    "ex": 0,
+    "drop": "D6",
+    "when": {
+     "power": [
+      "off"
+     ]
+    }
+   },
+   {
+    "id": "PWR-ELEC",
+    "g": "PWR",
+    "n": "Electrician for the solar tie-in",
+    "s": "Commissioning and inspection",
+    "u": "lot",
+    "p": 1500,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Pro",
+    "sup": "Local electrician",
+    "lead": "2-4 wk",
+    "sheet": "E-101",
+    "allow": "Licensed work and sign-off",
+    "tax": false,
+    "when": {
+     "power": [
+      "off"
+     ]
+    }
+   },
+   {
+    "id": "GAR-CONC",
+    "g": "GAR",
+    "n": "Garage footing, stem wall and slab",
+    "s": "Footing and 8 in stem wall down to frost (48 in), 4 in slab on gravel sloped to the door, top 9 in above grade so two steps reach the house floor. By a concrete contractor",
+    "u": "sf",
+    "p": 15,
+    "q": {
+     "by": "area"
+    },
+    "by": "Pro",
+    "sup": "Concrete contractor",
+    "lead": "2-3 wk",
+    "sheet": "A-601",
+    "L": "found",
+    "ex": 0,
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "m": "conc",
+    "note": "My estimate for a mountain site, formed, poured and finished."
+   },
+   {
+    "id": "GAR-STUD",
+    "g": "GAR",
+    "n": "Stud, 2x6",
+    "s": "SPF, precut",
+    "u": "ea",
+    "p": 9.5,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "m": "spf",
+    "L": "wallf",
+    "ex": 0,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-LSL",
+    "g": "GAR",
+    "n": "Stud, LSL 1 3/4 x 5 1/2",
+    "s": "For walls taller than 12 ft",
+    "u": "lf",
+    "p": 4.2,
+    "q": {
+     "by": "len",
+     "waste": 1.05
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "A-601",
+    "m": "lsl",
+    "L": "wallf",
+    "ex": 0,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-PLATE",
+    "g": "GAR",
+    "n": "Plate, 2x6",
+    "s": "Bottom (treated), double top and beveled bearing plates",
+    "u": "lf",
+    "p": 1.05,
+    "q": {
+     "by": "len",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "m": "spf",
+    "L": "wallf",
+    "ex": 0,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-HDRL",
+    "g": "GAR",
+    "n": "Header, LVL",
+    "s": "3-ply 1 3/4 x 11 7/8 LVL over the 10 ft garage door and the two clerestory windows. Sized on S-301",
+    "u": "lf",
+    "p": 15,
+    "q": {
+     "by": "len",
+     "waste": 1.05
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "A-601",
+    "m": "lvl",
+    "L": "wallf",
+    "ex": 0,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-JPOST",
+    "g": "GAR",
+    "n": "Jack post, LVL",
+    "s": "3- or 4-ply 1 3/4 x 5 1/2 LVL under the clerestory headers; one post between the two windows carries both",
+    "u": "lf",
+    "p": 13,
+    "q": {
+     "by": "len",
+     "waste": 1.05
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "A-601",
+    "m": "lvl",
+    "L": "wallf",
+    "ex": 0,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-IJ16",
+    "g": "GAR",
+    "n": "Rafter, 16 in I-joist",
+    "s": "Same rafters as the house, 12 or 16 in o.c. by snow load. Simple spans: garage north wall to garage south wall, and garage south wall to the entry beam",
+    "u": "lf",
+    "p": 7.2,
+    "q": {
+     "by": "len",
+     "waste": 1.03
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "A-601",
+    "m": "ijoist",
+    "L": "roof",
+    "ex": 0,
+    "roofy": true,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-LVL16",
+    "g": "GAR",
+    "n": "Rafter, LVL 1 3/4 x 16",
+    "s": "Used at 150 psf",
+    "u": "lf",
+    "p": 12.5,
+    "q": {
+     "by": "len",
+     "waste": 1.03
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "2-3 wk",
+    "sheet": "A-601",
+    "m": "lvl",
+    "L": "roof",
+    "ex": 0,
+    "roofy": true,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-BLOCK",
+    "g": "GAR",
+    "n": "Blocking panel at bearings",
+    "s": "I-joist or LVL between rafters",
+    "u": "ea",
+    "p": 9,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "m": "ijoist",
+    "L": "roof",
+    "ex": 0,
+    "roofy": true,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-TIE",
+    "g": "GAR",
+    "n": "Rafter tie",
+    "s": "Rafter-to-plate tie rated about 455 lb uplift in SPF at every bearing",
+    "u": "ea",
+    "p": 2.4,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "m": "galv",
+    "L": "roof",
+    "ex": 0,
+    "roofy": true,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-DECK",
+    "g": "GAR",
+    "n": "Roof deck, lower",
+    "s": "5/8 in OSB, same layers as the house roof so the two roofs are one plane with one soffit line",
+    "u": "sheet",
+    "p": 30,
+    "q": {
+     "by": "area",
+     "div": 32,
+     "waste": 1.08,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "m": "osb",
+    "L": "sheath",
+    "ex": 0,
+    "roofy": true,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-SLEEPER",
+    "g": "GAR",
+    "n": "Vent sleepers",
+    "s": "2x4 on edge over the rafters, as on the house",
+    "u": "lf",
+    "p": 0.85,
+    "q": {
+     "by": "len",
+     "waste": 1.08
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "m": "spf",
+    "L": "roof",
+    "ex": 0,
+    "roofy": true,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-DECK2",
+    "g": "GAR",
+    "n": "Roof deck, upper",
+    "s": "23/32 in OSB over the vent space, as on the house",
+    "u": "sheet",
+    "p": 38,
+    "q": {
+     "by": "area",
+     "div": 32,
+     "waste": 1.08,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "m": "osb",
+    "L": "sheath",
+    "ex": 0,
+    "roofy": true,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-UNDER",
+    "g": "GAR",
+    "n": "Roof underlayment",
+    "s": "Ice and water membrane at the eaves, synthetic underlayment above",
+    "u": "sf",
+    "p": 0.4,
+    "q": {
+     "by": "area",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Roofing supplier",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "L": "roofing",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "m": "syn"
+   },
+   {
+    "id": "GAR-SEAM",
+    "g": "GAR",
+    "n": "Standing seam panels",
+    "s": "Standing seam to match the house, run straight on from the house panels",
+    "u": "sf",
+    "p": 5.9,
+    "q": {
+     "by": "area",
+     "waste": 1.03
+    },
+    "by": "You",
+    "sup": "Roofing supplier",
+    "lead": "2-3 wk",
+    "sheet": "A-601",
+    "m": "seam",
+    "L": "roofing",
+    "ex": 0,
+    "roofy": true,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ],
+     "roof": [
+      "seam"
+     ]
+    }
+   },
+   {
+    "id": "GAR-RIB",
+    "g": "GAR",
+    "n": "Ribbed steel panels",
+    "s": "Ribbed panels to match the house. Anti-condensation backing",
+    "u": "sf",
+    "p": 3.1,
+    "q": {
+     "by": "area",
+     "waste": 1.03
+    },
+    "by": "You",
+    "sup": "Roofing supplier",
+    "lead": "1-2 wk",
+    "sheet": "A-601",
+    "m": "seam",
+    "L": "roofing",
+    "ex": 0,
+    "roofy": true,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ],
+     "roof": [
+      "rib"
+     ]
+    }
+   },
+   {
+    "id": "GAR-TRIM",
+    "g": "GAR",
+    "n": "Fascia, drip edge and rake trim",
+    "s": "Metal-wrapped like the house",
+    "u": "lf",
+    "p": 10,
+    "q": {
+     "by": "len",
+     "waste": 1.05
+    },
+    "by": "You",
+    "sup": "Roofing supplier",
+    "lead": "2-3 wk",
+    "sheet": "A-601",
+    "L": "roofing",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "m": "dark"
+   },
+   {
+    "id": "GAR-FLY",
+    "g": "GAR",
+    "n": "Rake framing",
+    "s": "2x4 outriggers on edge at 24 in in the vent layer, 2x6 sub-fascia, 2x4 soffit nailers",
+    "u": "lf",
+    "p": 1.2,
+    "q": {
+     "by": "len",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "m": "spf",
+    "L": "roof",
+    "ex": 0,
+    "roofy": true,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-SOFFIT",
+    "g": "GAR",
+    "n": "Soffit, cedar",
+    "s": "Cedar, to match the house. Also the ceiling over the covered entry",
+    "u": "sf",
+    "p": 6,
+    "q": {
+     "by": "area",
+     "waste": 1.08
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1 wk",
+    "sheet": "A-601",
+    "m": "cedar",
+    "L": "roofing",
+    "ex": 0,
+    "roofy": true,
+    "drop": "D9",
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-SHEATH",
+    "g": "GAR",
+    "n": "Wall sheathing, ZIP System",
+    "s": "7/16 in, taped. No foam layer, since the garage is not insulated",
+    "u": "sheet",
+    "p": 38,
+    "q": {
+     "by": "area",
+     "div": 32,
+     "waste": 1.1,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "A-601",
+    "L": "sheath",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "m": "zip"
+   },
+   {
+    "id": "GAR-BB",
+    "g": "GAR",
+    "n": "Fiber-cement board and batten",
+    "s": "Same fiber-cement board and batten and color as the house",
+    "u": "sf",
+    "p": 3.1,
+    "q": {
+     "by": "area",
+     "waste": 1.1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "A-601",
+    "m": "siding",
+    "L": "ext",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-OSB",
+    "g": "GAR",
+    "n": "Interior wall lining, OSB",
+    "s": "7/16 in OSB, floor to roof. Screw board racks, shelves and hooks anywhere",
+    "u": "sheet",
+    "p": 18,
+    "q": {
+     "by": "area",
+     "div": 32,
+     "waste": 1.08,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "L": "int",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "m": "osb"
+   },
+   {
+    "id": "GAR-EBEAM",
+    "g": "GAR",
+    "n": "Beam, covered entry",
+    "s": "3-ply 1 3/4 x 16 LVL under the rafters on a beveled plate, in line with the house's south wall, on three posts. It stops 1/2 in short of the house siding (flashed); the house does not carry it",
+    "u": "lf",
+    "p": 22,
+    "q": {
+     "by": "len",
+     "waste": 1.05
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "A-601",
+    "m": "lvl",
+    "L": "ext",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "entryCover": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-EPOST",
+    "g": "GAR",
+    "n": "Post, covered entry",
+    "s": "8x8 Douglas fir-larch No. 1, about 18 ft, uplift-rated post base and beam cap. Pier and footing are under Foundation",
+    "u": "ea",
+    "p": 820,
+    "q": "count",
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "1-2 wk",
+    "sheet": "A-601",
+    "m": "cedar",
+    "L": "ext",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "entryCover": [
+      true
+     ]
+    },
+    "note": "My estimate, post and hardware."
+   },
+   {
+    "id": "GAR-GYP",
+    "g": "GAR",
+    "n": "Gypsum board, garage side of the house wall",
+    "s": "1/2 in, taped, from the slab to the roof deck. Code-required fire separation",
+    "u": "sheet",
+    "p": 16,
+    "q": {
+     "by": "area",
+     "div": 32,
+     "waste": 1.1,
+     "round": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "L": "int",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "m": "white"
+   },
+   {
+    "id": "GAR-HDOOR",
+    "g": "GAR",
+    "n": "Door to the house, 36 in",
+    "s": "1 3/4 in solid-core steel, self-closing hinges, self-latching, weatherstripped. Code-required between garage and house",
+    "u": "ea",
+    "p": 650,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Window dealer",
+    "lead": "2-4 wk",
+    "sheet": "A-601",
+    "L": "open",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-STEP",
+    "g": "GAR",
+    "n": "Landing and steps to the house door",
+    "s": "Concrete landing 3 ft deep, about 7 in below the door sill, then two risers of about 7 3/8 in to the slab. Poured with the slab",
+    "u": "ea",
+    "p": 420,
+    "q": "count",
+    "by": "Pro",
+    "sup": "Concrete contractor",
+    "lead": "2-3 wk",
+    "sheet": "A-601",
+    "L": "found",
+    "ex": 0,
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "m": "conc"
+   },
+   {
+    "id": "GAR-ODOOR",
+    "g": "GAR",
+    "n": "Overhead door, 10 x 8 ft, with opener",
+    "s": "Dark flush steel, not insulated. Belt-drive opener with keypad. Installed by the dealer",
+    "u": "ea",
+    "p": 2400,
+    "q": "count",
+    "by": "Pro",
+    "sup": "Garage door dealer",
+    "lead": "4-6 wk",
+    "sheet": "A-601",
+    "L": "open",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "note": "My estimate."
+   },
+   {
+    "id": "GAR-CLR",
+    "g": "GAR",
+    "n": "Fixed window, 48 x 39 in",
+    "s": "Clerestory high on the south wall. Low-E, dark frames",
+    "u": "ea",
+    "p": 480,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Window dealer",
+    "lead": "6-10 wk",
+    "sheet": "A-601",
+    "L": "open",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-HEAT",
+    "g": "GAR",
+    "n": "Propane wall heater, direct vent",
+    "s": "About 30,000 BTU/h, sealed combustion, burner 18 in or more above the floor, on the south wall, vent kit with snorkel",
+    "u": "ea",
+    "p": 1900,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Propane company",
+    "lead": "1-2 wk",
+    "sheet": "A-601",
+    "L": "mech",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "m": "steel",
+    "note": "My estimate."
+   },
+   {
+    "id": "GAR-GAS",
+    "g": "GAR",
+    "n": "Propane pipe to the garage heater",
+    "s": "Branch off the house furnace line, black iron where it is exposed in the garage, about 10 ft. By the propane company",
+    "u": "lf",
+    "p": 25,
+    "q": {
+     "by": "len"
+    },
+    "by": "Pro",
+    "sup": "Propane company",
+    "lead": "2-4 wk",
+    "sheet": "A-601",
+    "L": "mech",
+    "ex": 0,
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "m": "gas"
+   },
+   {
+    "id": "GAR-LIGHT",
+    "g": "GAR",
+    "n": "LED light fixture, garage",
+    "s": "Three 4 ft ceiling fixtures inside, two wall lights by the door outside",
+    "u": "ea",
+    "p": 70,
+    "q": "count",
+    "by": "Buy",
+    "sup": "Electrical supply",
+    "lead": "1 wk",
+    "sheet": "A-601",
+    "L": "elec",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "m": "lamp"
+   },
+   {
+    "id": "GAR-DEV",
+    "g": "GAR",
+    "n": "Receptacle, switch or box, garage",
+    "s": "On a GFCI breaker",
+    "u": "ea",
+    "p": 12,
+    "q": "count",
+    "by": "You",
+    "sup": "Electrical supply",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "L": "elec",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "m": "white"
+   },
+   {
+    "id": "GAR-WIRE",
+    "g": "GAR",
+    "n": "Cable, 12/2, garage",
+    "s": "Run on the walls and rafters from the panel",
+    "u": "lf",
+    "p": 0.95,
+    "q": {
+     "by": "len",
+     "waste": 1.2
+    },
+    "by": "You",
+    "sup": "Electrical supply",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "L": "elec",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "GAR-HDW",
+    "g": "GAR",
+    "n": "Garage connectors and fasteners",
+    "s": "Anchor bolts, hold-downs, hangers, rafter ties, nails and screws",
+    "u": "lot",
+    "p": 450,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Lumberyard",
+    "lead": "Stock",
+    "sheet": "A-601",
+    "L": "wallf",
+    "ex": 0,
+    "out": 0,
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "allow": "Allowance for connectors and fasteners"
+   },
+   {
+    "id": "GAR-PERMIT",
+    "g": "GAR",
+    "n": "Garage permit and inspections",
+    "s": "Added to the house permit; varies by county",
+    "u": "lot",
+    "p": 400,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Pro",
+    "sup": "County",
+    "lead": "4-8 wk",
+    "sheet": "A-601",
+    "ex": 0,
+    "out": 0,
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "allow": "Garage share of the permit"
+   },
+   {
+    "id": "GEN-HELP",
+    "g": "GEN",
+    "n": "Hired help for walls and roof",
+    "s": "Two people, four days",
+    "u": "lot",
+    "p": 3000,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Pro",
+    "sup": "Local framers",
+    "lead": "2-4 wk",
+    "sheet": "-",
+    "allow": "Labor",
+    "when": {
+     "help": [
+      true
+     ]
+    },
+    "tax": false
+   },
+   {
+    "id": "GEN-LIFT",
+    "g": "GEN",
+    "n": "Telehandler and scaffold rental",
+    "s": "For the 17 ft wall and the rafters",
+    "u": "lot",
+    "p": 1400,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Rental yard",
+    "lead": "1 wk",
+    "sheet": "-",
+    "rent": true,
+    "allow": "Rental",
+    "tax": false
+   },
+   {
+    "id": "GEN-DUMP",
+    "g": "GEN",
+    "n": "Dumpster and disposal",
+    "s": "",
+    "u": "lot",
+    "p": 650,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Rental yard",
+    "lead": "1 wk",
+    "sheet": "-",
+    "rent": true,
+    "allow": "Rental",
+    "tax": false
+   },
+   {
+    "id": "GEN-TOILET",
+    "g": "GEN",
+    "n": "Portable toilet",
+    "s": "About 6 months",
+    "u": "lot",
+    "p": 900,
+    "q": {
+     "fixed": 1
+    },
+    "by": "You",
+    "sup": "Rental yard",
+    "lead": "1 wk",
+    "sheet": "-",
+    "rent": true,
+    "allow": "Rental",
+    "tax": false
+   },
+   {
+    "id": "GEN-SURVEY",
+    "g": "GEN",
+    "n": "Surveyor staking",
+    "s": "Corners and setbacks",
+    "u": "lot",
+    "p": 650,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Pro",
+    "sup": "Local surveyor",
+    "lead": "2-4 wk",
+    "sheet": "C-101",
+    "allow": "Professional service",
+    "tax": false
+   },
+   {
+    "id": "GEN-ENG",
+    "g": "GEN",
+    "n": "Structural engineer",
+    "s": "Snow load, piers, rafters, south wall, stamp",
+    "u": "lot",
+    "p": 2200,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Pro",
+    "sup": "Local engineer",
+    "lead": "3-6 wk",
+    "sheet": "S-201",
+    "allow": "Professional service",
+    "tax": false
+   },
+   {
+    "id": "GEN-PERMIT",
+    "g": "GEN",
+    "n": "Building permit and plan review",
+    "s": "Varies a lot by county",
+    "u": "lot",
+    "p": 2400,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Pro",
+    "sup": "County",
+    "lead": "4-10 wk",
+    "sheet": "G-001",
+    "allow": "Fees",
+    "tax": false
+   },
+   {
+    "id": "GEN-INS",
+    "g": "GEN",
+    "n": "Builder's risk insurance",
+    "s": "",
+    "u": "lot",
+    "p": 700,
+    "q": {
+     "fixed": 1
+    },
+    "by": "Pro",
+    "sup": "Insurer",
+    "lead": "1 wk",
+    "sheet": "-",
+    "allow": "Insurance",
+    "tax": false
+   },
+   {
+    "id": "GEN-DELIV",
+    "g": "GEN",
+    "n": "Delivery charges",
+    "s": "One charge per drop, see the delivery list",
+    "u": "drop",
+    "p": 175,
+    "q": {
+     "by": "n",
+     "key": "drops"
+    },
+    "by": "Buy",
+    "sup": "Suppliers",
+    "lead": "-",
+    "sheet": "-",
+    "allow": "Freight to a mountain site (my estimate)",
+    "tax": false
+   }
+  ],
+  "site": [
+   {
+    "id": "SITE-SEPTIC",
+    "n": "Septic system",
+    "lo": 6000,
+    "hi": 25000,
+    "note": "Conventional system in Colorado. Mountain sites often cost more. Needs a soil test first.",
+    "chk": true,
+    "m": "conc",
+    "L": "site"
+   },
+   {
+    "id": "SITE-WELL",
+    "n": "Water well and pump",
+    "lo": 8000,
+    "hi": 32000,
+    "note": "Drilling and casing. A deep mountain well can cost much more.",
+    "chk": true,
+    "m": "steel",
+    "L": "site"
+   },
+   {
+    "id": "SITE-CISTERN",
+    "n": "Hauled-water tank instead of a well",
+    "lo": 3000,
+    "hi": 6000,
+    "note": "My estimate: 1,500 gal buried tank, pump and fill line. You haul water in."
+   },
+   {
+    "id": "SITE-SEWER",
+    "n": "Sewer line to the septic tank",
+    "lo": null,
+    "hi": null,
+    "note": "Part of the septic quote. 4 in pipe below frost.",
+    "m": "dwv",
+    "L": "plumb"
+   },
+   {
+    "id": "SITE-WATER",
+    "n": "Water line from the well",
+    "lo": null,
+    "hi": null,
+    "note": "Part of the well quote. Below frost, under the north snow pile.",
+    "m": "pexBlue",
+    "L": "plumb"
+   },
+   {
+    "id": "SITE-POWER",
+    "n": "Power line from the road",
+    "lo": null,
+    "hi": null,
+    "note": "Get a quote from the utility. A long line extension can cost more than the cabin's electrical work. Not needed off-grid.",
+    "m": "pvc",
+    "L": "elec",
+    "when": {
+     "power": [
+      "grid"
+     ]
+    }
+   },
+   {
+    "id": "SITE-DRIVE",
+    "n": "Driveway and parking",
+    "lo": null,
+    "hi": null,
+    "note": "Depends on slope and distance. Get a quote from a local excavator.",
+    "m": "gravel",
+    "L": "site"
+   }
+  ]
+ },
+ "plumbing": {
+  "note": "Y is height above grade. Floor is at 2.0. Supply and drain lines run in the insulated floor bays north of the middle beam (Z 15.3), so nothing crosses a beam and nothing sits in an exterior wall.",
+  "stack": {
+   "x": 24.4,
+   "z": 10,
+   "dia": 3,
+   "turnY": 11.9833,
+   "outZ": 21.5
+  },
+  "runs": [
+   {
+    "id": "WS",
+    "sys": "cold",
+    "dia": 1,
+    "it": "PLB-PEX",
+    "name": "Water service riser into kitchen cabinet",
+    "pts": [
+     [
+      12.6,
+      -1,
+      2.3
+     ],
+     [
+      12.6,
+      3.1833,
+      2.3
+     ]
+    ]
+   },
+   {
+    "id": "CM",
+    "sys": "cold",
+    "dia": 0.75,
+    "it": "PLB-PEX",
+    "name": "Cold main to manifold",
+    "pts": [
+     [
+      12.9,
+      3.1833,
+      2.3
+     ],
+     [
+      12.9,
+      2.3333,
+      2.3
+     ],
+     [
+      31.05,
+      2.3333,
+      1.6
+     ],
+     [
+      31.05,
+      2.3333,
+      13.5
+     ],
+     [
+      31.4,
+      2.3333,
+      13.5
+     ],
+     [
+      31.4,
+      5.6833,
+      13.5
+     ]
+    ]
+   },
+   {
+    "id": "WHC",
+    "sys": "cold",
+    "dia": 0.75,
+    "it": "PLB-PEX",
+    "name": "Cold to water heater",
+    "pts": [
+     [
+      31.4,
+      6.3833,
+      13.55
+     ],
+     [
+      31.4,
+      6.8833,
+      13.55
+     ]
+    ]
+   },
+   {
+    "id": "WHH",
+    "sys": "hot",
+    "dia": 0.75,
+    "it": "PLB-PEX",
+    "name": "Hot from water heater",
+    "pts": [
+     [
+      31.25,
+      6.8833,
+      14.6
+     ],
+     [
+      31.25,
+      6.3833,
+      14.6
+     ]
+    ]
+   },
+   {
+    "id": "KC",
+    "sys": "cold",
+    "dia": 0.5,
+    "it": "PLB-PEX",
+    "name": "Kitchen sink, cold",
+    "pts": [
+     [
+      31.4,
+      5.6833,
+      13.65
+     ],
+     [
+      31.4,
+      2.3333,
+      13.65
+     ],
+     [
+      30.85,
+      2.3333,
+      13.65
+     ],
+     [
+      30.85,
+      2.3333,
+      2
+     ],
+     [
+      12.9,
+      2.3333,
+      2
+     ],
+     [
+      12.9,
+      3.4833,
+      2
+     ]
+    ]
+   },
+   {
+    "id": "KH",
+    "sys": "hot",
+    "dia": 0.5,
+    "it": "PLB-PEX",
+    "name": "Kitchen sink, hot",
+    "pts": [
+     [
+      31.25,
+      5.6833,
+      13.65
+     ],
+     [
+      31.25,
+      2.2033,
+      13.65
+     ],
+     [
+      30.7,
+      2.2033,
+      13.65
+     ],
+     [
+      30.7,
+      2.2033,
+      2.3
+     ],
+     [
+      12.6,
+      2.2033,
+      2.3
+     ],
+     [
+      12.6,
+      3.4833,
+      2.3
+     ]
+    ]
+   },
+   {
+    "id": "VC",
+    "sys": "cold",
+    "dia": 0.5,
+    "it": "PLB-PEX",
+    "name": "Vanity, cold",
+    "pts": [
+     [
+      31.4,
+      5.6833,
+      13.8
+     ],
+     [
+      31.4,
+      2.3333,
+      13.8
+     ],
+     [
+      25.7,
+      2.3333,
+      13.8
+     ],
+     [
+      25.7,
+      2.3333,
+      10.6
+     ],
+     [
+      25.7,
+      3.1833,
+      10.6
+     ]
+    ]
+   },
+   {
+    "id": "VH",
+    "sys": "hot",
+    "dia": 0.5,
+    "it": "PLB-PEX",
+    "name": "Vanity, hot",
+    "pts": [
+     [
+      31.25,
+      5.6833,
+      13.8
+     ],
+     [
+      31.25,
+      2.2033,
+      13.8
+     ],
+     [
+      25.95,
+      2.2033,
+      13.8
+     ],
+     [
+      25.95,
+      2.2033,
+      10.6
+     ],
+     [
+      25.95,
+      3.1833,
+      10.6
+     ]
+    ]
+   },
+   {
+    "id": "TC",
+    "sys": "cold",
+    "dia": 0.5,
+    "it": "PLB-PEX",
+    "name": "Toilet, cold",
+    "pts": [
+     [
+      31.4,
+      5.6833,
+      13.95
+     ],
+     [
+      31.4,
+      2.3333,
+      13.95
+     ],
+     [
+      23.4,
+      2.3333,
+      13.95
+     ],
+     [
+      23.4,
+      2.3333,
+      10.05
+     ],
+     [
+      23.4,
+      3.1833,
+      10.05
+     ]
+    ]
+   },
+   {
+    "id": "SC",
+    "sys": "cold",
+    "dia": 0.5,
+    "it": "PLB-PEX",
+    "name": "Shower, cold",
+    "pts": [
+     [
+      31.4,
+      5.6833,
+      14.1
+     ],
+     [
+      31.4,
+      2.3333,
+      14.1
+     ],
+     [
+      29.75,
+      2.3333,
+      14.1
+     ],
+     [
+      29.75,
+      2.3333,
+      10
+     ],
+     [
+      29.75,
+      6.3833,
+      10
+     ]
+    ]
+   },
+   {
+    "id": "SH",
+    "sys": "hot",
+    "dia": 0.5,
+    "it": "PLB-PEX",
+    "name": "Shower, hot",
+    "pts": [
+     [
+      31.25,
+      5.6833,
+      14.1
+     ],
+     [
+      31.25,
+      2.2033,
+      14.1
+     ],
+     [
+      29.95,
+      2.2033,
+      14.1
+     ],
+     [
+      29.95,
+      2.2033,
+      10
+     ],
+     [
+      29.95,
+      6.3833,
+      10
+     ]
+    ]
+   },
+   {
+    "id": "SR",
+    "sys": "cold",
+    "dia": 0.5,
+    "it": "PLB-PEX",
+    "name": "Shower head riser (mixed)",
+    "pts": [
+     [
+      29.85,
+      6.3833,
+      10
+     ],
+     [
+      29.85,
+      9.2833,
+      10
+     ]
+    ]
+   },
+   {
+    "id": "DT",
+    "sys": "dwv",
+    "dia": 3,
+    "it": "PLB-DWV",
+    "name": "Building drain",
+    "pts": [
+     [
+      23.7,
+      2.2033,
+      11.9
+     ],
+     [
+      23.7,
+      2.1333,
+      9
+     ],
+     [
+      21.67,
+      2.0633,
+      7
+     ],
+     [
+      21.67,
+      1.9533,
+      0.9
+     ],
+     [
+      21.67,
+      0,
+      0.9
+     ]
+    ]
+   },
+   {
+    "id": "DW",
+    "sys": "dwv",
+    "dia": 3,
+    "it": "PLB-DWV",
+    "name": "Toilet drain",
+    "pts": [
+     [
+      23.7,
+      2.5833,
+      11.2
+     ],
+     [
+      23.7,
+      2.1833,
+      11.2
+     ]
+    ]
+   },
+   {
+    "id": "DS",
+    "sys": "dwv",
+    "dia": 2,
+    "it": "PLB-DWV",
+    "name": "Shower drain",
+    "pts": [
+     [
+      29.85,
+      2.5833,
+      11.7
+     ],
+     [
+      29.85,
+      2.3033,
+      11.7
+     ],
+     [
+      29.85,
+      2.3033,
+      11.9
+     ],
+     [
+      23.7,
+      2.2033,
+      11.9
+     ]
+    ]
+   },
+   {
+    "id": "DL",
+    "sys": "dwv",
+    "dia": 2,
+    "it": "PLB-DWV",
+    "name": "Washer standpipe",
+    "pts": [
+     [
+      31.2,
+      5.4833,
+      13.3
+     ],
+     [
+      31.2,
+      2.3833,
+      13.3
+     ],
+     [
+      31.2,
+      2.3433,
+      11.9
+     ],
+     [
+      29.85,
+      2.3033,
+      11.9
+     ]
+    ]
+   },
+   {
+    "id": "DK",
+    "sys": "dwv",
+    "dia": 2,
+    "it": "PLB-DWV",
+    "name": "Kitchen sink drain",
+    "pts": [
+     [
+      12.25,
+      3.5003,
+      1.2
+     ],
+     [
+      12.25,
+      2.2833,
+      1.2
+     ],
+     [
+      21.67,
+      1.9833,
+      1.2
+     ]
+    ]
+   }
+  ],
+  "site": [
+   {
+    "id": "SEW",
+    "sys": "dwv",
+    "dia": 4,
+    "it": "SITE-SEWER",
+    "name": "Sewer to septic tank",
+    "pts": [
+     [
+      21.67,
+      0,
+      0.9
+     ],
+     [
+      21.67,
+      -3.8,
+      0.9
+     ],
+     [
+      21.67,
+      -4,
+      -1.5
+     ],
+     [
+      26,
+      -4.2,
+      -12
+     ],
+     [
+      52,
+      -4.6,
+      -30
+     ]
+    ]
+   },
+   {
+    "id": "WSL",
+    "sys": "cold",
+    "dia": 1,
+    "it": "SITE-WATER",
+    "name": "Water service from well, under the garage and house snow piles",
+    "pts": [
+     [
+      -60,
+      -5.5,
+      -40
+     ],
+     [
+      -60,
+      -5.5,
+      -30
+     ],
+     [
+      12.6,
+      -5.5,
+      -30
+     ],
+     [
+      12.6,
+      -5.5,
+      2.3
+     ],
+     [
+      12.6,
+      -1,
+      2.3
+     ]
+    ]
+   }
+  ],
+  "points": [
+   {
+    "id": "AAV1",
+    "it": "PLB-AAV",
+    "name": "Air admittance valve, kitchen sink",
+    "p": [
+     12.25,
+     3.9333,
+     1
+    ]
+   },
+   {
+    "id": "AAV2",
+    "it": "PLB-AAV",
+    "name": "Air admittance valve, washer box",
+    "p": [
+     31.2,
+     5.6333,
+     13.3
+    ]
+   },
+   {
+    "id": "CO1",
+    "it": "PLB-CO",
+    "name": "Cleanout, stack base (access panel in bedroom 1)",
+    "p": [
+     24.4,
+     3.3833,
+     10
+    ]
+   },
+   {
+    "id": "CO2",
+    "it": "PLB-CO",
+    "name": "Two-way cleanout at drain exit",
+    "p": [
+     21.67,
+     0.35,
+     0.9
+    ]
+   },
+   {
+    "id": "CO3",
+    "it": "PLB-CO",
+    "name": "Cleanout, kitchen branch",
+    "p": [
+     12.25,
+     2.9833,
+     1.2
+    ]
+   }
+  ],
+  "boxes": [
+   {
+    "n": "Water entry: frost box, heat cable, main shutoff, drain-down valve, filter",
+    "it": "PLB-ENTRY",
+    "m": "xps",
+    "b": [
+     12.1,
+     0,
+     1.8,
+     1,
+     1.5333,
+     1
+    ],
+    "abs": true,
+    "when": {
+     "found": [
+      "piers"
+     ]
+    }
+   },
+   {
+    "n": "Main shutoff, drain-down valve and filter",
+    "it": "PLB-ENTRY",
+    "m": "steel",
+    "b": [
+     12.35,
+     0.5,
+     1.2,
+     0.5,
+     0.5,
+     0.6
+    ],
+    "when": {
+     "found": [
+      "crawl"
+     ]
+    }
+   },
+   {
+    "n": "Insulated, heat-traced drain drop",
+    "it": "PLB-DRAINBOX",
+    "m": "xps",
+    "b": [
+     21.17,
+     0,
+     0.45,
+     1,
+     1.5333,
+     0.9
+    ],
+    "abs": true,
+    "when": {
+     "found": [
+      "piers"
+     ]
+    }
+   },
+   {
+    "n": "Pressure tank and pump control",
+    "it": "PLB-PTANK",
+    "m": "steel",
+    "cyl": [
+     11.65,
+     0.05,
+     1.45,
+     0.35,
+     1.1
+    ]
+   }
+  ]
+ },
+ "gas": {
+  "runs": [
+   {
+    "id": "GY",
+    "it": "MEC-GASLINE",
+    "name": "Buried yard line, tank to house",
+    "pts": [
+     [
+      44.2,
+      1.4,
+      8
+     ],
+     [
+      44.2,
+      -1.5,
+      8
+     ],
+     [
+      32.6,
+      -1.5,
+      8
+     ],
+     [
+      32.6,
+      2.9833,
+      8
+     ]
+    ]
+   },
+   {
+    "id": "GM",
+    "it": "MEC-CSST",
+    "name": "Gas main in floor",
+    "pts": [
+     [
+      32.6,
+      2.9833,
+      8
+     ],
+     [
+      32.6,
+      1.35,
+      8
+     ],
+     [
+      31,
+      1.35,
+      8
+     ],
+     [
+      31,
+      2.1333,
+      8
+     ],
+     [
+      14.9,
+      2.1333,
+      8
+     ]
+    ]
+   },
+   {
+    "id": "GF",
+    "it": "MEC-CSST",
+    "name": "Gas to furnace",
+    "when": {
+     "heat": [
+      "both",
+      "propane"
+     ]
+    },
+    "pts": [
+     [
+      14.9,
+      2.1333,
+      8
+     ],
+     [
+      1,
+      2.1333,
+      8
+     ],
+     [
+      1,
+      2.1333,
+      10.1
+     ],
+     [
+      1,
+      3.5833,
+      10.1
+     ]
+    ]
+   },
+   {
+    "id": "GW",
+    "it": "MEC-CSST",
+    "name": "Gas to water heater",
+    "pts": [
+     [
+      30.4,
+      2.1333,
+      8
+     ],
+     [
+      30.4,
+      2.1333,
+      14.8
+     ],
+     [
+      31.15,
+      2.1333,
+      14.8
+     ],
+     [
+      31.15,
+      6.8833,
+      14.8
+     ]
+    ]
+   },
+   {
+    "id": "GC",
+    "it": "MEC-CSST",
+    "name": "Gas to cooktop",
+    "pts": [
+     [
+      14.9,
+      2.1333,
+      8
+     ],
+     [
+      14.9,
+      2.1333,
+      1.5
+     ],
+     [
+      14.9,
+      5.4833,
+      1.5
+     ]
+    ]
+   }
+  ],
+  "reg": [
+   32.45,
+   2.9333,
+   7.8
+  ]
+ },
+ "mech": {
+  "runs": [
+   {
+    "id": "OAK",
+    "it": "MEC-OAK",
+    "name": "Outside air for the wood stove",
+    "dia": 4,
+    "when": {
+     "heat": [
+      "both",
+      "wood"
+     ],
+     "entryCover": [
+      false
+     ]
+    },
+    "pts": [
+     [
+      10,
+      2.7333,
+      13.3
+     ],
+     [
+      10,
+      2.0833,
+      13.3
+     ],
+     [
+      1,
+      2.0833,
+      13.3
+     ],
+     [
+      1,
+      1.35,
+      13.3
+     ],
+     [
+      -0.55,
+      1.35,
+      13.3
+     ]
+    ]
+   },
+   {
+    "id": "OAK",
+    "it": "MEC-OAK",
+    "name": "Outside air for the wood stove",
+    "dia": 4,
+    "when": {
+     "heat": [
+      "both",
+      "wood"
+     ],
+     "entryCover": [
+      true
+     ]
+    },
+    "pts": [
+     [
+      10,
+      2.7333,
+      13.3
+     ],
+     [
+      10,
+      2.0833,
+      13.3
+     ],
+     [
+      1,
+      2.0833,
+      13.3
+     ],
+     [
+      1,
+      2.0833,
+      11
+     ],
+     [
+      1,
+      1.35,
+      11
+     ],
+     [
+      -0.55,
+      1.35,
+      11
+     ]
+    ]
+   },
+   {
+    "id": "FV",
+    "it": "MEC-FURNVENT",
+    "name": "Furnace direct vent with snorkel kit, west wall",
+    "dia": 6,
+    "when": {
+     "heat": [
+      "both",
+      "propane"
+     ]
+    },
+    "pts": [
+     [
+      0.85,
+      4.5833,
+      10.1
+     ],
+     [
+      -0.45,
+      4.5833,
+      10.1
+     ],
+     [
+      -0.45,
+      8.0833,
+      10.1
+     ],
+     [
+      -0.75,
+      8.0833,
+      10.1
+     ]
+    ]
+   },
+   {
+    "id": "WV",
+    "it": "MEC-WHVENT",
+    "name": "Water heater concentric vent, east wall",
+    "dia": 5,
+    "pts": [
+     [
+      31.25,
+      9.0833,
+      14.15
+     ],
+     [
+      31.25,
+      9.5833,
+      14.15
+     ],
+     [
+      32.45,
+      9.5833,
+      14.15
+     ]
+    ]
+   },
+   {
+    "id": "BF",
+    "it": "MEC-FANDUCT",
+    "name": "Bath fan duct to south wall cap",
+    "dia": 4,
+    "pts": [
+     [
+      27,
+      11.5833,
+      12.7
+     ],
+     [
+      27,
+      11.9833,
+      12.7
+     ],
+     [
+      27,
+      11.9833,
+      23
+     ],
+     [
+      27,
+      13.1833,
+      23
+     ],
+     [
+      27,
+      13.1833,
+      24.35
+     ]
+    ]
+   },
+   {
+    "id": "HD",
+    "it": "MEC-HOODDUCT",
+    "name": "Range hood duct, in a soffit to the west wall",
+    "dia": 6,
+    "pts": [
+     [
+      15.1,
+      8.8833,
+      1.25
+     ],
+     [
+      15.1,
+      11.1333,
+      1.25
+     ],
+     [
+      0.3,
+      11.1333,
+      1.25
+     ],
+     [
+      -0.45,
+      11.1333,
+      1.25
+     ]
+    ],
+    "when": {
+     "garage": [
+      false
+     ]
+    }
+   },
+   {
+    "id": "HD",
+    "it": "MEC-HOODDUCT",
+    "name": "Range hood duct, in a soffit to the west wall past the garage",
+    "dia": 6,
+    "when": {
+     "garage": [
+      true
+     ]
+    },
+    "pts": [
+     [
+      15.1,
+      8.8833,
+      1.25
+     ],
+     [
+      15.1,
+      11.1333,
+      1.25
+     ],
+     [
+      1.05,
+      11.1333,
+      1.25
+     ],
+     [
+      1.05,
+      11.1333,
+      10.6
+     ],
+     [
+      -0.45,
+      11.1333,
+      10.6
+     ]
+    ]
+   }
+  ],
+  "radon": {
+   "x": 25.6,
+   "z": 9.85,
+   "dia": 3,
+   "it": "FND-RADON"
+  },
+  "equipment": [
+   {
+    "tag": "F-1",
+    "it": "MEC-FURN",
+    "name": "Propane wall furnace",
+    "spec": "Direct vent, sealed combustion, 8,200 to 21,500 BTU/h modulating, 120 V. Snorkel vent kit lifts the terminal to about 8 ft above grade",
+    "loc": "West wall by the entry",
+    "when": {
+     "heat": [
+      "both",
+      "propane"
+     ]
+    }
+   },
+   {
+    "tag": "WS-1",
+    "it": "MEC-STOVE",
+    "name": "Wood stove",
+    "spec": "EPA certified, small firebox, outside air kit, listed clearances",
+    "loc": "Living room on a hearth pad",
+    "when": {
+     "heat": [
+      "both",
+      "wood"
+     ]
+    }
+   },
+   {
+    "tag": "WH-1",
+    "it": "MEC-WH",
+    "name": "Tankless water heater",
+    "spec": "Propane, indoor, concentric direct vent, about 140,000 BTU/h, 120 V",
+    "loc": "Bath, east wall above the washer"
+   },
+   {
+    "tag": "EF-1",
+    "it": "FIX-FAN",
+    "name": "Bath fan",
+    "spec": "50 cfm continuous, 80 cfm boost, humidity sensing. This is the whole-house ventilation fan",
+    "loc": "Bath ceiling, ducted to south wall"
+   },
+   {
+    "tag": "RH-1",
+    "it": "FIX-HOOD",
+    "name": "Range hood",
+    "spec": "Up to 300 cfm, 6 in duct in a soffit to the west wall, backdraft damper (under 400 cfm, so no makeup air needed)",
+    "loc": "Kitchenette"
+   },
+   {
+    "tag": "T-1",
+    "it": "MEC-TANK",
+    "name": "Propane tank",
+    "spec": "500 gal ASME, above ground, two-stage regulation",
+    "loc": "East of the house, about 12 ft clear"
+   },
+   {
+    "tag": "RN-1",
+    "it": "FND-RADON",
+    "name": "Passive radon stack",
+    "spec": "3 in PVC from under the crawl membrane, through the roof. Fan-ready",
+    "loc": "Bath wet wall",
+    "when": {
+     "found": [
+      "crawl"
+     ]
+    }
+   }
+  ],
+  "ventilation": {
+   "rule": "2021 IRC Table M1505.4.3(1): up to 1,500 sq ft with 0 to 1 bedrooms needs 30 cfm; 2 to 3 bedrooms needs 45 cfm",
+   "need": 45,
+   "provided": 50
+  }
+ },
+ "electrical": {
+  "service": {
+   "amps": 100,
+   "volts": "120/240 V, single phase"
+  },
+  "panel": [
+   0.5,
+   3.9,
+   3.2,
+   0.33,
+   2.5,
+   1.2
+  ],
+  "meter": [
+   -0.45,
+   4.5,
+   3.5,
+   0.33,
+   1.5,
+   0.6
+  ],
+  "circuits": [
+   {
+    "id": 1,
+    "name": "Kitchen counter A + fridge",
+    "amps": 20,
+    "poles": 1,
+    "prot": "GFCI/AFCI",
+    "va": 1500,
+    "color": "#d1495b"
+   },
+   {
+    "id": 2,
+    "name": "Kitchen counter B + table",
+    "amps": 20,
+    "poles": 1,
+    "prot": "GFCI/AFCI",
+    "va": 1500,
+    "color": "#e07a1f"
+   },
+   {
+    "id": 3,
+    "name": "Bath receptacle",
+    "amps": 20,
+    "poles": 1,
+    "prot": "GFCI/AFCI",
+    "va": 1500,
+    "color": "#c9a227"
+   },
+   {
+    "id": 4,
+    "name": "Laundry",
+    "amps": 20,
+    "poles": 1,
+    "prot": "GFCI/AFCI",
+    "va": 1500,
+    "color": "#7a9e2a"
+   },
+   {
+    "id": 5,
+    "name": "Living room receptacles",
+    "amps": 15,
+    "poles": 1,
+    "prot": "AFCI",
+    "va": 900,
+    "color": "#2a9d8f"
+   },
+   {
+    "id": 6,
+    "name": "Bedroom receptacles",
+    "amps": 15,
+    "poles": 1,
+    "prot": "AFCI",
+    "va": 700,
+    "color": "#2b7bb9"
+   },
+   {
+    "id": 7,
+    "name": "Lights, fan, hood, alarms",
+    "amps": 15,
+    "poles": 1,
+    "prot": "AFCI",
+    "va": 800,
+    "color": "#6c5ce7"
+   },
+   {
+    "id": 8,
+    "name": "Furnace",
+    "amps": 15,
+    "poles": 1,
+    "prot": "AFCI",
+    "va": 120,
+    "color": "#b5179e",
+    "when": {
+     "heat": [
+      "both",
+      "propane"
+     ]
+    }
+   },
+   {
+    "id": 9,
+    "name": "Water heater",
+    "amps": 15,
+    "poles": 1,
+    "prot": "GFCI/AFCI",
+    "va": 120,
+    "color": "#8d6e63"
+   },
+   {
+    "id": 10,
+    "name": "Exterior receptacles",
+    "amps": 20,
+    "poles": 1,
+    "prot": "GFCI",
+    "va": 360,
+    "color": "#455a64"
+   },
+   {
+    "id": 11,
+    "name": "Heat cable, water and drain",
+    "amps": 15,
+    "poles": 1,
+    "prot": "GFPE",
+    "va": 200,
+    "color": "#ef476f",
+    "when": {
+     "found": [
+      "piers"
+     ]
+    }
+   },
+   {
+    "id": 12,
+    "name": "Well pump (site)",
+    "amps": 20,
+    "poles": 2,
+    "prot": "",
+    "va": 1800,
+    "color": "#118ab2"
+   },
+   {
+    "id": 13,
+    "name": "Garage: lights, opener, receptacles, heater",
+    "amps": 20,
+    "poles": 1,
+    "prot": "GFCI",
+    "va": 1500,
+    "color": "#5c677d",
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   }
+  ],
+  "devices": [
+   [
+    "K1",
+    "gfci",
+    1,
+    10.8,
+    3.6,
+    0.5,
+    "N"
+   ],
+   [
+    "FR",
+    "rec",
+    1,
+    9.6,
+    4,
+    0.5,
+    "N"
+   ],
+   [
+    "K2",
+    "gfci",
+    2,
+    16,
+    3.6,
+    0.5,
+    "N"
+   ],
+   [
+    "D1",
+    "rec",
+    2,
+    18.9,
+    1.25,
+    0.5,
+    "N"
+   ],
+   [
+    "B1",
+    "gfci",
+    3,
+    26.9,
+    3.6,
+    10.2708,
+    "N"
+   ],
+   [
+    "LD1",
+    "gfci",
+    4,
+    31.5,
+    3,
+    14.85,
+    "E"
+   ],
+   [
+    "R1",
+    "rec",
+    5,
+    0.5,
+    1.25,
+    6,
+    "W"
+   ],
+   [
+    "R2",
+    "rec",
+    5,
+    0.5,
+    1.25,
+    12.6,
+    "W"
+   ],
+   [
+    "R3",
+    "floor",
+    5,
+    18,
+    0,
+    22.3,
+    "F"
+   ],
+   [
+    "F1",
+    "floor",
+    5,
+    11.5,
+    0,
+    22.7,
+    "F"
+   ],
+   [
+    "F2",
+    "floor",
+    5,
+    19.2,
+    0,
+    22.9,
+    "F"
+   ],
+   [
+    "F3",
+    "floor",
+    5,
+    3,
+    0,
+    22.7,
+    "F"
+   ],
+   [
+    "R7",
+    "rec",
+    5,
+    21.8125,
+    1.25,
+    22.6,
+    "E"
+   ],
+   [
+    "R6",
+    "rec",
+    5,
+    21.8125,
+    1.25,
+    16.4,
+    "E"
+   ],
+   [
+    "R5",
+    "rec",
+    5,
+    21.8125,
+    1.25,
+    8,
+    "E"
+   ],
+   [
+    "R4",
+    "rec",
+    5,
+    8.3,
+    1.25,
+    0.5,
+    "N"
+   ],
+   [
+    "R8",
+    "rec",
+    6,
+    22.1875,
+    1.25,
+    7.6,
+    "W"
+   ],
+   [
+    "R10",
+    "rec",
+    6,
+    24,
+    1.25,
+    0.5,
+    "N"
+   ],
+   [
+    "R9",
+    "rec",
+    6,
+    30.6,
+    1.25,
+    0.5,
+    "N"
+   ],
+   [
+    "R11",
+    "rec",
+    6,
+    31.5,
+    1.25,
+    8.2,
+    "E"
+   ],
+   [
+    "R15",
+    "rec",
+    6,
+    27,
+    1.25,
+    15.4875,
+    "N"
+   ],
+   [
+    "R14",
+    "rec",
+    6,
+    31.5,
+    1.25,
+    19,
+    "E"
+   ],
+   [
+    "R13",
+    "rec",
+    6,
+    23.6,
+    1.25,
+    23.5,
+    "S"
+   ],
+   [
+    "R12",
+    "rec",
+    6,
+    22.1875,
+    1.25,
+    16.6,
+    "W"
+   ],
+   [
+    "R16",
+    "rec",
+    6,
+    31.5,
+    11.1,
+    18,
+    "E",
+    {
+     "loft": [
+      true
+     ]
+    }
+   ],
+   [
+    "SW1",
+    "sw",
+    7,
+    0.5,
+    4,
+    13.7,
+    "W"
+   ],
+   [
+    "PL",
+    "porch",
+    7,
+    -0.3,
+    6.9,
+    13.9,
+    "X"
+   ],
+   [
+    "SC1",
+    "sconce",
+    7,
+    0.5,
+    6.5,
+    7.5,
+    "W"
+   ],
+   [
+    "SC3",
+    "sconce",
+    7,
+    14.92,
+    6.5,
+    23.55,
+    "S"
+   ],
+   [
+    "TR",
+    "track",
+    7,
+    9.5,
+    null,
+    19,
+    "C"
+   ],
+   [
+    "CO2",
+    "smokeco",
+    7,
+    19,
+    null,
+    19,
+    "C"
+   ],
+   [
+    "SC2",
+    "sconce",
+    7,
+    21.8125,
+    6.5,
+    16.4,
+    "E"
+   ],
+   [
+    "SW6",
+    "sw",
+    7,
+    21.8125,
+    4,
+    7.8,
+    "E",
+    {
+     "loft": [
+      true
+     ]
+    }
+   ],
+   [
+    "L4",
+    "ceil",
+    7,
+    26.5,
+    null,
+    18,
+    "C",
+    {
+     "loft": [
+      true
+     ]
+    }
+   ],
+   [
+    "SM3",
+    "smoke",
+    7,
+    27.5,
+    null,
+    21,
+    "C",
+    {
+     "loft": [
+      true
+     ]
+    }
+   ],
+   [
+    "CO1",
+    "smokeco",
+    7,
+    19,
+    null,
+    6,
+    "C"
+   ],
+   [
+    "PD",
+    "pendant",
+    7,
+    15,
+    null,
+    6.25,
+    "C"
+   ],
+   [
+    "UC",
+    "strip",
+    7,
+    15.05,
+    6.25,
+    0.65,
+    "N"
+   ],
+   [
+    "HD",
+    "hood",
+    7,
+    15.1,
+    6.2,
+    0.6,
+    "N"
+   ],
+   [
+    "SW3",
+    "sw",
+    7,
+    22.1875,
+    4,
+    6.3,
+    "W"
+   ],
+   [
+    "L1",
+    "ceil",
+    7,
+    26.85,
+    9,
+    5.1,
+    "C"
+   ],
+   [
+    "SM1",
+    "smoke",
+    7,
+    27.5,
+    9,
+    8,
+    "C"
+   ],
+   [
+    "SW4",
+    "sw",
+    7,
+    22.1875,
+    4,
+    12.2,
+    "W"
+   ],
+   [
+    "L2",
+    "sconce",
+    7,
+    25.83,
+    6.8,
+    10.2708,
+    "N"
+   ],
+   [
+    "FN",
+    "fan",
+    7,
+    27,
+    9,
+    12.7,
+    "C"
+   ],
+   [
+    "SW5",
+    "sw",
+    7,
+    22.1875,
+    4,
+    17.4,
+    "W"
+   ],
+   [
+    "L3",
+    "ceil",
+    7,
+    26.85,
+    9,
+    19.5,
+    "C"
+   ],
+   [
+    "SM2",
+    "smoke",
+    7,
+    25,
+    9,
+    21.5,
+    "C"
+   ],
+   [
+    "J1",
+    "jbox",
+    8,
+    1.2,
+    1.6,
+    10.1,
+    "W"
+   ],
+   [
+    "J2",
+    "rec",
+    9,
+    31.5,
+    6.8,
+    14.2,
+    "E"
+   ],
+   [
+    "X1",
+    "ext",
+    10,
+    -0.3,
+    1.5,
+    12.8,
+    "X"
+   ],
+   [
+    "X2",
+    "ext",
+    10,
+    32.3,
+    1.5,
+    20.5,
+    "X"
+   ],
+   [
+    "H1",
+    "htc",
+    11,
+    13.4,
+    0.8,
+    0.5,
+    "N"
+   ],
+   [
+    "J4",
+    "jbox",
+    12,
+    11.33,
+    1.4,
+    0.6,
+    "N"
+   ],
+   [
+    "J3",
+    "jbox",
+    12,
+    12.35,
+    -1.2833,
+    2.3,
+    "F"
+   ]
+  ]
+ },
+ "offgrid": {
+  "pvKw": 4.4,
+  "battKwh": 15,
+  "invKw": 6,
+  "genKw": 7.5,
+  "inverter": [
+   0.5,
+   4,
+   4.7,
+   0.4,
+   2,
+   1.6
+  ],
+  "battery": [
+   0.5,
+   0,
+   5,
+   1.1,
+   3.2,
+   2.6
+  ],
+  "daily": "Winter use about 4 to 6 kWh a day with propane doing the heating, hot water and cooking (my estimate)."
+ },
+ "logistics": {
+  "start": "2027-05-17",
+  "startNote": "Assumes permits are in hand by mid-May and the frost is out of the ground. At 7,000 to 8,000 ft that can be early June.",
+  "crew": "Two people, full time, 5 days a week. Hired trades work in parallel where shown.",
+  "tasks": [
+   {
+    "id": "site",
+    "n": "Stake out, clear, rough driveway",
+    "d": 3,
+    "who": "Pro",
+    "after": []
+   },
+   {
+    "id": "util",
+    "n": "Well and septic (subs, can overlap)",
+    "d": 10,
+    "who": "Pro",
+    "after": [
+     "site"
+    ]
+   },
+   {
+    "id": "gfnd",
+    "n": "Garage: footing, stem wall, slab, steps (contractor)",
+    "d": 4,
+    "who": "Pro",
+    "after": [
+     "site"
+    ],
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "fnd",
+    "n": "Foundation: dig, form, pour",
+    "d": 6,
+    "dCrawl": 12,
+    "who": "You",
+    "whoCrawl": "Pro",
+    "after": [
+     "site"
+    ],
+    "drop": "D1"
+   },
+   {
+    "id": "i1",
+    "n": "Footing inspection",
+    "d": 0,
+    "who": "Insp",
+    "after": [
+     "fnd"
+    ],
+    "at": "start+2"
+   },
+   {
+    "id": "floor",
+    "n": "Beams, joists, subfloor",
+    "d": 4,
+    "who": "You",
+    "after": [
+     "fnd"
+    ],
+    "drop": "D2"
+   },
+   {
+    "id": "walls",
+    "n": "Wall framing and sheathing",
+    "d": 10,
+    "dHelp": 7,
+    "who": "You",
+    "after": [
+     "floor"
+    ]
+   },
+   {
+    "id": "cov",
+    "n": "Covered area: post piers, posts and beam",
+    "d": 2,
+    "who": "You",
+    "after": [
+     "walls"
+    ],
+    "when": {
+     "cover": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "ent",
+    "n": "Covered entry: piers, two 18 ft posts and the beam (rent a lift)",
+    "d": 3,
+    "who": "You",
+    "after": [
+     "walls",
+     "gfnd"
+    ],
+    "when": {
+     "entryCover": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "roof",
+    "n": "Rafters, both roof decks, underlayment",
+    "d": 8,
+    "dHelp": 6,
+    "who": "You",
+    "after": [
+     "walls",
+     "cov"
+    ],
+    "drop": "D3"
+   },
+   {
+    "id": "gshell",
+    "n": "Garage: walls and rafters, tied into the house roof",
+    "d": 6,
+    "dHelp": 4,
+    "who": "You",
+    "after": [
+     "roof",
+     "gfnd",
+     "ent"
+    ],
+    "drop": "D9",
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "metal",
+    "n": "Metal roofing and trim",
+    "d": 4,
+    "who": "You",
+    "after": [
+     "roof",
+     "gshell"
+    ],
+    "drop": "D5"
+   },
+   {
+    "id": "win",
+    "n": "Windows and exterior door",
+    "d": 4,
+    "who": "You",
+    "after": [
+     "roof"
+    ],
+    "drop": "D4"
+   },
+   {
+    "id": "dry",
+    "n": "Dried in",
+    "d": 0,
+    "who": "Mile",
+    "after": [
+     "metal",
+     "win"
+    ]
+   },
+   {
+    "id": "plb",
+    "n": "Rough plumbing and gas",
+    "d": 6,
+    "who": "You",
+    "after": [
+     "dry"
+    ],
+    "drop": "D6"
+   },
+   {
+    "id": "ele",
+    "n": "Rough electrical",
+    "d": 6,
+    "who": "You",
+    "after": [
+     "dry"
+    ]
+   },
+   {
+    "id": "mec",
+    "n": "Chimney, vents, propane tank set",
+    "d": 3,
+    "who": "Pro",
+    "after": [
+     "dry"
+    ]
+   },
+   {
+    "id": "i2",
+    "n": "Framing and rough-in inspections",
+    "d": 0,
+    "who": "Insp",
+    "after": [
+     "plb",
+     "ele",
+     "mec"
+    ]
+   },
+   {
+    "id": "ins",
+    "n": "Insulation and air sealing",
+    "d": 6,
+    "who": "You",
+    "after": [
+     "i2"
+    ]
+   },
+   {
+    "id": "i3",
+    "n": "Insulation inspection",
+    "d": 0,
+    "who": "Insp",
+    "after": [
+     "ins"
+    ]
+   },
+   {
+    "id": "sid",
+    "n": "Siding, trim, paint",
+    "d": 15,
+    "who": "You",
+    "after": [
+     "dry"
+    ],
+    "drop": "D7"
+   },
+   {
+    "id": "gfin",
+    "n": "Garage: siding, doors, gypsum, wiring, heater",
+    "d": 6,
+    "who": "You",
+    "after": [
+     "dry",
+     "gshell"
+    ],
+    "when": {
+     "garage": [
+      true
+     ]
+    }
+   },
+   {
+    "id": "dw",
+    "n": "Drywall and pine ceiling",
+    "d": 15,
+    "who": "You",
+    "after": [
+     "i3"
+    ]
+   },
+   {
+    "id": "fin",
+    "n": "Paint, floors, trim, cabinets, built-ins",
+    "d": 18,
+    "who": "You",
+    "after": [
+     "dw"
+    ],
+    "drop": "D8"
+   },
+   {
+    "id": "fix",
+    "n": "Fixtures, devices, appliances, stove",
+    "d": 6,
+    "who": "You",
+    "after": [
+     "fin"
+    ]
+   },
+   {
+    "id": "i4",
+    "n": "Final inspections",
+    "d": 0,
+    "who": "Insp",
+    "after": [
+     "fix",
+     "sid",
+     "gfin"
+    ]
+   },
+   {
+    "id": "punch",
+    "n": "Punch list and move-in",
+    "d": 3,
+    "who": "You",
+    "after": [
+     "i4"
+    ]
+   }
+  ],
+  "inspections": [
+   [
+    "Footing / pier holes",
+    "Before concrete. Rebar, hole depth, footing size."
+   ],
+   [
+    "Foundation",
+    "Crawlspace only: stem walls, anchor bolts, damp-proofing."
+   ],
+   [
+    "Framing and sheathing",
+    "After dry-in. Nailing, straps, hold-downs, headers."
+   ],
+   [
+    "Rough electrical",
+    "Boxes, wire, panel, before insulation."
+   ],
+   [
+    "Rough plumbing",
+    "Drain test under water or air, supply pressure test."
+   ],
+   [
+    "Gas pressure test",
+    "Propane company or inspector."
+   ],
+   [
+    "Chimney and mechanical",
+    "Clearances, vent terminations."
+   ],
+   [
+    "Insulation and energy",
+    "R-values, air sealing. Some counties want a blower-door test."
+   ],
+   [
+    "Final building, electrical, plumbing, mechanical",
+    "Then the certificate of occupancy."
+   ],
+   [
+    "Septic final",
+    "County health department, separate from the building permit."
+   ]
+  ],
+  "trades": [
+   [
+    "Surveyor",
+    "Stakes corners and setbacks before you dig."
+   ],
+   [
+    "Well driller",
+    "Site work. Book early; summer waits are long."
+   ],
+   [
+    "Septic installer",
+    "Licensed installer, county design approval."
+   ],
+   [
+    "Concrete sub",
+    "Crawlspace option only. Piers you can pour yourself."
+   ],
+   [
+    "Framing help",
+    "Optional. Two people for the tall south wall and rafters."
+   ],
+   [
+    "Electrician",
+    "Service hookup, panel and inspection. Colorado allows homeowner permits for some work; check your county."
+   ],
+   [
+    "Propane company",
+    "Sets and fills the tank, runs the yard line, tests the gas piping."
+   ],
+   [
+    "Structural engineer",
+    "Stamps the foundation, rafters, south wall and snow load."
+   ]
+  ],
+  "weather": [
+   [
+    "Frost",
+    "Ground thaws late April to early June at 7,000 to 8,000 ft. Pier holes must reach below frost."
+   ],
+   [
+    "Storms",
+    "Afternoon thunderstorms July and August. Work mornings, cover the deck before lunch."
+   ],
+   [
+    "First snow",
+    "Can come late September. Plan to be dried in by early September."
+   ],
+   [
+    "Concrete",
+    "Below 40 F needs blankets and a heated mix. Pour in summer."
+   ],
+   [
+    "Access",
+    "Delivery trucks need a firm driveway. Mud season can close dirt roads."
+   ],
+   [
+    "Altitude",
+    "Expect slower work at elevation. Drink water, start early."
+   ]
+  ],
+  "valueEng": [
+   {
+    "n": "Lean south glass (2 bays)",
+    "opt": {
+     "glass": "lean"
+    },
+    "trade": "Less view and winter sun; still bright."
+   },
+   {
+    "n": "Ribbed metal instead of standing seam",
+    "opt": {
+     "roof": "rib"
+    },
+    "trade": "Exposed screws need checking every few years."
+   },
+   {
+    "n": "Propane only, no wood stove",
+    "opt": {
+     "heat": "propane"
+    },
+    "trade": "No fire to sit by, and no heat if propane runs out."
+   },
+   {
+    "n": "No paid framing help",
+    "opt": {
+     "help": false
+    },
+    "trade": "About 4 more days for the two of you."
+   },
+   {
+    "n": "Skip the washer-dryer",
+    "opt": {
+     "wd": false
+    },
+    "trade": "Laundromat trips, but more bath space."
+   },
+   {
+    "n": "Plain ZIP sheathing and an energy trade-off calc instead of ZIP-R",
+    "save": 3000,
+    "trade": "My estimate. Only works if the REScheck trade-off passes with the glass."
+   },
+   {
+    "n": "Single vented roof deck instead of the double cold roof",
+    "save": 1500,
+    "trade": "My estimate. Thinner roof insulation (about R-52) and more ice-dam risk."
+   },
+   {
+    "n": "Painted drywall instead of pine ceiling",
+    "save": 900,
+    "trade": "My estimate. Loses the warm wood look."
+   },
+   {
+    "n": "Sanded and sealed subfloor instead of vinyl plank",
+    "save": 1900,
+    "trade": "My estimate. Fine for a cabin; shows wear sooner."
+   },
+   {
+    "n": "Fewer built-ins: open shelves only",
+    "save": 900,
+    "trade": "My estimate. Less storage."
+   }
+  ],
+  "assumptions": [
+   "Site in Summit County, Colorado (Breckenridge area), about 9,500 to 10,000 ft. Lot, road and utilities not chosen.",
+   "Road and driveway come from the west. The lot falls gently to the northeast.",
+   "Glass faces south within about 15 degrees.",
+   "Roof snow load is an input: 60, 100 or 150 psf. Your county sets the real number.",
+   "Wind 115 mph, Exposure C. Frost depth 48 in. Soil bearing 2,000 psf. All three need confirming.",
+   "Energy code: 2021 IECC, climate zone 7 (the toughest case in that elevation range).",
+   "The house can be left unheated between trips. All water lines are inside the insulation and can be drained.",
+   "Owner does most of the work. Prices are 2026 dollars with mountain delivery.",
+   "Footprint is fixed at 24 x 32 ft."
+  ],
+  "unverified": [
+   "Member sizes for rafters, joists, beams, headers, posts, piers and the wind bracing. They come from the model's planning calculations (S-301, S-401), not an engineered design.",
+   "Your county's snow load, wind speed, frost depth and adopted code year.",
+   "Soil bearing. A soils test may change pier and footing sizes.",
+   "Window net clear openings. Check the egress size against the maker's data.",
+   "Wood stove clearances. Use the listing for the stove you buy.",
+   "Propane tank output on the coldest mornings, and whether to buy or lease the tank. Ask the propane company.",
+   "Prices marked Estimate in the parts list. They are my estimates; only lines marked as compared with a 2026 source were checked.",
+   "Whether a homeowner may do the plumbing, gas and electrical work in your county."
+  ],
+  "notes": {
+   "general": [
+    "These drawings are for planning and permit preparation. They are not for construction until reviewed and stamped by a licensed engineer and approved by the building department.",
+    "Design to the 2021 IRC and 2021 IECC unless the county has adopted a different year.",
+    "Verify all dimensions in the field. Dimensions are to the outside of framing unless noted.",
+    "The model, drawings and estimate come from one data file (model.json). Change the file, not the drawings."
+   ],
+   "foundation": [
+    "Concrete 4,000 psi, air-entrained. Rebar ASTM A615 Grade 60.",
+    "Bottom of footings at least 48 in below grade or the county frost depth, whichever is deeper.",
+    "Piers: 12 in round (18 in under the covered-entry posts) with 4 #4 vertical bars, on footings sized from the loads. Shared pads and hold-down piers where marked on S-101.",
+    "Crawlspace: 20 x 10 in footing, 8 in stem wall, 1/2 in anchor bolts at 6 ft o.c., R-15 continuous insulation, sealed 12 mil vapor barrier, passive radon stack."
+   ],
+   "framing": [
+    "Exterior walls 2x6 at 16 in o.c. LSL studs where walls are taller than 12 ft (spacing on S-301).",
+    "Floor: 11 7/8 in I-joists (TJI 210 or equal) at 16 in o.c. in hangers between flush 3-ply LVL beams. LVL end beams under the east and west walls.",
+    "Roof: 16 in rafters on beveled plates, tied at every bearing. Simple spans that break over the north wall and the garage south wall. Spacing by snow load.",
+    "South glass wall: steel tube posts (HSS 5 x 3) between the glass bays with wood bucks; LVL headers sit on welded seats.",
+    "Bedroom wing ceiling: 2x10 at 16 in o.c., hung from a 2-ply 2x10 flush header near the north wall where the rafters come down; short 2x10s between the rafters north of it. Strong enough for a storage loft.",
+    "Wind bracing: shear wall panels, hold-downs, collectors and roof deck nailing per S-401.",
+    "Wall sheathing ZIP System R-6 (R-6.6 foam), all seams taped. It is the air and water barrier."
+   ],
+   "envelope": [
+    "Walls R-23 mineral wool plus R-6.6 continuous (ZIP System R-6). Roof about R-60: 16 in of dense-pack cellulose (see the roof check). Floor R-44 dense-pack cellulose (piers) or R-15 crawl walls (crawlspace).",
+    "Windows U-0.30 or better.",
+    "Cold roof: a 3 1/2 in vent channel above the lower deck runs from the north soffit to the south soffit.",
+    "Air barrier: taped wall sheathing, taped lower roof deck, sealed subfloor. Target 3 air changes per hour at 50 Pa or better."
+   ],
+   "systems": [
+    "No water lines in exterior walls. All supply and drain lines run in the insulated floor north of the middle beam.",
+    "Low-point drain valve at the water entry. Blow out lines and add RV antifreeze to traps before leaving the house unheated.",
+    "Bath fan runs all the time at 50 cfm. That is the whole-house fresh-air system.",
+    "Smoke alarms in each bedroom, combined smoke/CO alarms in the living room near each bedroom door, all hardwired and interconnected.",
+    "Keep the roof clear of anything that sliding snow could hit except the chimney, which gets a snow splitter."
+   ]
+  }
+ }
+}

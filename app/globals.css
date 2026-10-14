@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* the cabin page is standalone; keep its sources out of the site's class scan */
+@source not "../cabin";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
