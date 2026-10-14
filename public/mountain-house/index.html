@@ -149,13 +149,6 @@ header { display: flex; flex-direction: column; gap: 14px; }
 #totals b { font: 700 1.9rem/1.1 var(--f-display); font-variant-numeric: tabular-nums; }
 #totals .big { border-top-color: var(--ember); }
 #totals .big b { font-size: clamp(2.2rem, 8vw, 2.7rem); color: var(--ember); }
-.budget { display: flex; flex-direction: column; gap: 6px; }
-.budget .meter { position: relative; height: 22px; background: var(--track); border-radius: 4px; }
-.budget .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--ember); border-radius: 0 4px 4px 0; }
-.budget .fill.ok { background: var(--spruce); }
-.budget .mark { position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--ink); }
-.budget .cap { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font: 500 12.5px/1.4 var(--f-mono); color: var(--ink2); }
-.budget .cap b { color: var(--ink); }
 #bysys { display: flex; flex-direction: column; gap: 6px; }
 .brow { display: grid; grid-template-columns: minmax(110px, 38%) minmax(0, 1fr) 4.6em; align-items: center; gap: 10px; font-size: 13px; }
 .brow .t { position: relative; height: 14px; }
@@ -245,7 +238,7 @@ ul.plain { list-style: none; padding-left: 0; }
     <h1>Rime Cabin</h1>
     <p class="lede">A small getaway for one, built for snow. Two bedrooms, one shower, and a living room that takes up most of the floor. Heated by propane, a wood stove, or both.</p>
     <div class="facts">
-      <span>768 sq ft</span><span>2 bed &middot; 1 bath</span><span>4:12 shed roof</span><span>Est. <b id="stat-total">$207k</b> built, <b id="stat-sf">$200 per sq ft, house</b></span><span>Budget <b id="stat-budget">$75k</b></span>
+      <span>768 sq ft</span><span>2 bed &middot; 1 bath</span><span>4:12 shed roof</span><span>Est. <b id="stat-total">$207k</b> built, <b id="stat-sf">$200 per sq ft, house</b></span>
     </div>
     <nav class="jump" aria-label="Sections">
       <a href="#model">3D model</a><a href="#plan-sec">Plan</a><a href="#cost">Cost</a><a href="#build">Build</a><a href="#drawings">Drawings</a><a href="#checks">Checks</a><a href="#notes">Notes</a>
@@ -335,7 +328,6 @@ ul.plain { list-style: none; padding-left: 0; }
     <div class="ctlbox" id="ctl"></div>
     <div class="costtop">
       <div id="totals"></div>
-      <div id="budget" class="budget"></div>
     </div>
     <div class="two even">
       <div class="panel"><h3>By system</h3><div id="bysys"></div></div>
@@ -1729,7 +1721,6 @@ ul.plain { list-style: none; padding-left: 0; }
    ]
   ]
  },
- "budget": 75000,
  "rates": {
   "tax": 0.075,
   "taxNote": "Sales tax on materials, about 7.5% (my estimate; Colorado state plus county and town rates vary by lot)",
@@ -12268,7 +12259,6 @@ if (typeof module !== 'undefined') module.exports = ENG;
     sum.garage = Math.round((gar.parts + gar.taxable * M.rates.tax) * (1 + M.rates.contingency));
     sum.house = sum.total - sum.garage;
     sum.perSf = Math.round(sum.house / (M.geo.W * M.geo.D));
-    sum.budget = M.budget; sum.over = sum.total - M.budget;
     var site = M.catalog.site.filter(function (s) { return E.when(s.when, o); });
     return { lines: lines, groups: groups, sum: sum, site: site, problems: problems, drops: Object.keys(drops).sort() };
   };
@@ -12482,7 +12472,7 @@ if (typeof module !== 'undefined') module.exports = ENG;
     });
     var s = R.bom.sum;
     rows.push([]);
-    [['Parts and services', s.parts], ['Sales tax on materials (estimate)', s.tax], ['Contingency 10%', s.cont], ['Estimated total', s.total], ['Budget', s.budget], ['Over budget', s.over]].forEach(function (r) { rows.push(['', '', r[0], '', '', '', '', r[1]]); });
+    [['Parts and services', s.parts], ['Sales tax on materials (estimate)', s.tax], ['Contingency 10%', s.cont], ['Estimated total', s.total]].forEach(function (r) { rows.push(['', '', r[0], '', '', '', '', r[1]]); });
     rows.push([]);
     rows.push(['', 'Not in the total', 'Site allowances (low to high)']);
     R.bom.site.forEach(function (x) { rows.push([x.id, 'Site', x.n, x.note, '', '', '', '', '', '', '', 'C-101', x.chk ? 'Compared with a 2026 source' : 'Estimate', x.lo ? 'Range $' + x.lo.toLocaleString('en-US') + ' to $' + x.hi.toLocaleString('en-US') : 'Get a quote']); });
@@ -15096,7 +15086,6 @@ var APP = (function () {
     var s = A.R.bom.sum;
     $('stat-total').textContent = '$' + Math.round(s.total / 1000) + 'k';
     $('stat-sf').textContent = '$' + s.perSf + ' per sq ft, house';
-    $('stat-budget').textContent = '$' + Math.round(s.budget / 1000) + 'k';
   };
 
   document.addEventListener('click', function (e) {
@@ -15177,7 +15166,7 @@ var APP = (function () {
   };
   return A;
 })();
-/* Rime Cabin page: choices, totals, budget, parts list, site costs and ways to spend less. */
+/* Rime Cabin page: choices, totals, parts list, site costs and ways to spend less. */
 var COST = (function () {
   var A = APP, M = A.M, $ = A.$, grouped = true, sortKey = null, sortDir = 1, open = {};
   function dtext(d) { return Math.abs(d) < 50 ? '' : (d > 0 ? '+' : '−') + '$' + (Math.round(Math.abs(d) / 100) / 10).toFixed(1) + 'k'; }
@@ -15205,9 +15194,6 @@ var COST = (function () {
   function totals() {
     var s = A.R.bom.sum;
     $('totals').innerHTML = '<div><span>Parts and services</span><b>' + A.money(s.parts) + '</b></div><div><span>Sales tax, est.</span><b>' + A.money(s.tax) + '</b></div><div><span>Surprise fund, 10%</span><b>' + A.money(s.cont) + '</b></div><div class="big"><span>Estimated total</span><b>' + A.money(s.total) + '</b></div><div><span>Per square foot (house only)</span><b>$' + s.perSf + '</b></div>';
-    var max = Math.max(s.total, s.budget) * 1.06, over = s.total > s.budget;
-    $('budget').innerHTML = '<div class="meter" role="img" aria-label="Total ' + A.money(s.total) + ' against a budget of ' + A.money(s.budget) + '"><div class="fill' + (over ? '' : ' ok') + '" style="width:' + (s.total / max * 100).toFixed(1) + '%"></div><div class="mark" style="left:' + (s.budget / max * 100).toFixed(1) + '%"></div></div>' +
-      '<div class="cap"><span>Budget <b>' + A.money(s.budget) + '</b> (the line)</span><span>' + (over ? 'Over by <b>' + A.money(s.over) + '</b>' : 'Under by <b>' + A.money(-s.over) + '</b>') + '</span></div>';
     var gs = A.R.bom.groups.slice().sort(function (a, b) { return b.total - a.total; }), mx = gs[0].total;
     $('bysys').innerHTML = gs.map(function (g) {
       return '<div class="brow" title="' + A.esc(g.name) + ': ' + A.money(g.total) + '"><span>' + A.esc(g.name) + '</span><span class="t"><span class="b" style="width:' + (g.total / mx * 100).toFixed(1) + '%"></span></span><span class="v">' + A.k(g.total) + '</span></div>';
