@@ -10,7 +10,7 @@ var DWGUI = (function () {
   }
   function cover() {
     // the cover sheet shows the 3D model as it is set up right now
-    try { DWG.coverImage = A.viewer ? A.viewer.shotAt('cover', 1500, 980) : null; } catch (e) { DWG.coverImage = null; }
+    try { DWG.coverImage = A.viewer ? A.viewer.shotAt('se', 1500, 980) : null; } catch (e) { DWG.coverImage = null; }
   }
   function render() {
     if (!window.DWG || !A.R) return;

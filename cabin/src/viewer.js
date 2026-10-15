@@ -159,7 +159,6 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
     // Outside, where the page opens: from the southwest, the garage, covered entry and south glass in one view.
     // Composed at a 1.29 aspect; narrower screens pull back to keep the same sides in frame.
     se: { p: [-63.1, 18.9, 59], t: [-13, 10.1, -3.7], fov: 40, roof: true, fit: true, fitAspect: 1.29 },
-    cover: { p: [35, 19, 46], t: [0, 8, 1], fov: 40, roof: true, fit: true }, // the drawing set's cover picture
     nw: { p: [46, 22, -56], t: [-4, 7, 0], fov: 38, roof: true, fit: true }, // from the northeast, clear of the garage
     plan: { p: [0, 96, 0.1], t: [0, 0, 0], fov: 34, roof: false, fit: true },
     inside: { p: [-13.6, FF + 5.6, 8.8], t: [-1, 5.4, -6], fov: 66, roof: true },
