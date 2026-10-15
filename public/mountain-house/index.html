@@ -12907,7 +12907,10 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
   new ResizeObserver(resize).observe(host); resize();
 
   var views = {
-    se: { p: [35, 19, 46], t: [0, 8, 1], fov: 40, roof: true, fit: true },
+    // Outside, where the page opens: from the southwest, the garage, covered entry and south glass in one view.
+    // Composed at a 1.29 aspect; narrower screens pull back to keep the same sides in frame.
+    se: { p: [-63.1, 18.9, 59], t: [-13, 10.1, -3.7], fov: 40, roof: true, fit: true, fitAspect: 1.29 },
+    cover: { p: [35, 19, 46], t: [0, 8, 1], fov: 40, roof: true, fit: true }, // the drawing set's cover picture
     nw: { p: [46, 22, -56], t: [-4, 7, 0], fov: 38, roof: true, fit: true }, // from the northeast, clear of the garage
     plan: { p: [0, 96, 0.1], t: [0, 0, 0], fov: 34, roof: false, fit: true },
     inside: { p: [-13.6, FF + 5.6, 8.8], t: [-1, 5.4, -6], fov: 66, roof: true },
@@ -12921,7 +12924,7 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
   var tween = null;
   // a view's camera, pulled back on narrow screens so the "fit" views still take in the whole cabin
   function viewPose(name) {
-    var v0 = views[name], k = v0.fit ? Math.max(1, (v0.elev ? 1.5 : 1.05) / camera.aspect) : 1;
+    var v0 = views[name], k = v0.fit ? Math.max(1, (v0.fitAspect || (v0.elev ? 1.5 : 1.05)) / camera.aspect) : 1;
     return { p: v0.t.map(function (c, i) { return c + (v0.p[i] - c) * k; }), t: v0.t, fov: v0.fov };
   }
   function setView(name, instant) {
@@ -12935,10 +12938,11 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
     apply(); if (cb.onState) cb.onState();
   }
 
-  // Drone flyby: one orbit around the house and garage, starting low at the front, rising behind and
-  // easing back down to the Outside view. The camera holds on the middle of the buildings at a distance
-  // that keeps all of them in frame, and climbs wherever a tree would block the view or stand in its way.
-  var FLY = { secs: 30, inSecs: 2.4, landSecs: 2.4, fov: 40, margin: 0.1, n: 180, maxEl: 45 };
+  // Drone flyby: one orbit around the house and garage that leaves from the Outside view, sweeps across the
+  // front first, rises behind and comes back down to land on the Outside view again. The camera holds on the
+  // middle of the buildings at a distance that keeps all of them in frame, and climbs wherever a tree would
+  // block the view or stand in its way.
+  var FLY = { secs: 24, inSecs: 2, landSecs: 2, fov: 40, margin: 0.1, n: 180, peakEl: 24, maxEl: 45 };
   var fly = null, trees = [], UP = new T.Vector3(0, 1, 0);
   function ease(k) { return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; }
   function rad(deg) { return deg * Math.PI / 180; }
@@ -12986,14 +12990,16 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
   }
   function planFlight() {
     var b = envelope(), c = b.getCenter(new T.Vector3()), n = FLY.n;
+    // start and end in line with the Outside view, at its height (kept between 4 and 15 degrees)
     var se = new T.Vector3().fromArray(viewPose('se').p).sub(c), az0 = Math.atan2(se.z, se.x);
+    var el0 = Math.max(4, Math.min(15, Math.atan2(se.y, Math.hypot(se.x, se.z)) * 180 / Math.PI));
     // the buildings' mid-height outline and the top of the roof must stay in sight
     var sights = [c, new T.Vector3(c.x, b.max.y, c.z)];
     [[b.min.x, b.min.z], [b.max.x, b.min.z], [b.min.x, b.max.z], [b.max.x, b.max.z]].forEach(function (xz) { sights.push(new T.Vector3(xz[0], c.y, xz[1])); });
     var az = [], base = [], i;
     for (i = 0; i <= n; i++) {
-      az.push(az0 + 2 * Math.PI * i / n);
-      base.push(8 + 4 * i / n + 14 * Math.sin(Math.PI * i / n)); // degrees: 8 at the start, about 24 behind, 12 at the end
+      az.push(az0 - 2 * Math.PI * i / n); // from the southwest, east across the south glass first
+      base.push(el0 + (FLY.peakEl - el0) * Math.sin(Math.PI * i / n)); // degrees, highest behind the house
     }
     // one distance for the whole orbit, the least that fits the buildings at every point of it
     function fitAll(els) {
@@ -15513,7 +15519,7 @@ var DWGUI = (function () {
   }
   function cover() {
     // the cover sheet shows the 3D model as it is set up right now
-    try { DWG.coverImage = A.viewer ? A.viewer.shotAt('se', 1500, 980) : null; } catch (e) { DWG.coverImage = null; }
+    try { DWG.coverImage = A.viewer ? A.viewer.shotAt('cover', 1500, 980) : null; } catch (e) { DWG.coverImage = null; }
   }
   function render() {
     if (!window.DWG || !A.R) return;
