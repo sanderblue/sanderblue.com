@@ -45,6 +45,13 @@ var APP = (function () {
   }
   A.applySet = applySet;
 
+  // the flyby button reads Stop while the camera flies; it lands on the Outside view
+  function flybyState(s) {
+    var b = $('flyby'), on = s === 'start';
+    b.textContent = on ? 'Stop Flyby' : 'Perform Flyby'; b.setAttribute('aria-pressed', String(on));
+    if (s !== 'stopped') document.querySelectorAll('[data-view]').forEach(function (x) { x.setAttribute('aria-pressed', String(s === 'done' && x.dataset.view === 'se')); });
+  }
+
   function syncToggles() {
     if (!A.viewer) return;
     var st = A.viewer.state;
@@ -174,7 +181,11 @@ var APP = (function () {
   document.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     var d = b.dataset;
-    if (d.view && A.viewer) { A.viewer.setView(d.view); document.querySelectorAll('[data-view]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); syncToggles(); }
+    if (b.id === 'flyby' && A.viewer) {
+      if (A.viewer.flying()) A.viewer.stopFlyby();
+      else { $('viewer').scrollIntoView({ block: 'nearest' }); A.viewer.flyby(); }
+    }
+    else if (d.view && A.viewer) { A.viewer.setView(d.view); document.querySelectorAll('[data-view]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); syncToggles(); }
     else if (d.toggle && A.viewer) {
       if (d.toggle === 'snow' && !A.viewer.state.snow && A.viewer.state.season === 'summer') setSeason('winter'); // snow means winter
       A.viewer.set(d.toggle, !A.viewer.state[d.toggle]); syncToggles();
@@ -203,6 +214,7 @@ var APP = (function () {
     else if (d.sheet && window.DWGUI) { DWGUI.open(d.sheet); $('drawings').scrollIntoView(); }
     else if (d.findline && window.COST) COST.find(d.findline);
   });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && A.viewer && A.viewer.flying()) A.viewer.stopFlyby(); });
   document.addEventListener('change', function (e) {
     var t = e.target;
     if (t.dataset && t.dataset.layer && A.viewer) { var m = {}; m[t.dataset.layer] = t.checked; isoPrev = null; A.viewer.setLayers(m); renderLayers(); document.querySelectorAll('[data-set]').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); }); }
@@ -216,8 +228,10 @@ var APP = (function () {
       A.viewer = startViewer(host, $('cv'), $('dimlayer'), A.R, {
         onPart: function (p) { showPart(p); document.querySelectorAll('[data-room]').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); }); },
         onRoom: function (id) { pickRoom(id); },
-        onState: syncToggles
+        onState: syncToggles,
+        onFlyby: flybyState
       });
+      $('flyby').hidden = false;
       syncToggles(); sunText(); renderLayers();
       $('hour').addEventListener('input', function () { A.viewer.state.hour = parseFloat(this.value); sunText(); });
       $('explode').addEventListener('input', function () { A.viewer.setExplode(this.value / 100); $('explode-out').textContent = this.value + '%'; });

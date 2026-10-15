@@ -23,6 +23,8 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
   var st = { roof: true, snow: false, see: false, dims: false, season: 'winter', hour: 12, explode: 0, cut: null, cutPos: 0, sel: null, room: null, hover: null, elev: false, layers: {} };
   ['found', 'floor', 'wallf', 'roof', 'sheath', 'insul', 'plumb', 'elec'].forEach(function (k) { st.layers[k] = false; });
   layerIds.forEach(function (k) { if (st.layers[k] === undefined) st.layers[k] = true; });
+  // the starting layers are the finished cabin; a flyby shows that look whatever the viewer is set to
+  var FLY_LOOK = { roof: true, see: false, dims: false, explode: 0, cut: null, sel: null, room: null, hover: null, elev: false, layers: Object.assign({}, st.layers) };
   var R = R0, built = null, land = null, snowObj = null, tintList = [], plane = new T.Plane(new T.Vector3(-1, 0, 0), 0), planes = [plane];
 
   function build() {
@@ -33,6 +35,10 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
     land = SCN.landscape(T, MAT, R); scene.add(land.land);
     snowObj = SCN.snow(T, MAT, R); scene.add(snowObj.ground); scene.add(snowObj.roof);
     tintList = SCN.tints(T, R); tintList.forEach(function (t) { scene.add(t); });
+    trees = land.trees.children.map(function (g) {
+      var b = new T.Box3().setFromObject(g);
+      return { x: g.position.x, z: g.position.z, top: b.max.y, rad: (b.max.x - b.min.x) / 2 };
+    });
     seasonDone = null;
     built.mats = [];
     built.root.traverse(function (o) { if (o.material && built.mats.indexOf(o.material) < 0) built.mats.push(o.material); });
@@ -60,21 +66,23 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
 
   var SEE = /^(EXT-BB|WAL-ZIPR|FND-SKIRT|GAR-BB|GAR-SHEATH)$/, HIDE_SEE = /^(INT-DW|ENV-WALL|GAR-OSB|GAR-GYP)$/;
   function apply(clipChanged) {
-    var e = st.explode, cutOn = !!st.cut;
+    // during a flyby the cabin shows its finished outside; the viewer's own settings stay in st and come back after
+    var s = fly ? Object.assign({}, st, FLY_LOOK) : st;
+    var e = s.explode, cutOn = !!s.cut;
     built.groups.forEach(function (g) {
       var u = g.userData;
-      g.visible = !!st.layers[u.L] && (!u.roofy || st.roof) && !(st.see && HIDE_SEE.test(u.it));
+      g.visible = !!s.layers[u.L] && (!u.roofy || s.roof) && !(s.see && HIDE_SEE.test(u.it));
       g.position.set(u.ox * e * 3.5, u.ex * e * 4.2, u.oz * e * 3.5);
     });
-    var snowOn = st.snow && st.season === 'winter';
-    snowObj.roof.visible = snowOn && st.roof && e === 0 && !cutOn && st.layers.roofing;
+    var snowOn = s.snow && s.season === 'winter';
+    snowObj.roof.visible = snowOn && s.roof && e === 0 && !cutOn && s.layers.roofing;
     snowObj.ground.visible = snowOn && e === 0 && !cutOn;
-    land.trees.visible = !st.elev;
+    land.trees.visible = !s.elev;
     built.mats.forEach(function (m) {
       if (clipChanged || m.userData.cut !== cutOn) { m.clippingPlanes = cutOn ? planes : null; m.clipShadows = cutOn; m.needsUpdate = true; m.userData.cut = cutOn; }
     });
     built.groups.forEach(function (g) {
-      var hi = st.sel && g.userData.it === st.sel, see = st.see && SEE.test(g.userData.it);
+      var hi = s.sel && g.userData.it === s.sel, see = s.see && SEE.test(g.userData.it);
       g.traverse(function (o) {
         if (!o.material || o.material === MAT.glass || o.material === MAT.fire) return;
         var m = o.material, u = m.userData;
@@ -88,8 +96,8 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
         o.castShadow = !see && o.userData.baseCS;
       });
     });
-    tintList.forEach(function (t) { t.material.opacity = t.userData.room === st.room ? 0.5 : (t.userData.room === st.hover ? 0.28 : 0); t.visible = !st.roof || st.see || e > 0 ? true : false; });
-    labels.forEach(function (l) { l.el.style.display = st.dims ? '' : 'none'; });
+    tintList.forEach(function (t) { t.material.opacity = t.userData.room === s.room ? 0.5 : (t.userData.room === s.hover ? 0.28 : 0); t.visible = !s.roof || s.see || e > 0 ? true : false; });
+    labels.forEach(function (l) { l.el.style.display = s.dims ? '' : 'none'; });
   }
 
   function setCut(axis, pos) {
@@ -160,16 +168,145 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
     garage: { p: [-72, 16, 30], t: [-20, 6, -8], fov: 44, roof: true }
   };
   var tween = null;
+  // a view's camera, pulled back on narrow screens so the "fit" views still take in the whole cabin
+  function viewPose(name) {
+    var v0 = views[name], k = v0.fit ? Math.max(1, (v0.elev ? 1.5 : 1.05) / camera.aspect) : 1;
+    return { p: v0.t.map(function (c, i) { return c + (v0.p[i] - c) * k; }), t: v0.t, fov: v0.fov };
+  }
   function setView(name, instant) {
     var v0 = views[name]; if (!v0) return;
-    var k = v0.fit ? Math.max(1, (v0.elev ? 1.5 : 1.05) / camera.aspect) : 1;
-    var v = { p: v0.t.map(function (c, i) { return c + (v0.p[i] - c) * k; }), t: v0.t, fov: v0.fov };
+    endFly();
+    var v = viewPose(name);
     tween = { t0: performance.now(), dur: instant ? 1 : 750, fp: camera.position.clone(), ft: controls.target.clone(), ffov: camera.fov, v: v };
     st.elev = !!v0.elev;
     if (v0.roof !== undefined) st.roof = v0.roof;
     if (v0.elev) st.roof = true;
     apply(); if (cb.onState) cb.onState();
   }
+
+  // Drone flyby: one orbit around the house and garage, starting low at the front, rising behind and
+  // easing back down to the Outside view. The camera holds on the middle of the buildings at a distance
+  // that keeps all of them in frame, and climbs wherever a tree would block the view or stand in its way.
+  var FLY = { secs: 30, inSecs: 2.4, landSecs: 2.4, fov: 40, margin: 0.1, n: 180, maxEl: 45 };
+  var fly = null, trees = [], UP = new T.Vector3(0, 1, 0);
+  function ease(k) { return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; }
+  function rad(deg) { return deg * Math.PI / 180; }
+  function dirAt(az, el) { return new T.Vector3(Math.cos(el) * Math.cos(az), Math.sin(el), Math.cos(el) * Math.sin(az)); }
+
+  // the finished outside of the house, garage and covered entry, counting instanced parts one by one
+  function envelope() {
+    var box = new T.Box3(), gb = new T.Box3(), m = new T.Matrix4();
+    built.root.updateMatrixWorld(true);
+    built.groups.forEach(function (g) {
+      if (!/^(roofing|ext|open|sheath)$/.test(g.userData.L)) return;
+      g.traverse(function (o) {
+        if (!o.geometry) return;
+        if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
+        if (o.isInstancedMesh) for (var i = 0; i < o.count; i++) { o.getMatrixAt(i, m); box.union(gb.copy(o.geometry.boundingBox).applyMatrix4(m.premultiply(o.matrixWorld))); }
+        else box.union(gb.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld));
+      });
+    });
+    box.min.y = Math.max(box.min.y, 0);
+    return box;
+  }
+  // how far from c, looking back along dir, the camera must be for every corner of b to sit inside the frame
+  function fitDist(b, c, dir) {
+    var f = dir.clone().negate(), r = new T.Vector3().crossVectors(f, UP).normalize(), u = new T.Vector3().crossVectors(r, f), q = new T.Vector3();
+    var tv = Math.tan(rad(FLY.fov) / 2) * (1 - FLY.margin), th = tv * camera.aspect, need = 0;
+    for (var i = 0; i < 8; i++) {
+      q.set(i & 1 ? b.max.x : b.min.x, i & 2 ? b.max.y : b.min.y, i & 4 ? b.max.z : b.min.z).sub(c);
+      var along = q.dot(dir);
+      need = Math.max(need, along + Math.abs(q.dot(r)) / th, along + Math.abs(q.dot(u)) / tv);
+    }
+    return need;
+  }
+  // does a tree's canopy (a cone: its full radius 3 ft up, a point at the top) cut the line from a to b?
+  function treeBlocks(t, a, b) {
+    var dx = b.x - a.x, dz = b.z - a.z, L2 = dx * dx + dz * dz;
+    var s = L2 ? Math.max(0, Math.min(1, ((t.x - a.x) * dx + (t.z - a.z) * dz) / L2)) : 0;
+    var d = Math.hypot(a.x + dx * s - t.x, a.z + dz * s - t.z);
+    return d < t.rad && a.y + (b.y - a.y) * s < t.top - (t.top - 3) * d / t.rad;
+  }
+  function clearAt(p, sights) {
+    return trees.every(function (t) {
+      if (Math.hypot(p.x - t.x, p.z - t.z) < t.rad + 4 && p.y < t.top + 4) return false; // would fly through it
+      return sights.every(function (q) { return !treeBlocks(t, p, q); });
+    });
+  }
+  function planFlight() {
+    var b = envelope(), c = b.getCenter(new T.Vector3()), n = FLY.n;
+    var se = new T.Vector3().fromArray(viewPose('se').p).sub(c), az0 = Math.atan2(se.z, se.x);
+    // the buildings' mid-height outline and the top of the roof must stay in sight
+    var sights = [c, new T.Vector3(c.x, b.max.y, c.z)];
+    [[b.min.x, b.min.z], [b.max.x, b.min.z], [b.min.x, b.max.z], [b.max.x, b.max.z]].forEach(function (xz) { sights.push(new T.Vector3(xz[0], c.y, xz[1])); });
+    var az = [], base = [], i;
+    for (i = 0; i <= n; i++) {
+      az.push(az0 + 2 * Math.PI * i / n);
+      base.push(8 + 4 * i / n + 14 * Math.sin(Math.PI * i / n)); // degrees: 8 at the start, about 24 behind, 12 at the end
+    }
+    // one distance for the whole orbit, the least that fits the buildings at every point of it
+    function fitAll(els) {
+      return els.reduce(function (m, el, k) { return Math.max(m, fitDist(b, c, dirAt(az[k], rad(el)))); }, 0);
+    }
+    // the heights that see past the trees at that distance: the extra climb each tree needs is widened
+    // and smoothed, so the camera rises early and comes down late, and is added to the planned heights
+    function climb(dist) {
+      var extra = base.map(function (el0, k) {
+        var el = el0;
+        while (el < FLY.maxEl && !clearAt(c.clone().addScaledVector(dirAt(az[k], rad(el)), dist), sights)) el += 1;
+        return el - el0;
+      });
+      var w = 6, span = function (k, fn) { for (var j = Math.max(0, k - w); j <= Math.min(n, k + w); j++) fn(j); };
+      var wide = extra.map(function (_, k) { var m = 0; span(k, function (j) { m = Math.max(m, extra[j]); }); return m; });
+      return wide.map(function (_, k) { var s = 0, cnt = 0; span(k, function (j) { s += wide[j]; cnt++; }); return base[k] + s / cnt; });
+    }
+    // distance and heights depend on each other; a few rounds settle them
+    var els = base, dist = fitAll(els);
+    for (var pass = 0; pass < 4; pass++) {
+      var next = climb(dist), moved = next.some(function (el, k) { return Math.abs(el - els[k]) > 0.5; });
+      els = next; dist = fitAll(els);
+      if (!moved) break;
+    }
+    return { c: c, dist: dist, az: az, els: els };
+  }
+  function orbitPose(u) {
+    var x = Math.max(0, Math.min(1, u)) * FLY.n, i = Math.min(FLY.n - 1, Math.floor(x)), f = x - i;
+    var az = fly.az[i] + (fly.az[i + 1] - fly.az[i]) * f, el = fly.els[i] + (fly.els[i + 1] - fly.els[i]) * f;
+    return { p: fly.c.clone().addScaledVector(dirAt(az, rad(el)), fly.dist), t: fly.c, fov: FLY.fov };
+  }
+  function vec(x) { return x.isVector3 ? x.clone() : new T.Vector3().fromArray(x); }
+  function blend(a, b, k) {
+    return { p: vec(a.p).lerp(vec(b.p), k), t: vec(a.t).lerp(vec(b.t), k), fov: a.fov + (b.fov - a.fov) * k };
+  }
+  function startFly() {
+    if (fly) return;
+    tween = null;
+    if (st.sel || st.room) { st.sel = null; st.room = null; if (cb.onPart) cb.onPart(null); }
+    fly = { t: 0, last: performance.now(), from: { p: camera.position.clone(), t: controls.target.clone(), fov: camera.fov } };
+    apply(); // the flyby look puts taken-apart pieces back in place before the buildings are measured
+    Object.assign(fly, planFlight());
+    if (cb.onFlyby) cb.onFlyby('start');
+  }
+  // stopped: the camera stays where it is. landed: it has reached the Outside view.
+  function endFly(landed) {
+    if (!fly) return;
+    fly = null;
+    if (landed) { st.roof = true; st.elev = false; }
+    apply();
+    if (cb.onState) cb.onState();
+    if (cb.onFlyby) cb.onFlyby(landed ? 'done' : 'stopped');
+  }
+  function stepFly(now) {
+    // time only runs while the viewer is drawing, so a flight paused off screen or in a hidden tab picks up where it left off
+    fly.t += Math.max(0, Math.min(0.25, (now - fly.last) / 1000)); fly.last = now;
+    var t = fly.t, o = FLY.inSecs + FLY.secs, pose;
+    if (t < FLY.inSecs) pose = blend(fly.from, orbitPose(0), ease(t / FLY.inSecs));
+    else if (t < o) pose = orbitPose((1 - Math.cos(Math.PI * (t - FLY.inSecs) / FLY.secs)) / 2);
+    else pose = blend(orbitPose(1), viewPose('se'), ease(Math.min(1, (t - o) / FLY.landSecs)));
+    camera.position.copy(pose.p); controls.target.copy(pose.t); camera.fov = pose.fov; camera.updateProjectionMatrix();
+    if (t >= o + FLY.landSecs) endFly(true);
+  }
+  controls.addEventListener('start', function () { endFly(); }); // a drag, pinch or scroll takes the controls back
 
   var ray = new T.Raycaster(), mouse = new T.Vector2();
   function visibleChain(o) { while (o) { if (!o.visible) return false; o = o.parent; } return true; }
@@ -210,7 +347,8 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
   function frame(now) {
     requestAnimationFrame(frame);
     if (!running) return;
-    if (tween) {
+    if (fly) stepFly(now);
+    else if (tween) {
       var k = Math.min(1, (now - tween.t0) / tween.dur), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2, v = tween.v;
       camera.position.set(tween.fp.x + (v.p[0] - tween.fp.x) * e, tween.fp.y + (v.p[1] - tween.fp.y) * e, tween.fp.z + (v.p[2] - tween.fp.z) * e);
       controls.target.set(tween.ft.x + (v.t[0] - tween.ft.x) * e, tween.ft.y + (v.t[1] - tween.ft.y) * e, tween.ft.z + (v.t[2] - tween.ft.z) * e);
@@ -221,7 +359,7 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
     var dist = camera.position.length(); fog.near = Math.max(260, dist + 40); fog.far = fog.near + 900;
     renderer.render(scene, camera);
     var cp = camera.position, inside = Math.abs(cp.x) < 16.5 && Math.abs(cp.z) < 12.5 && cp.y < 20;
-    var hideAll = !st.dims || inside || st.explode > 0 || !!st.cut;
+    var hideAll = !!fly || !st.dims || inside || st.explode > 0 || !!st.cut;
     labels.forEach(function (l) {
       tmp.copy(l.v).project(camera);
       if (!l.w) l.w = l.el.offsetWidth || 80;
@@ -235,18 +373,23 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
   build(); updateSun(); setView('se', true); requestAnimationFrame(frame);
   return {
     state: st, views: views, setView: setView, refresh: function () { apply(); },
-    set: function (k, v) { st[k] = v; apply(); },
-    debug: function () { return { built: built, scene: scene, camera: camera }; },
-    setLayers: function (map) { for (var k in map) st.layers[k] = map[k]; apply(); },
+    // changing what is shown stops a flyby; snow, season and time of day can change during one
+    set: function (k, v) { if (k !== 'snow') endFly(); st[k] = v; apply(); },
+    debug: function () { return { built: built, scene: scene, camera: camera, fly: fly, trees: land.trees }; },
+    setLayers: function (map) { endFly(); for (var k in map) st.layers[k] = map[k]; apply(); },
     setExplode: function (v) {
+      endFly();
       var was = st.explode; st.explode = v; apply();
       if (was === 0 && v > 0 && camera.position.length() < 90) setView('exploded');
     },
-    setCut: setCut,
+    setCut: function (axis, pos) { endFly(); setCut(axis, pos); },
     setSun: function (season, hour) { st.season = season; st.hour = hour; return updateSun(); },
-    setModel: function (r) { R = r; build(); },
-    select: function (it) { st.sel = it; apply(); },
-    selectRoom: function (id) { st.room = id; st.sel = null; apply(); },
+    setModel: function (r) { endFly(); R = r; build(); },
+    select: function (it) { endFly(); st.sel = it; apply(); },
+    selectRoom: function (id) { endFly(); st.room = id; st.sel = null; apply(); },
+    flyby: startFly,
+    stopFlyby: function () { endFly(); },
+    flying: function () { return !!fly; },
     shot: function () { renderer.render(scene, camera); return canvas.toDataURL('image/png'); },
     shotAt: function (name, w, h) {
       var keep = { p: camera.position.clone(), t: controls.target.clone(), fov: camera.fov, a: camera.aspect, roof: st.roof, elev: st.elev };

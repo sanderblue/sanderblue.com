@@ -19,7 +19,10 @@
   </header>
 
   <section class="sec" id="model" aria-labelledby="h-model">
-    <h2 id="h-model">The cabin in 3D</h2>
+    <div class="sechead">
+      <button type="button" class="btn" id="flyby" aria-pressed="false" hidden>Perform Flyby</button>
+      <h2 id="h-model">The cabin in 3D</h2>
+    </div>
     <div class="stage">
       <div id="viewer">
         <canvas id="cv" aria-label="Interactive 3D model of the cabin. Drag to orbit, scroll to zoom, click a part for details."></canvas>
