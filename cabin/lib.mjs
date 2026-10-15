@@ -11,6 +11,9 @@ export const SRC = join(ROOT, 'src');
 export const REPO = dirname(ROOT);
 export const PAGE_OUT = join(REPO, 'public/mountain-house/index.html');
 export const PDF_OUT = join(REPO, 'public/mountain-house/rime-cabin-drawings.pdf');
+// Files the page loads at run time (the realistic view's textures), copied as they are.
+export const ASSETS_SRC = join(SRC, 'assets');
+export const ASSETS_OUT = join(REPO, 'public/mountain-house/assets');
 
 const INCLUDE = /<!--@include ([^>]+?)-->/g;
 

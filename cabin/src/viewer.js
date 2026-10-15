@@ -4,7 +4,8 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
   var renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, preserveDrawingBuffer: true });
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
   renderer.outputEncoding = T.sRGBEncoding; renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.95;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  var plainRatio = Math.min(window.devicePixelRatio || 1, 2);
+  renderer.setPixelRatio(plainRatio);
   renderer.localClippingEnabled = true;
   var scene = new T.Scene(), camera = new T.PerspectiveCamera(38, W / H, 0.5, 2600);
   var controls = new T.OrbitControls(camera, canvas);
@@ -20,14 +21,16 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
   var fog = new T.Fog(0xbcd8ec, 260, 1000); scene.fog = fog;
 
   var layerIds = R0.M.catalog.layers.map(function (l) { return l[0]; });
-  var st = { roof: true, snow: false, see: false, dims: false, season: 'winter', hour: 12, explode: 0, cut: null, cutPos: 0, sel: null, room: null, hover: null, elev: false, layers: {} };
+  var st = { roof: true, snow: false, see: false, dims: false, season: 'winter', hour: 12, explode: 0, cut: null, cutPos: 0, sel: null, room: null, hover: null, elev: false, real: false, layers: {} };
   ['found', 'floor', 'wallf', 'roof', 'sheath', 'insul', 'plumb', 'elec'].forEach(function (k) { st.layers[k] = false; });
   layerIds.forEach(function (k) { if (st.layers[k] === undefined) st.layers[k] = true; });
   // the starting layers are the finished cabin; a flyby shows that look whatever the viewer is set to
   var FLY_LOOK = { roof: true, see: false, dims: false, explode: 0, cut: null, sel: null, room: null, hover: null, elev: false, layers: Object.assign({}, st.layers) };
   var R = R0, built = null, land = null, snowObj = null, tintList = [], plane = new T.Plane(new T.Vector3(-1, 0, 0), 0), planes = [plane];
+  var real = null, plainTrees = [], dbSize = new T.Vector2(); // the realistic view (real.js), made the first time it is turned on
 
   function build() {
+    if (real) real.release(); // put the plain materials back before the cabin is rebuilt from them
     if (built) scene.remove(built.root);
     if (land) { scene.remove(land.land); scene.remove(snowObj.ground); scene.remove(snowObj.roof); tintList.forEach(function (t) { scene.remove(t); }); }
     built = SCN.build(T, R, MAT);
@@ -35,10 +38,11 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
     land = SCN.landscape(T, MAT, R); scene.add(land.land);
     snowObj = SCN.snow(T, MAT, R); scene.add(snowObj.ground); scene.add(snowObj.roof);
     tintList = SCN.tints(T, R); tintList.forEach(function (t) { scene.add(t); });
-    trees = land.trees.children.map(function (g) {
+    plainTrees = land.trees.children.map(function (g) {
       var b = new T.Box3().setFromObject(g);
       return { x: g.position.x, z: g.position.z, top: b.max.y, rad: (b.max.x - b.min.x) / 2 };
     });
+    trees = st.real ? real.trees() : plainTrees;
     seasonDone = null;
     built.mats = [];
     built.root.traverse(function (o) { if (o.material && built.mats.indexOf(o.material) < 0) built.mats.push(o.material); });
@@ -51,7 +55,9 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
     views.S = { p: [gx, 10, 300], t: [gx, 10, 0], fov: gf, fit: true, elev: true };
     var stove = R.parts.filter(function (p) { return p.it === 'MEC-STOVE' && p.glow; })[0];
     glow.visible = !!stove; if (stove) glow.position.set(stove.c[0] - 16, stove.c[1] + 0.4, stove.c[2] - 12 + 0.8);
-    applySeason(); apply(true);
+    applySeason();
+    if (real) real.rebuild(R, built); // after the season colors are set, so the ones it saves are current
+    apply(true);
   }
 
   // ground, trees, peaks, sky and the light bounced off the ground follow the season
@@ -59,6 +65,7 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
   function applySeason() {
     if (seasonDone === st.season) return; seasonDone = st.season;
     var sum = st.season === 'summer';
+    if (real) real.season(st.season);
     SCN.season(T, MAT, tx, land, built, st.season);
     hemi.groundColor.setHex(sum ? 0x5c6644 : 0xe9eff4);
     day.setHex(sum ? 0xa9cdea : 0xbcd8ec);
@@ -74,10 +81,13 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
       g.visible = !!s.layers[u.L] && (!u.roofy || s.roof) && !(s.see && HIDE_SEE.test(u.it));
       g.position.set(u.ox * e * 3.5, u.ex * e * 4.2, u.oz * e * 3.5);
     });
-    var snowOn = s.snow && s.season === 'winter';
+    var snowOn = s.snow && s.season === 'winter' && !s.real;
     snowObj.roof.visible = snowOn && s.roof && e === 0 && !cutOn && s.layers.roofing;
     snowObj.ground.visible = snowOn && e === 0 && !cutOn;
-    land.trees.visible = !s.elev;
+    land.trees.visible = !s.elev && !s.real;
+    // the realistic view brings its own ground, peaks and trees
+    land.land.children.forEach(function (c) { if (c.material === MAT.ground || c.material === MAT.snow || c.material === land.rock) c.visible = !s.real; });
+    if (real) real.apply(s, e, cutOn);
     built.mats.forEach(function (m) {
       if (clipChanged || m.userData.cut !== cutOn) { m.clippingPlanes = cutOn ? planes : null; m.clipShadows = cutOn; m.needsUpdate = true; m.userData.cut = cutOn; }
     });
@@ -98,6 +108,33 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
     });
     tintList.forEach(function (t) { t.material.opacity = t.userData.room === s.room ? 0.5 : (t.userData.room === s.hover ? 0.28 : 0); t.visible = !s.roof || s.see || e > 0 ? true : false; });
     labels.forEach(function (l) { l.el.style.display = s.dims ? '' : 'none'; });
+  }
+
+  // the realistic view may draw at a lower pixel ratio; null puts back the plain view's
+  function setPixelRatio(pr) {
+    var want = pr == null ? plainRatio : pr;
+    if (renderer.getPixelRatio() !== want) { renderer.setPixelRatio(want); resize(); }
+  }
+  // Realistic on or off. Returns false when this browser cannot show it, and the plain view stays.
+  function setReal(on) {
+    on = !!on;
+    if (on && !real) {
+      try { real = REAL.create(T, { renderer: renderer, scene: scene, camera: camera, sun: sun, hemi: hemi, fog: fog, MAT: MAT, setPixelRatio: setPixelRatio, refresh: function () { apply(true); } }); }
+      catch (err) { console.error('realistic view failed', err && err.stack || err); real = null; return false; }
+    }
+    if (!real) return false;
+    endFly(); // the flight path was planned around the other view's trees
+    st.real = on;
+    real.enable(on, R, land, built);
+    seasonDone = null; // SCN.season sets the site colors again over whatever was restored
+    real.season(st.season);
+    trees = on ? real.trees() : plainTrees;
+    updateSun(); apply();
+    return true;
+  }
+  function draw() {
+    if (st.real) { renderer.getDrawingBufferSize(dbSize); real.render(scene, camera, dbSize.x, dbSize.y, renderer.toneMappingExposure); }
+    else renderer.render(scene, camera);
   }
 
   function setCut(axis, pos) {
@@ -127,6 +164,7 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
     mid.copy(dusk).lerp(day, up); scene.background = mid.clone(); fog.color.copy(mid);
     glow.intensity = 0.5 + 1.8 * (1 - up);
     renderer.toneMappingExposure = 0.8 + 0.2 * up;
+    if (st.real) real.sun(s, up);
     st.altDeg = Math.round(s.alt * 180 / Math.PI);
     return s;
   }
@@ -361,8 +399,9 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
       if (k >= 1) tween = null;
     }
     controls.update();
-    var dist = camera.position.length(); fog.near = Math.max(260, dist + 40); fog.far = fog.near + 900;
-    renderer.render(scene, camera);
+    if (st.real) real.frame(now, camera);
+    else { var dist = camera.position.length(); fog.near = Math.max(260, dist + 40); fog.far = fog.near + 900; }
+    draw();
     var cp = camera.position, inside = Math.abs(cp.x) < 16.5 && Math.abs(cp.z) < 12.5 && cp.y < 20;
     var hideAll = !!fly || !st.dims || inside || st.explode > 0 || !!st.cut;
     labels.forEach(function (l) {
@@ -379,8 +418,8 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
   return {
     state: st, views: views, setView: setView, refresh: function () { apply(); },
     // changing what is shown stops a flyby; snow, season and time of day can change during one
-    set: function (k, v) { if (k !== 'snow') endFly(); st[k] = v; apply(); },
-    debug: function () { return { built: built, scene: scene, camera: camera, fly: fly, trees: land.trees }; },
+    set: function (k, v) { if (k === 'real') return setReal(v); if (k !== 'snow') endFly(); st[k] = v; apply(); },
+    debug: function () { return { built: built, scene: scene, camera: camera, fly: fly, trees: land.trees, real: real, renderer: renderer }; },
     setLayers: function (map) { endFly(); for (var k in map) st.layers[k] = map[k]; apply(); },
     setExplode: function (v) {
       endFly();
@@ -395,12 +434,12 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
     flyby: startFly,
     stopFlyby: function () { endFly(); },
     flying: function () { return !!fly; },
-    shot: function () { renderer.render(scene, camera); return canvas.toDataURL('image/png'); },
+    shot: function () { draw(); return canvas.toDataURL('image/png'); },
     shotAt: function (name, w, h) {
       var keep = { p: camera.position.clone(), t: controls.target.clone(), fov: camera.fov, a: camera.aspect, roof: st.roof, elev: st.elev };
       var v = views[name]; camera.position.set(v.p[0], v.p[1], v.p[2]); controls.target.set(v.t[0], v.t[1], v.t[2]); camera.fov = v.fov;
       camera.aspect = w / h; camera.updateProjectionMatrix(); camera.lookAt(controls.target);
-      renderer.setSize(w, h, false); renderer.render(scene, camera);
+      renderer.setSize(w, h, false); draw();
       var url = canvas.toDataURL('image/jpeg', 0.86);
       camera.position.copy(keep.p); controls.target.copy(keep.t); camera.fov = keep.fov; resize();
       return url;

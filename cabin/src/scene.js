@@ -64,6 +64,8 @@ var SCN = (function () {
     M.cell.transparent = true; M.cell.opacity = 0.85;
     M.wool.transparent = true; M.wool.opacity = 0.9;
     M.snow = m(0xf4f8fb, { roughness: 1 }); M.ground = m(0xe6edf3, { roughness: 1 });
+    // names travel with clones, so the realistic view can tell which material a part uses
+    Object.keys(M).forEach(function (k) { if (!M[k].name) M[k].name = k; });
     return M;
   }
 
