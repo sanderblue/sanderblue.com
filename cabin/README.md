@@ -35,6 +35,8 @@ src/plan.js          PLAN: the page's floor plan
 src/drawings/        DWG: the drawing set, one SVG per sheet
 src/page/            APP, COST, BUILD, DWGUI: the page UI
 build.mjs, check.mjs, print-pdf.mjs, lib.mjs   the scripts above
+prompts/             price-check.md, a prompt for re-checking the estimate's prices against 2026 sources, and
+                     price-check.mjs, which refreshes that prompt's appendix from model.json (not part of the build)
 ```
 
 `page.html` pulls files in with `<!--@include path-->`, which is replaced by that file's text minus one trailing newline, so files end in a newline and the shell's line breaks separate them. Scripts share globals (`MODEL`, `ENG`, `DWG`, ...) in that order, so a new file goes into the include list after what it uses.
