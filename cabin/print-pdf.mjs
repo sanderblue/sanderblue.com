@@ -8,7 +8,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { assemble, includes, PDF_OUT, read, REPO } from './lib.mjs';
+import { assemble, devtools, includes, PDF_OUT, read, REPO, waitFor } from './lib.mjs';
 
 const CHROME = process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const outArg = process.argv.indexOf('--out');
@@ -66,43 +66,6 @@ ${scripts.map((p) => `<script>\n<!--@include ${p}-->\n</script>`).join('\n')}
 <script>${PRINT}</script>
 </body></html>
 `);
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-async function waitFor(what, fn, ms = 90000) {
-  for (const end = Date.now() + ms; Date.now() < end; await sleep(250)) {
-    try {
-      const v = await fn();
-      if (v) return v;
-    } catch {}
-  }
-  throw new Error(`Timed out waiting for ${what}.`);
-}
-
-function devtools(url) {
-  return new Promise((ok, fail) => {
-    const ws = new WebSocket(url), pending = new Map();
-    let id = 0;
-    ws.onerror = (e) => fail(new Error(`Chrome DevTools connection failed: ${e.message || e.type}`));
-    // a dropped connection fails every call still waiting, instead of leaving them hanging
-    ws.onclose = () => {
-      for (const p of pending.values()) p.fail(new Error('Chrome DevTools connection closed.'));
-      pending.clear();
-    };
-    ws.onmessage = (e) => {
-      const msg = JSON.parse(e.data), p = pending.get(msg.id);
-      if (!p) return;
-      pending.delete(msg.id);
-      msg.error ? p.fail(new Error(msg.error.message)) : p.ok(msg.result);
-    };
-    ws.onopen = () => ok({
-      send: (method, params = {}) => new Promise((ok2, fail2) => {
-        pending.set(++id, { ok: ok2, fail: fail2 });
-        ws.send(JSON.stringify({ id, method, params }));
-      }),
-      close: () => ws.close(),
-    });
-  });
-}
 
 const dir = mkdtempSync(join(tmpdir(), 'cabin-pdf-'));
 const page = join(dir, 'drawings.html');

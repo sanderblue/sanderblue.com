@@ -9,7 +9,8 @@
     "start": "next start",
     "cabin:build": "node cabin/build.mjs",
     "cabin:check": "node cabin/check.mjs",
-    "cabin:pdf": "node cabin/print-pdf.mjs"
+    "cabin:pdf": "node cabin/print-pdf.mjs",
+    "cabin:test": "node cabin/test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

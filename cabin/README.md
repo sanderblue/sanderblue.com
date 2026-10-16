@@ -11,13 +11,14 @@ The page ships as a single self-contained file, `public/mountain-house/index.htm
 | `npm run cabin:build` | Assembles `src/` into `public/mountain-house/index.html` and copies `src/assets/` to `public/mountain-house/assets/`. |
 | `npm run cabin:build -- --check` | Exits 1 if the committed page or assets don't match `src/`. |
 | `npm run cabin:check` | Runs the engine in Node with the default choices and prints the total, parts count and design checks. Exits 1 on a failed check or a parts-list problem. `-- --lean` runs the "Lean build" preset; `-- --set heat=propane --set loft=true` changes single choices. |
+| `npm run cabin:test` | Runs the built page in headless Chrome and checks the 3D viewer's Realistic view: turning it on and off (also with a season change, design changes, see-through or a selected part on the way) leaves the plain view's renders identical; the season buttons swap snow and grass; textures load once; no shader or console errors through the viewer controls; the frame-rate guard steps down in order on desktop and phones. About 30 seconds. Needs Google Chrome (or `CHROME_PATH`) and a built page. |
 | `npm run cabin:pdf` | Prints every sheet (default choices) to `public/mountain-house/rime-cabin-drawings.pdf` with the installed Google Chrome. `-- --out <file>` writes elsewhere. Set `CHROME_PATH` if Chrome isn't in `/Applications`. Needs network access for the Google Fonts. |
 
 ## Making a change
 
 1. Edit files in `src/`. Design data (sizes, rooms, openings, catalog and prices, rates) is in `src/model.json`. How parts, prices and checks are generated is in `src/engine/`. Sheets are in `src/drawings/`.
 2. `npm run cabin:check`, and the same with `-- --lean`.
-3. `npm run cabin:build`, then look at the page: `npm run build`, serve `out/` (e.g. `python3 -m http.server --directory out`), open `/mountain-house/`. `next dev` won't serve the folder's index.
+3. `npm run cabin:build`, then `npm run cabin:test`, then look at the page: `npm run build`, serve `out/` (e.g. `python3 -m http.server --directory out`), open `/mountain-house/`. `next dev` won't serve the folder's index.
 4. If anything on the drawings could have changed, `npm run cabin:pdf`. Each new PDF adds about 14 MB to git history, so skip it for page-only changes.
 5. Commit `cabin/` and `public/mountain-house/` together.
 
@@ -36,7 +37,7 @@ src/viewer.js        startViewer(): renderer, camera views, sun, layers, section
 src/plan.js          PLAN: the page's floor plan
 src/drawings/        DWG: the drawing set, one SVG per sheet
 src/page/            APP, COST, BUILD, DWGUI: the page UI
-build.mjs, check.mjs, print-pdf.mjs, lib.mjs   the scripts above
+build.mjs, check.mjs, test.mjs, print-pdf.mjs, lib.mjs   the scripts above
 prompts/             price-check.md, a prompt for re-checking the estimate's prices against 2026 sources, and
                      price-check.mjs, which refreshes that prompt's appendix from model.json (not part of the build)
 ```
