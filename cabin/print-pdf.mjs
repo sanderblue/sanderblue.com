@@ -32,7 +32,7 @@ const PRINT = `
     try {
       var v = startViewer(document.getElementById('stage'), document.getElementById('cv'), document.getElementById('labels'), R,
         { onPart: function () {}, onRoom: function () {}, onState: function () {} });
-      DWG.coverImage = v.shotAt('se', 1500, 980);
+      DWG.coverImage = v.shotAt('cover', 1500, 980);
       st.cover = DWG.coverImage.length > 10000;
     } catch (e) { DWG.coverImage = null; st.coverError = String(e && e.message || e); }
     var box = document.getElementById('sheets');

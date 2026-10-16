@@ -194,9 +194,12 @@ function startViewer(host, canvas, labelLayer, R0, cb) {
   new ResizeObserver(resize).observe(host); resize();
 
   var views = {
-    // Outside, where the page opens: from the southwest, the garage, covered entry and south glass in one view.
-    // Composed at a 1.29 aspect; narrower screens pull back to keep the same sides in frame.
-    se: { p: [-63.1, 18.9, 59], t: [-13, 10.1, -3.7], fov: 40, roof: true, fit: true, fitAspect: 1.29 },
+    // Outside, where the page opens: from the southwest, the garage, covered entry and south glass in one view,
+    // set back far enough to take in the forest and the peaks behind. Composed at a 1.3 aspect, where the cabin
+    // fills about two thirds of the width; screens narrower than 0.93 pull back to keep the cabin in frame.
+    se: { p: [-82.5, 25.4, 80.1], t: [-13.5, 15.1, -4.7], fov: 40, roof: true, fit: true, fitAspect: 0.93 },
+    // the drawing set's cover image (PDF and the page's cover sheet): the closer framing it was composed with
+    cover: { p: [-63.1, 18.9, 59], t: [-13, 10.1, -3.7], fov: 40, roof: true },
     nw: { p: [46, 22, -56], t: [-4, 7, 0], fov: 38, roof: true, fit: true }, // from the northeast, clear of the garage
     plan: { p: [0, 96, 0.1], t: [0, 0, 0], fov: 34, roof: false, fit: true },
     inside: { p: [-13.6, FF + 5.6, 8.8], t: [-1, 5.4, -6], fov: 66, roof: true },
