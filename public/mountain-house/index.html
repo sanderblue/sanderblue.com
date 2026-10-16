@@ -12848,6 +12848,7 @@ var REAL = (function () {
       var bot = p.c[1] - p.s[1] / 2, top = p.c[1] + p.s[1] / 2, hx = p.s[0] / 2, hz = p.s[2] / 2;
       if (p.ry) { var c = Math.abs(Math.cos(p.ry)), s = Math.abs(Math.sin(p.ry)), nx = hx * c + hz * s, nz = hx * s + hz * c; hx = nx; hz = nz; }
       var r = sr(p.c[0] - hx, p.c[0] + hx, p.c[2] - hz, p.c[2] + hz);
+      if (p.it === 'SITE-SEPTIC' && p.m === 'mound') S.mound = r;
       if (p.it === 'SITE-DRIVE') S.plow.push(r);
       else if (bot < 0.8 && top > 0.02 && p.it !== 'SITE-SEPTIC' && hx * hz > 0.08) S.hard.push(r);
     });
@@ -12861,6 +12862,16 @@ var REAL = (function () {
     S.build.forEach(function (r) { mark(r, 0.4, 1); });
     S.hard.forEach(function (r) { mark(r, 0.25, 1); });
     S.plow.forEach(function (r) { mark(r, 0.5, 2); });
+    // The leach field as a low grassy rise: about 5 in on top, easing out over 11 ft past its edge. moundRise()
+    // dips just under the ground at the very edge so the rise meets the terrain with no line; moundH() is the
+    // part above ground, for the grass and snow that sit on it.
+    S.moundRise = function (x, z) {
+      var m = S.mound; if (!m) return 0;
+      var dx = Math.max(m.x0 - x, x - m.x1), dz = Math.max(m.z0 - z, z - m.z1), out = Math.hypot(Math.max(dx, 0), Math.max(dz, 0));
+      var sd = out > 0 ? -out : Math.min(-dx, -dz);
+      return -0.06 + 0.46 * sstep(-6, 5, sd) + 0.08 * sstep(5, 12, sd) + 0.03 * fbm(x / 9, z / 9, 2) * sstep(-2, 4, sd);
+    };
+    S.moundH = function (x, z) { return Math.max(0, S.moundRise(x, z)); };
     S.blocked = function (x, z) { var i = Math.floor((x - X0) / cell), j = Math.floor((z - Z0) / cell); return i < 0 || j < 0 || i >= N || j >= N ? 0 : occ[j * N + i]; };
     return S;
   }
@@ -13026,7 +13037,7 @@ var REAL = (function () {
     rs.forEach(function (r) {
       for (var k = 0; k <= SEG; k++) {
         var a = k / SEG * Math.PI * 2, x = Math.cos(a) * r, z = Math.sin(a) * r, y = height(x, z, r, a);
-        pos.push(x, y, z); uv.push(x * uvScale, -z * uvScale);
+        pos.push(x, y, z); uv.push(x * uvScale, z * uvScale);
         if (color) { var c = color(x, z, r, a, y); col.push(c[0], c[1], c[2]); }
       }
     });
@@ -13204,7 +13215,7 @@ var REAL = (function () {
       var mine = list.filter(function (p, i) { return i % 3 === gi; }), im = new T.InstancedMesh(geo, mats.grass, mine.length);
       mine.forEach(function (p, i) {
         var tall = 0.8 + 0.5 * sstep(-0.4, 0.5, fbm(p[0] / 17 + 4, p[1] / 17, 2)), dry = sstep(0.05, 0.55, fbm(p[0] / 41 - 9, p[1] / 41 + 3, 3));
-        e.set(0, R() * Math.PI * 2, 0); q.setFromEuler(e); v.set(p[0], groundH(p[0], p[1]), p[1]);
+        e.set(0, R() * Math.PI * 2, 0); q.setFromEuler(e); v.set(p[0], groundH(p[0], p[1]) + S.moundH(p[0], p[1]), p[1]);
         sc.set(0.9 + R() * 0.35, tall * (0.75 + R() * 0.5), 0.9 + R() * 0.35); m4.compose(v, q, sc); im.setMatrixAt(i, m4);
         var k = 0.85 + R() * 0.3; col.setRGB(k * (1 + 0.55 * dry), k * (1 + 0.18 * dry), k * (1 - 0.25 * dry)); im.setColorAt(i, col);
       });
@@ -13219,7 +13230,7 @@ var REAL = (function () {
     var fg = flowerGeo(T);
     fl.forEach(function (pts, k) {
       var im = new T.InstancedMesh(fg, mats.flowers[k], pts.length);
-      pts.forEach(function (p, i) { e.set(0, RF() * Math.PI, 0); q.setFromEuler(e); v.set(p[0] + 0.1, groundH(p[0], p[1]), p[1]); var s = 0.75 + RF() * 0.5; sc.set(s, s * (0.8 + RF() * 0.4), s); m4.compose(v, q, sc); im.setMatrixAt(i, m4); });
+      pts.forEach(function (p, i) { e.set(0, RF() * Math.PI, 0); q.setFromEuler(e); v.set(p[0] + 0.1, groundH(p[0], p[1]) + S.moundH(p[0], p[1]), p[1]); var s = 0.75 + RF() * 0.5; sc.set(s, s * (0.8 + RF() * 0.4), s); m4.compose(v, q, sc); im.setMatrixAt(i, m4); });
       im.receiveShadow = true; im.frustumCulled = false; meshes.push(im);
     });
     return meshes;
@@ -13296,6 +13307,19 @@ var REAL = (function () {
     g.setIndex(idx); g.computeVertexNormals();
     return g;
   }
+  function moundGeo(T, S) {
+    var m = S.mound, pad = 7, x0 = Math.floor(m.x0 - pad), x1 = Math.ceil(m.x1 + pad), z0 = Math.floor(m.z0 - pad), z1 = Math.ceil(m.z1 + pad);
+    var nx = x1 - x0 + 1, nz = z1 - z0 + 1, pos = [], uv = [], col = [], idx = [];
+    for (var j = 0; j < nz; j++) for (var i = 0; i < nx; i++) {
+      var x = x0 + i, z = z0 + j, c = terrainColor(x, z);
+      pos.push(x, groundH(x, z) + S.moundRise(x, z), z); uv.push(x / 6.5, z / 6.5); col.push(c[0], c[1], c[2]);
+    }
+    for (j = 0; j < nz - 1; j++) for (i = 0; i < nx - 1; i++) { var a = j * nx + i, b = a + 1, cc = a + nx, d = cc + 1; idx.push(a, cc, b, b, cc, d); }
+    var g = new T.BufferGeometry();
+    g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); g.setAttribute('color', new T.Float32BufferAttribute(col, 3));
+    g.setIndex(idx); g.computeVertexNormals();
+    return g;
+  }
   // Ground snow: about 16 in settled, drifted against the lee (east) side of the buildings, scoured on the
   // windward side, thin under the roofs, wells around the trees, gravel plowed with windrows, and a plow pile.
   function groundSnowGeo(T, S, trees, step) {
@@ -13317,9 +13341,10 @@ var REAL = (function () {
         if (np === 0) D = -0.14;
         else D += 1.7 * Math.exp(-Math.pow((np - 1.9) / 1.25, 2)) * sstep(0.5, 2.5, nr);
         var pr = Math.hypot(x - pile[0], z - pile[1]); D += 4.6 * Math.exp(-Math.pow(pr / 6.2, 2)) * (1 + 0.15 * fbm(x / 3, z / 3, 2));
-        var rim = sstep(0, 22, Math.min(x - x0, x1 - x, z - z0, z1 - z)); D = D * rim - 0.08 * (1 - rim);
+        // the outer 70 ft eases down to a hair above the terrain and ends level with it, so the two meet with no crease
+        var rim = sstep(0, 70, Math.min(x - x0, x1 - x, z - z0, z1 - z)); D = 0.02 + (D - 0.02) * rim;
       }
-      dep[k] = D; pos[k * 3] = x; pos[k * 3 + 1] = groundH(x, z) + D; pos[k * 3 + 2] = z; uv[k * 2] = x / 6.5; uv[k * 2 + 1] = z / 6.5;
+      dep[k] = D; pos[k * 3] = x; pos[k * 3 + 1] = groundH(x, z) + S.moundH(x, z) + D; pos[k * 3 + 2] = z; uv[k * 2] = x / 6.5; uv[k * 2 + 1] = z / 6.5;
     }
     for (j = 0; j < nz - 1; j++) for (i = 0; i < nx - 1; i++) {
       var a = j * nx + i, b = a + 1, c = a + nx, d = c + 1;
@@ -13429,13 +13454,6 @@ var REAL = (function () {
     }
     var M = {};
     M.terrain = new T.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 1 });
-    var tile = { value: 1 }, hole = { value: new T.Vector4(1, 1, -1, -1) };
-    patch(M.terrain, 'terrain', { uTile: tile, uHole: hole }, [WORLD_V, WORLD_V2], [WORLD_F,
-      ['#include <common>', '$\nuniform float uTile;\nuniform vec4 uHole;'],
-      ['#include <clipping_planes_fragment>', '$\nif ( vRW.x > uHole.x && vRW.x < uHole.z && vRW.z > uHole.y && vRW.z < uHole.w ) discard;'],
-      ['#include <map_fragment>', '#ifdef USE_MAP\n{ float dist = length( vRW - cameraPosition ); vec2 u1 = vUv * uTile;\n vec4 a = texture2D( map, u1 ), b = texture2D( map, u1 * 0.23 + vec2( 0.31, 0.17 ) ), c = texture2D( map, u1 * 0.061 + vec2( 0.7, 0.4 ) );\n float k = rNoise( vRW.xz / 70.0 ); vec4 t = mix( a, b, smoothstep( 0.3, 0.7, k ) ); t = mix( t, c, smoothstep( 120.0, 700.0, dist ) * 0.7 );\n t.rgb *= 0.86 + 0.28 * rNoise( vRW.xz / 23.0 + 5.0 ); diffuseColor *= t; }\n#endif'],
-      ['#include <roughnessmap_fragment>', T.ShaderChunk.roughnessmap_fragment.replace('texture2D( roughnessMap, vUv )', 'texture2D( roughnessMap, vUv * uTile )')],
-      ['#include <normal_fragment_maps>', T.ShaderChunk.normal_fragment_maps.replace('texture2D( normalMap, vUv )', 'texture2D( normalMap, vUv * uTile )')]]);
     M.peaks = new T.MeshStandardMaterial({ vertexColors: true, roughness: 1 });
     M.spire = snowShader(new T.MeshStandardMaterial({ color: 0xffffff, roughness: 1 }), 'spire', false);
     M.pine = snowShader(new T.MeshStandardMaterial({ map: X.pine, alphaTest: 0.4, side: T.DoubleSide, roughness: 0.9 }), 'pine', true);
@@ -13449,10 +13467,21 @@ var REAL = (function () {
        ['#include <begin_vertex>', '$\nvT = aT;\n{ vec3 ip = vec3( instanceMatrix[ 3 ][ 0 ], 0.0, instanceMatrix[ 3 ][ 2 ] ); float w = sin( uTime * 1.6 + ip.x * 0.31 + ip.z * 0.19 ) + 0.55 * sin( uTime * 2.9 + ip.x * 0.83 - ip.z * 0.61 ); transformed.xz += vec2( 0.075, 0.045 ) * w * aT * aT; }']],
       [['#include <common>', '$\nvarying float vT;'], ['#include <color_fragment>', '$\ndiffuseColor.rgb *= mix( vec3( 0.022, 0.034, 0.012 ), vec3( 0.105, 0.14, 0.045 ), vT );'], noFlip(T)]);
     M.flowers = X.flowers.map(function (t, k) { return patch(new T.MeshStandardMaterial({ map: t, alphaTest: 0.5, side: T.DoubleSide, roughness: 0.8 }), 'flower', {}, [], [noFlip(T)]); });
-    M.snow = new T.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.8 });
-    patch(M.snow, 'snow', { uSunDir: sunDir, uSunI: sunI }, [WORLD_V, WORLD_V2], [WORLD_F,
-      ['#include <common>', '$\nuniform vec3 uSunDir;\nuniform float uSunI;'],
-      ['#include <emissivemap_fragment>', '$\n{ vec3 cell = floor( vRW * 22.0 ); float r = rHash( cell ); vec3 rn = normalize( vec3( rHash( cell + 1.7 ), rHash( cell + 3.1 ) + 0.6, rHash( cell + 5.3 ) ) - vec3( 0.5, 0.5, 0.5 ) );\n vec3 vd = normalize( cameraPosition - vRW ); float g = pow( max( dot( reflect( -uSunDir, rn ), vd ), 0.0 ), 260.0 ) * step( 0.9, r );\n totalEmissiveRadiance += vec3( g * 6.0 * uSunI * ( 1.0 - smoothstep( 25.0, 110.0, length( cameraPosition - vRW ) ) ) ); }']]);
+    // Ground snow and the terrain in winter must look identical where they meet: same color, roughness,
+    // grain (both map world x and z) and sparkle. SNOW_RGB is that color; uSpark switches the terrain's sparkle.
+    var SNOW_RGB = [0.9, 0.92, 0.95], spark = { value: 1 }, vcol = { value: 0 };
+    var SPARKLE = ['#include <emissivemap_fragment>', '$\n{ vec3 cell = floor( vRW * 22.0 ); float r = rHash( cell ); vec3 rn = normalize( vec3( rHash( cell + 1.7 ), rHash( cell + 3.1 ) + 0.6, rHash( cell + 5.3 ) ) - vec3( 0.5, 0.5, 0.5 ) );\n vec3 vd = normalize( cameraPosition - vRW ); float g = pow( max( dot( reflect( -uSunDir, rn ), vd ), 0.0 ), 260.0 ) * step( 0.9, r );\n totalEmissiveRadiance += vec3( g * 6.0 * uSunI * uSpark * ( 1.0 - smoothstep( 25.0, 110.0, length( cameraPosition - vRW ) ) ) ); }'];
+    var SPARKLE_U = ['#include <common>', '$\nuniform vec3 uSunDir;\nuniform float uSunI;\nuniform float uSpark;'];
+    M.snow = new T.MeshStandardMaterial({ roughness: 0.8 }); M.snow.color.setRGB(SNOW_RGB[0], SNOW_RGB[1], SNOW_RGB[2]);
+    patch(M.snow, 'snow', { uSunDir: sunDir, uSunI: sunI, uSpark: { value: 1 } }, [WORLD_V, WORLD_V2], [WORLD_F, SPARKLE_U, SPARKLE]);
+    var tile = { value: 1 }, hole = { value: new T.Vector4(1, 1, -1, -1) };
+    patch(M.terrain, 'terrain', { uTile: tile, uHole: hole, uSunDir: sunDir, uSunI: sunI, uSpark: spark, uVCol: vcol }, [WORLD_V, WORLD_V2], [WORLD_F, SPARKLE_U, SPARKLE,
+      ['#include <color_fragment>', '#if defined( USE_COLOR )\ndiffuseColor.rgb *= mix( vec3( 1.0 ), vColor, uVCol );\n#endif'],
+      ['#include <common>', '$\nuniform float uTile;\nuniform vec4 uHole;\nuniform float uVCol;'],
+      ['#include <clipping_planes_fragment>', '$\nif ( vRW.x > uHole.x && vRW.x < uHole.z && vRW.z > uHole.y && vRW.z < uHole.w ) discard;'],
+      ['#include <map_fragment>', '#ifdef USE_MAP\n{ float dist = length( vRW - cameraPosition ); vec2 u1 = vUv * uTile;\n vec4 a = texture2D( map, u1 ), b = texture2D( map, u1 * 0.23 + vec2( 0.31, 0.17 ) ), c = texture2D( map, u1 * 0.061 + vec2( 0.7, 0.4 ) );\n float k = rNoise( vRW.xz / 70.0 ); vec4 t = mix( a, b, smoothstep( 0.3, 0.7, k ) ); t = mix( t, c, smoothstep( 120.0, 700.0, dist ) * 0.7 );\n t.rgb *= 0.86 + 0.28 * rNoise( vRW.xz / 23.0 + 5.0 ); diffuseColor *= t; }\n#endif'],
+      ['#include <roughnessmap_fragment>', T.ShaderChunk.roughnessmap_fragment.replace('texture2D( roughnessMap, vUv )', 'texture2D( roughnessMap, vUv * uTile )')],
+      ['#include <normal_fragment_maps>', T.ShaderChunk.normal_fragment_maps.replace('texture2D( normalMap, vUv )', 'texture2D( normalMap, vUv * uTile )')]]);
 
     /* sky and the light it gives */
     var SU = { uSun: { value: new T.Vector3(0, 1, 0) }, uZenith: { value: new T.Color() }, uHorizon: { value: new T.Color() }, uGlow: { value: new T.Color() }, uBelow: { value: new T.Color() } };
@@ -13536,12 +13565,13 @@ var REAL = (function () {
     }
 
     /* model-dependent pieces: roof snow, ground snow, grass */
-    var model = { grass: [], groundSnow: null, roofSnow: null };
+    var model = { grass: [], groundSnow: null, roofSnow: null, mound: null };
     function clearModel() {
       model.grass.forEach(function (m) { root.remove(m); m.geometry.dispose(); m.dispose(); });
       if (model.groundSnow) { root.remove(model.groundSnow); model.groundSnow.geometry.dispose(); }
       if (model.roofSnow) { roofG.remove(model.roofSnow); model.roofSnow.geometry.dispose(); }
-      model = { grass: [], groundSnow: null, roofSnow: null };
+      if (model.mound) { root.remove(model.mound); model.mound.geometry.dispose(); }
+      model = { grass: [], groundSnow: null, roofSnow: null, mound: null };
     }
     // the share of grass tufts drawn; the frame-time guard can lower it
     var grassShare = 1;
@@ -13554,6 +13584,7 @@ var REAL = (function () {
       setGrass(grassShare);
       model.groundSnow = new T.Mesh(groundSnowGeo(T, S, treeList, low ? 2 : 1), M.snow); model.groundSnow.receiveShadow = true; root.add(model.groundSnow);
       model.roofSnow = new T.Mesh(roofSnowGeo(T, R), M.snow); model.roofSnow.castShadow = true; model.roofSnow.receiveShadow = true; roofG.add(model.roofSnow);
+      if (S.mound) { model.mound = new T.Mesh(moundGeo(T, S), M.terrain); model.mound.receiveShadow = true; root.add(model.mound); }
       if (R.o.found === 'crawl') hole.value.set(-15.33, -11.33, 15.33, 11.33); else hole.value.set(1, 1, -1, -1);
     }
 
@@ -13566,7 +13597,9 @@ var REAL = (function () {
         ['#include <roughnessmap_fragment>', 'float roughnessFactor = roughness;\n#ifdef USE_ROUGHNESSMAP\nroughnessFactor *= tri( roughnessMap ).g;\n#endif']];
     };
     var INSIDE = /^(int|fix|furn|floor|wallf|insul|plumb|elec)$/;
+    var hidden = [];
     function upgrade(built, on) {
+      hidden.forEach(function (o) { o.visible = true; }); hidden = [];
       saved.forEach(function (s) {
         if (s.m.normalMap && s.m.normalMap !== s.p.normalMap) s.m.normalMap.dispose(); // the clone upgrade() made
         Object.assign(s.m, s.p); s.m.color.setHex(s.c); s.m.needsUpdate = true;
@@ -13588,6 +13621,7 @@ var REAL = (function () {
       built.groups.forEach(function (g) {
         var inside = INSIDE.test(g.userData.L);
         g.traverse(function (o) {
+          if (o.isMesh && o.material && o.material.name === 'mound') { o.visible = false; hidden.push(o); } // the rise stands in for it
           var m = o.material; if (!m || !m.isMeshStandardMaterial || seen.indexOf(m) >= 0) return; seen.push(m);
           var n = m.name; keep(m);
           // the plain view treats its hex colors as linear light; here they are paint colors (sRGB)
@@ -13622,7 +13656,7 @@ var REAL = (function () {
     }
     function applyTextures() {
       if (!TX) return;
-      TX.snow.normal.repeat.set(0.4, 0.4); TX.snow.rough.repeat.set(0.4, 0.4); M.snow.normalMap = TX.snow.normal; M.snow.normalScale.set(0.35, 0.35); M.snow.roughnessMap = TX.snow.rough; M.snow.color.setRGB(0.9, 0.92, 0.95); M.snow.needsUpdate = true;
+      TX.snow.normal.repeat.set(0.4, 0.4); TX.snow.rough.repeat.set(0.4, 0.4); M.snow.normalMap = TX.snow.normal; M.snow.normalScale.set(0.35, 0.35); M.snow.roughnessMap = TX.snow.rough; M.snow.needsUpdate = true;
       M.bark.map = TX.bark.color; M.bark.normalMap = TX.bark.normal; M.bark.roughnessMap = TX.bark.rough; M.bark.color.setRGB(0.42, 0.39, 0.36); M.bark.needsUpdate = true;
       setSeason(season, true);
     }
@@ -13634,11 +13668,13 @@ var REAL = (function () {
       if (TX) {
         var set = sum ? TX.meadow : TX.snow;
         M.terrain.map = sum ? set.color : null; M.terrain.normalMap = set.normal; M.terrain.roughnessMap = set.rough; tile.value = sum ? 6.5 / 95 : 1;
-        if (sum) M.terrain.color.setHex(0xc9c7a2); else M.terrain.color.setRGB(0.88, 0.9, 0.93); M.terrain.normalScale.set(sum ? 1 : 0.35, sum ? 1 : 0.35);
-      } else { M.terrain.map = null; M.terrain.normalMap = null; M.terrain.roughnessMap = null; M.terrain.color.setHex(sum ? 0x56603a : 0xe9eef3); }
+        if (sum) M.terrain.color.setHex(0xc9c7a2); else M.terrain.color.setRGB(SNOW_RGB[0], SNOW_RGB[1], SNOW_RGB[2]); M.terrain.normalScale.set(sum ? 1 : 0.35, sum ? 1 : 0.35);
+      } else { M.terrain.map = null; M.terrain.normalMap = null; M.terrain.roughnessMap = null; if (sum) M.terrain.color.setHex(0x56603a); else M.terrain.color.setRGB(SNOW_RGB[0], SNOW_RGB[1], SNOW_RGB[2]); }
+      M.terrain.roughness = sum ? 1 : 0.8; spark.value = sum ? 0 : 1; vcol.value = sum ? 1 : 0;
       M.terrain.needsUpdate = true;
       peaks.geometry.setAttribute('color', sum ? peakCol.summer : peakCol.winter);
       leafMeshes.forEach(function (m) { m.visible = sum; }); twigMeshes.forEach(function (m) { m.visible = !sum; });
+      showSeason(); // ground snow, roof snow and grass follow the season
       envDirty = true;
     }
 
@@ -13707,8 +13743,12 @@ var REAL = (function () {
       v.scene.background = null; v.fog.color.copy(horizon);
       envDirty = true;
     };
-    // visibility: s is the viewer state in effect, e the explode amount
+    // visibility: s is the viewer state in effect, e the explode amount. The last call is kept so a season
+    // change, which the viewer makes without calling apply(), can swap snow and grass straight away.
+    var shown = null;
+    function showSeason() { if (shown) self.apply(shown[0], shown[1], shown[2]); }
     self.apply = function (s, e, cutOn) {
+      shown = [s, e, cutOn];
       var winter = season === 'winter', plain = e === 0 && !cutOn;
       if (model.groundSnow) model.groundSnow.visible = winter && plain;
       if (model.roofSnow) roofG.visible = enabled && winter && s.snow && s.roof && plain && s.layers.roofing;
