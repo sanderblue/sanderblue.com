@@ -26,9 +26,10 @@ var REAL = (function () {
     return (a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v) * 2 - 1;
   }
   function fbm(x, y, oct) { var s = 0, a = 0.5, f = 1, n = 0; for (var i = 0; i < oct; i++) { s += a * noise(x * f + i * 13.7, y * f - i * 7.3); n += a; a *= 0.5; f *= 2.03; } return s / n; }
+  // oct may be fractional: the last octave then comes in at that share
   function ridged(x, y, oct) {
     var s = 0, a = 0.5, f = 1, w = 1, n = 0;
-    for (var i = 0; i < oct; i++) { var r = 1 - Math.abs(noise(x * f + i * 17.3, y * f - i * 9.1)); r *= r * w; s += r * a; w = clamp(r * 1.8, 0, 1); n += a; a *= 0.5; f *= 2.1; }
+    for (var i = 0; i < oct; i++) { var r = 1 - Math.abs(noise(x * f + i * 17.3, y * f - i * 9.1)), b = a * Math.min(1, oct - i); r *= r * w; s += r * b; w = clamp(r * 1.8, 0, 1); n += b; a *= 0.5; f *= 2.1; }
     return s / n;
   }
 
@@ -299,7 +300,7 @@ var REAL = (function () {
   }
 
   /* ---------- terrain, peaks and the forest beyond the lot ---------- */
-  var RING = 1450, FAR = 4300, SEG = 192;
+  var RING = 1450, FAR = 4300, SEG = 192, RF = 2900; // RF: the impostor trees stop here; the peaks draw the rest
   function radii(r0, r1, step0, grow) { var out = [r0], r = r0, s = step0; while (r < r1 - 1e-6) { r = Math.min(r1, r + s); out.push(r); s *= grow; } return out; }
   function polarGeo(T, rs, height, color, uvScale, seg) {
     seg = seg || SEG;
@@ -330,7 +331,7 @@ var REAL = (function () {
   }
   function peakH(x, z, r, a) {
     var t = sstep(RING, RING + 900, r) * (1 - 0.25 * sstep(FAR - 700, FAR, r));
-    return groundH(x, z) + t * peakEnvelope(a) * (0.35 + 0.75 * ridged(x / 760, z / 760, 5));
+    return groundH(x, z) + t * peakEnvelope(a) * (0.35 + 0.75 * ridged(x / 760, z / 760, 5 - 1.3 * sstep(1700, 3400, r)));
   }
   function forestMask(x, z) { return fbm(x / 260 + 3.1, z / 260 - 5.7, 3) + 0.12; }
   function terrainColor(x, z) {
@@ -344,30 +345,45 @@ var REAL = (function () {
   // All of it reads one small tiling noise texture (see peakNoise), so mip mapping filters what is finer than a
   // pixel and a pixel costs a handful of lookups rather than a hundred hashes. uPkS turns its stored slopes into
   // slope per 70 ft at the 560 ft tile.
+  // The forest map (see forestMap()): r is how much of the ground the far forest covers, g how far above the
+  // treeline it is. fShadow() is how much of the sun the stands take from a point hp ft above the ground: the cover
+  // at three places along the way toward the sun, below the tops of 55 ft trees.
+  var FOREST_F = ['#include <common>', '$\nuniform sampler2D uForest;\nuniform float uForestS;\nuniform vec3 uSunDir;\n' +
+    'float fCover( vec2 p ) { return texture2D( uForest, p * uForestS + 0.5 ).r; }\n' +
+    'float fShadow( vec3 w, float hp ) { vec2 d = uSunDir.xz / max( uSunDir.y, 0.12 ); float k = 1.0 - clamp( hp / 55.0, 0.0, 1.0 );\n' +
+    '  return clamp( ( fCover( w.xz + d * ( hp + 6.0 ) ) + fCover( w.xz + d * ( hp + 18.0 ) ) + fCover( w.xz + d * ( hp + 34.0 ) ) ) * 0.7 * k, 0.0, 1.0 ); }'];
+  function SHADOW(hp) { return ['#include <lights_fragment_begin>', '$\n{ float sh = 1.0 - 0.85 * fShadow( vRW, ' + hp + ' ); reflectedLight.directDiffuse *= sh; reflectedLight.directSpecular *= sh; }']; }
+  // aerial perspective past the lot: thicker low down, the same for the ground, the peaks and the far trees
+  var HAZE = ['#include <fog_fragment>', '$\n#ifdef USE_FOG\n{ float d = length( vRW - cameraPosition ), thick = exp( -max( vRW.y, 0.0 ) / 1400.0 ); gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, ( 1.0 - exp( -d / 6800.0 * thick ) ) * 0.8 * smoothstep( 250.0, 900.0, d ) ); }\n#endif'];
   var PEAK_F = [
-    ['#include <common>', '$\nuniform float uWin;\nuniform float uRing;\nuniform sampler2D uPk;\nuniform float uPkS;'],
+    ['#include <common>', '$\nuniform float uWin;\nuniform sampler2D uPk;\nuniform float uPkS;'],
     ['#include <color_fragment>', [
       'vec3 pkN = normalize( vRN ); float pkH;',
       '{ vec2 q = ( vRW.xz + vRW.y * vec2( 0.55, -0.35 ) ) / 560.0; vec4 a = texture2D( uPk, q ), b = texture2D( uPk, mat2( 0.8, 0.6, -0.6, 0.8 ) * q * 0.43 + 0.37 );',
       '  pkH = a.r * 0.62 + b.r * 0.38; vec2 g = ( ( a.gb - 0.5 ) * 0.62 + mat2( 0.8, -0.6, 0.6, 0.8 ) * ( b.gb - 0.5 ) * 0.38 * 0.43 ) * uPkS;',
       '  pkN = normalize( pkN - vec3( g.x, 0.0, g.y ) * ( 0.12 + 0.5 * ( 1.0 - pkN.y ) ) ); }',
-      '{ float big = texture2D( uPk, vRW.xz / 4200.0 + 0.5 ).r, y = vRW.y + ( pkH - 0.5 ) * 60.0, tree = 320.0 + 140.0 * ( big - 0.5 ), slope = pkN.y;',
-      '  float above = smoothstep( tree - 20.0, tree + 20.0, y ), thin = smoothstep( tree - 110.0, tree, y );',
+      // under the far trees: shaded forest floor; past RF, where there are no trees, the canopy itself
+      '{ vec4 fm = texture2D( uForest, vRW.xz * uForestS + 0.5 ); float y = vRW.y + ( pkH - 0.5 ) * 60.0, slope = pkN.y;',
+      '  float above = smoothstep( 0.3, 0.7, fm.g + ( pkH - 0.5 ) * 0.5 ), fc = fm.r, past = smoothstep( ' + (RF - 200) + '.0, ' + (RF + 100) + '.0, length( vRW.xz ) );',
       '  float can = 0.5 * texture2D( uPk, vRW.xz / 256.0 ).a + 0.3 * texture2D( uPk, vRW.xz / 704.0 + 0.3 ).a + 0.2 * texture2D( uPk, vRW.xz / 600.0 + 0.7 ).r;',
-      '  float crowns = smoothstep( 0.18 + 0.38 * thin, 0.36 + 0.38 * thin, can ) * ( 1.0 - above );',
+      '  float crowns = smoothstep( 0.62, 0.3, can - fc * 0.35 ) * fc * mix( 0.5, 1.0, past );',
       '  float fine = texture2D( uPk, vRW.xz / 192.0 + 0.11 ).a, strata = 0.5 + 0.5 * sin( ( vRW.y + ( pkH - 0.5 ) * 90.0 ) / ( 4.0 + 3.0 * texture2D( uPk, vRW.xz / 1600.0 ).r ) );',
       '  vec3 rock = mix( vec3( 0.06, 0.059, 0.058 ), vec3( 0.16, 0.152, 0.14 ), pkH ) * ( 0.92 + 0.14 * strata );',
-      '  vec3 ground = mix( vec3( 0.02, 0.025, 0.016 ), mix( vec3( 0.06, 0.07, 0.035 ), vec3( 0.095, 0.092, 0.055 ), texture2D( uPk, vRW.xz / 1984.0 + 0.6 ).a ), above );',
+      '  vec3 ground = mix( mix( vec3( 0.06, 0.07, 0.035 ), vec3( 0.095, 0.092, 0.055 ), texture2D( uPk, vRW.xz / 1984.0 + 0.6 ).a ), vec3( 0.018, 0.022, 0.014 ), smoothstep( 0.0, 0.7, fc ) * ( 1.0 - above ) );',
       '  vec3 sumC = mix( ground, vec3( 0.017, 0.029, 0.021 ) * ( 0.75 + 0.5 * fine ), crowns );',
       '  sumC = mix( sumC, rock, max( 1.0 - smoothstep( 0.5, 0.74, slope + ( pkH - 0.5 ) * 0.3 ), above * smoothstep( 430.0, 580.0, y ) * 0.75 ) );',
       '  float field = smoothstep( 500.0, 590.0, y - 90.0 * pkN.z + 80.0 * ( pkH - 0.5 ) ) * smoothstep( 0.55, 0.75, slope ) * smoothstep( 0.4, 0.56, pkH );',
       '  vec3 snowC = vec3( 0.8, 0.84, 0.9 ) * ( 0.93 + 0.1 * pkH );',
       '  sumC = mix( sumC, snowC, field );',
-      '  vec3 winC = mix( snowC, vec3( 0.026, 0.04, 0.034 ) * ( 0.8 + 0.4 * fine ), crowns * 0.9 );',
-      '  winC = mix( winC, rock * 0.92, 1.0 - smoothstep( 0.4, 0.6, slope + ( pkH - 0.5 ) * 0.4 ) );',
+      '  vec3 winC = mix( snowC, vec3( 0.2, 0.23, 0.27 ), smoothstep( 0.0, 0.7, fc ) * ( 1.0 - above ) );',
+      '  winC = mix( winC, vec3( 0.026, 0.04, 0.034 ) * ( 0.8 + 0.4 * fine ), crowns * 0.9 );',
+      // rock on the steep faces, in ribs running down the fall line with snow-filled gullies between
+      '  vec2 cd = normalize( vec2( -vRN.z, vRN.x ) + 1e-4 ); float rib = texture2D( uPk, vec2( dot( vRW.xz, cd ) / 260.0, vRW.y / 1100.0 ) + 0.21 ).r;',
+      '  float rk = ( 1.0 - smoothstep( 0.47, 0.53, slope + ( pkH - 0.5 ) * 0.3 + ( fine - 0.5 ) * 0.18 ) ) * smoothstep( 0.42, 0.56, rib * 0.7 + fine * 0.3 );',
+      '  winC = mix( winC, rock * 0.85, rk );',
       '  diffuseColor.rgb *= mix( sumC, winC, uWin ) * ( 0.82 + 0.36 * pkH ); }'].join('\n')],
     ['#include <normal_fragment_maps>', '$\nnormal = normalize( ( viewMatrix * vec4( pkN, 0.0 ) ).xyz );'],
-    ['#include <fog_fragment>', '$\n#ifdef USE_FOG\n{ float d = length( vRW - cameraPosition ), thick = exp( -max( vRW.y, 0.0 ) / 1400.0 ); gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, ( 1.0 - exp( -d / 5200.0 * thick ) ) * 0.85 * smoothstep( uRing, uRing + 700.0, length( vRW.xz ) ) ); }\n#endif']
+    FOREST_F, SHADOW('0.0'), HAZE
   ];
   // A 256 px tiling noise for the peaks: r is four octaves of value noise (8 to 64 cells a tile), g and b its slope
   // across x and y, a a single octave of 64 cells.
@@ -419,9 +435,11 @@ var REAL = (function () {
   }
   // kind: 'spruce' (Engelmann: dense, broad, branches to the ground), 'fir' (subalpine: the same, a narrow
   // spire) or 'pine' (lodgepole: a tall clean trunk, a fuller crown in its upper part)
-  function conifer(T, kind, seed, density, coarse) {
+  // lowCrown: a lodgepole that grew in the open, branched lower down (the far pictures, where a bare trunk under a
+  // crown reads as a stick)
+  function conifer(T, kind, seed, density, coarse, lowCrown) {
     var R = rng(seed), H = TREE_H[kind], spruce = kind !== 'pine', fir = kind === 'fir', out = { pos: [], nor: [], uv: [], snow: [], idx: [] }, cs = coarse ? 1.7 : 1;
-    var base = spruce ? 0.04 + R() * 0.04 : 0.24 + R() * 0.1, Rmax = spruce ? (8.8 + R() * 1.6) * (fir ? 0.58 : 1) : 5.8 + R() * 1.4, mid = H * (base + (1 - base) * 0.45);
+    var base = spruce ? 0.04 + R() * 0.04 : (lowCrown ? 0.1 : 0.24) + R() * 0.1, Rmax = spruce ? (8.8 + R() * 1.6) * (fir ? 0.58 : 1) : 5.8 + R() * 1.4, mid = H * (base + (1 - base) * 0.45);
     function rad(t) { return spruce ? Rmax * Math.pow(1 - t, 0.92) : Rmax * (t < 0.18 ? 0.55 + 2.5 * t : Math.pow((1 - t) / 0.82, 0.75)); }
     var y = H * base;
     while (y < H * 0.975) {
@@ -491,7 +509,7 @@ var REAL = (function () {
     renderer.toneMapping = T.NoToneMapping; renderer.autoClear = false;
     try {
       IMP.forEach(function (k, i) {
-        var g = conifer(T, k[0], k[1], 1), H = g.H * IMP_HT, cam = new T.OrthographicCamera(-H / 4, H / 4, H, 0, 0.1, 200), sc = new T.Scene();
+        var g = conifer(T, k[0], k[1], 1, false, true), H = g.H * IMP_HT, cam = new T.OrthographicCamera(-H / 4, H / 4, H, 0, 0.1, 200), sc = new T.Scene();
         cam.position.set(0, 0, 100); cam.lookAt(0, 0, 0);
         var fol = new T.Mesh(g.foliage), trunk = new T.Mesh(g.trunk), bg = new T.Mesh(new T.PlaneGeometry(H, H * 2), bgM); sc.add(trunk); sc.add(fol);
         bg.position.set(0, H / 2, -90); sc.add(bg);
@@ -827,8 +845,8 @@ var REAL = (function () {
     }
     var M = {};
     M.terrain = new T.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 1 });
-    var pk = peakNoise(T, aniso);
-    M.peaks = patch(new T.MeshStandardMaterial({ roughness: 1 }), 'peaks', { uWin: snowOn, uRing: { value: RING }, uPk: { value: pk.tex }, uPkS: { value: pk.slope } }, [WORLD_V, WORLD_V2], [WORLD_F].concat(PEAK_F));
+    var pk = peakNoise(T, aniso), forestU = { value: null }, forestS = { value: 1 / (2 * FAR) };
+    M.peaks = patch(new T.MeshStandardMaterial({ roughness: 1 }), 'peaks', { uWin: snowOn, uPk: { value: pk.tex }, uPkS: { value: pk.slope }, uForest: forestU, uForestS: forestS, uSunDir: sunDir }, [WORLD_V, WORLD_V2], [WORLD_F].concat(PEAK_F));
     M.pine = snowShader(new T.MeshStandardMaterial({ map: X.pine, alphaTest: 0.4, side: T.DoubleSide, roughness: 0.9 }), 'pine');
     M.spruce = snowShader(new T.MeshStandardMaterial({ map: X.spruce, alphaTest: 0.4, side: T.DoubleSide, roughness: 0.9 }), 'spruce');
     M.twigs = snowShader(new T.MeshStandardMaterial({ map: X.twigs, alphaTest: 0.4, side: T.DoubleSide, roughness: 1 }), 'twigs');
@@ -847,10 +865,11 @@ var REAL = (function () {
     var SPARKLE = ['#include <lights_fragment_begin>', '$\n#if NUM_DIR_LIGHTS > 0\n{ vec3 cell = floor( vRW * 22.0 ); float r = rHash( cell ); vec3 rn = normalize( vec3( rHash( cell + 1.7 ), rHash( cell + 3.1 ) + 0.6, rHash( cell + 5.3 ) ) - vec3( 0.5, 0.5, 0.5 ) );\n vec3 vd = normalize( cameraPosition - vRW ); float g = pow( max( dot( reflect( -uSunDir, rn ), vd ), 0.0 ), 260.0 ) * step( 0.9, r );\n reflectedLight.directSpecular += directLight.color * ( g * 2.6 * uSpark * ( 1.0 - smoothstep( 25.0, 110.0, length( cameraPosition - vRW ) ) ) ); }\n#endif'];
     var SPARKLE_U = ['#include <common>', '$\nuniform vec3 uSunDir;\nuniform float uSpark;'];
     M.snow = new T.MeshStandardMaterial({ roughness: 0.8 }); M.snow.color.setRGB(SNOW_RGB[0], SNOW_RGB[1], SNOW_RGB[2]);
-    patch(M.snow, 'snow', { uSunDir: sunDir, uSpark: { value: 1 } }, [WORLD_V, WORLD_V2], [WORLD_F, SPARKLE_U, SPARKLE]);
+    patch(M.snow, 'snow', { uSunDir: sunDir, uSpark: { value: 1 }, uForest: forestU, uForestS: forestS }, [WORLD_V, WORLD_V2], [WORLD_F, SPARKLE_U, SPARKLE, [FOREST_F[0], FOREST_F[1].replace('uniform vec3 uSunDir;\n', '')], SHADOW('0.0')]);
     var tile = { value: 1 }, hole = { value: new T.Vector4(1, 1, -1, -1) };
-    patch(M.terrain, 'terrain', { uTile: tile, uHole: hole, uSunDir: sunDir, uSpark: spark, uVCol: vcol }, [WORLD_V, WORLD_V2], [WORLD_F, SPARKLE_U, SPARKLE,
-      ['#include <color_fragment>', '#if defined( USE_COLOR )\ndiffuseColor.rgb *= mix( vec3( 1.0 ), vColor, uVCol );\n#endif'],
+    patch(M.terrain, 'terrain', { uTile: tile, uHole: hole, uSunDir: sunDir, uSpark: spark, uVCol: vcol, uForest: forestU, uForestS: forestS }, [WORLD_V, WORLD_V2], [WORLD_F, SPARKLE_U, SPARKLE,
+      [FOREST_F[0], FOREST_F[1].replace('uniform vec3 uSunDir;\n', '')], SHADOW('0.0'), HAZE,
+      ['#include <color_fragment>', '#if defined( USE_COLOR )\ndiffuseColor.rgb *= mix( vec3( 1.0 ), vColor, uVCol );\n#endif\ndiffuseColor.rgb *= mix( vec3( 1.0 ), mix( vec3( 0.24, 0.27, 0.31 ), vec3( 0.4, 0.4, 0.34 ), uVCol ), smoothstep( 0.0, 0.7, fCover( vRW.xz ) ) );'],
       ['#include <common>', '$\nuniform float uTile;\nuniform vec4 uHole;\nuniform float uVCol;'],
       ['#include <clipping_planes_fragment>', '$\nif ( vRW.x > uHole.x && vRW.x < uHole.z && vRW.z > uHole.y && vRW.z < uHole.w ) discard;'],
       ['#include <map_fragment>', '#ifdef USE_MAP\n{ float dist = length( vRW - cameraPosition ); vec2 u1 = vUv * uTile;\n vec4 a = texture2D( map, u1 ), b = texture2D( map, u1 * 0.23 + vec2( 0.31, 0.17 ) ), c = texture2D( map, u1 * 0.061 + vec2( 0.7, 0.4 ) );\n float k = rNoise( vRW.xz / 70.0 ); vec4 t = mix( a, b, smoothstep( 0.3, 0.7, k ) ); t = mix( t, c, smoothstep( 120.0, 700.0, dist ) * 0.7 );\n t.rgb *= 0.86 + 0.28 * rNoise( vRW.xz / 23.0 + 5.0 ); diffuseColor *= t; }\n#endif'],
@@ -921,52 +940,116 @@ var REAL = (function () {
     // the forest beyond the lot: one draw of baked impostors
     var imp = bakeImpostors(T, renderer, X, low ? 512 : 1024), impN = { value: imp.normal.texture };
     M.impostor = new T.MeshStandardMaterial({ map: imp.color.texture, alphaTest: 0.5, side: T.DoubleSide, roughness: 0.9 });
-    patch(M.impostor, 'impostor', { uNrm: impN, uSnow: snowOn, uTiles: { value: imp.tiles } },
+    patch(M.impostor, 'impostor', { uNrm: impN, uSnow: snowOn, uTiles: { value: imp.tiles }, uForest: forestU, uForestS: forestS, uSunDir: sunDir },
       [WORLD_V, WORLD_V2, ['#include <common>', '$\nattribute vec2 aQ;\nattribute float aTile;\nuniform float uTiles;\nvarying vec2 vRot;'],
        ['#include <uv_vertex>', '$\nvUv.x = ( vUv.x + aTile ) / uTiles;'],
        ['#include <begin_vertex>', '$\n{ vec2 ir = normalize( vec2( instanceMatrix[ 0 ][ 0 ], -instanceMatrix[ 0 ][ 2 ] ) ); vRot = vec2( ir.x * aQ.x - ir.y * aQ.y, ir.y * aQ.x + ir.x * aQ.y ); }']],
       [WORLD_F, ['#include <common>', '$\nuniform sampler2D uNrm;\nuniform float uSnow;\nvarying vec2 vRot;'],
        ['#include <map_fragment>', '{ vec4 tex = texture2D( map, vUv ); diffuseColor *= vec4( tex.rgb * tex.rgb, tex.a ); }' + cover('vec2( ' + imp.color.width + '.0, ' + imp.color.height + '.0 )')],
-       ['#include <color_fragment>', '$\n{ float sn = uSnow * smoothstep( 0.32, 0.7, texture2D( uNrm, vUv ).a + ( rNoise( vRW.xz * 0.9 + vRW.y ) - 0.5 ) * 0.45 ); diffuseColor.rgb = mix( diffuseColor.rgb, vec3( 0.84, 0.87, 0.92 ), sn ); }'],
+       ['#include <color_fragment>', '$\n{ float sn = uSnow * smoothstep( 0.32, 0.7, texture2D( uNrm, vUv ).a + ( rNoise( vRW.xz * 0.9 + vRW.y ) - 0.5 ) * 0.45 ); diffuseColor.rgb = mix( diffuseColor.rgb, vec3( 0.84, 0.87, 0.92 ), sn ); }' +
+        // inside a stand the lower crowns get little sky
+        '\ndiffuseColor.rgb *= mix( 1.0, 0.58 + 0.42 * clamp( vUv.y * 1.4, 0.0, 1.0 ), fCover( vRW.xz ) );'],
+       FOREST_F, SHADOW('( vUv.y * 55.0 )'), HAZE,
        noFlip(T),
        ['#include <normal_fragment_maps>', '$\n{ vec3 tn = texture2D( uNrm, vUv ).xyz * 2.0 - 1.0; tn.z *= faceDirection; vec3 nw = vec3( vRot.x * tn.x + vRot.y * tn.z, tn.y, -vRot.y * tn.x + vRot.x * tn.z ); normal = normalize( ( viewMatrix * vec4( nw, 0.0 ) ).xyz ); }']]);
-    (function () {
+    // Where the far forest stands: [chance of a tree at x, z; ground height (NaN inside the ring, where the caller
+    // works it out); slope; size; how far above the treeline]. On the slopes the trees gather in tight clumps with
+    // open snow between, the way subalpine forest grows, the clumps taking up about the share of ground the
+    // chance gives.
+    function forestAt(x, z) {
+      var r = Math.hypot(x, z);
+      if (r < 210) return null;
+      if (r < RING - 30) {
+        if (outside(LOT, x, z) < 26 || (x < LOT.x0 && Math.abs(z + 9) < 22)) return null; // the lot and the road in from the west
+        return [clamp((forestMask(x, z) + 0.25 * sstep(300, 900, r) - 0.12) / 0.12, 0, 1) * (0.35 + 0.65 * sstep(210, 470, r)), NaN, 0, 1, 0];
+      }
+      // up the lower slopes of the peaks, off the steepest ground, thinning toward the treeline
+      var pa = r < RING ? [groundH(x, z), 1] : peakAt(x, z), y = pa[0], steep = Math.sqrt(Math.max(0, 1 - pa[1] * pa[1])) / Math.max(pa[1], 0.05);
+      var tl = 320 + 80 * fbm(x / 520 + 3, z / 520, 3), up = sstep(tl - 140, tl, y), out = [0, y, steep, 1 - 0.55 * sstep(tl - 120, tl, y), sstep(tl - 20, tl + 40, y)];
+      var pr = (1 - sstep(0.65, 0.85, steep)) * clamp((tl + 30 - y) / 30, 0, 1); // the cheap tests first: most of the slope stops here
+      if (pr > 0) pr *= clamp((forestMask(x, z) + 0.3 - 0.6 * up - 0.1) / 0.15, 0, 1);
+      if (pr > 0) { var th = 0.5 + (0.45 - pr) * 0.55; out[0] = 0.9 * sstep(th - 0.035, th + 0.035, fbm(x / 85 + 11, z / 85 - 4, 2) * 0.5 + 0.5); }
+      return out;
+    }
+
+    var forestMap = (function () {
       var R = rng(31), sp = low ? 18 : 12, pts = [];
       for (var z = -RING; z < RING; z += sp) for (var x = -RING; x < RING; x += sp) {
-        var px = x + (R() - 0.5) * sp, pz = z + (R() - 0.5) * sp, r = Math.hypot(px, pz);
-        if (r < 210 || r > RING - 30 || outside(LOT, px, pz) < 26) continue;
-        if (R() > 0.35 + 0.65 * sstep(210, 470, r)) continue; // thinner near the clearing
-        if (px < LOT.x0 && Math.abs(pz + 9) < 22) continue; // the road in from the west
-        if (forestMask(px, pz) + 0.25 * sstep(300, 900, r) < 0.12 + R() * 0.12) continue;
-        pts.push([px, pz, groundH(px, pz) - 0.5, 1]);
+        var px = x + (R() - 0.5) * sp, pz = z + (R() - 0.5) * sp, f = forestAt(px, pz);
+        if (!f || Math.hypot(px, pz) > RING - 30 || R() >= f[0]) continue;
+        var y = groundH(px, pz); f[1] = y; f[2] = Math.hypot(groundH(px + 3, pz) - y, groundH(px, pz + 3) - y) / 3;
+        pts.push([px, pz, f[1], f[2], f[3]]);
       }
-      // on up the lower slopes of the peaks, off the steepest ground, thinning and shrinking toward the treeline
-      var sp2 = low ? 20 : 16, RF = 2900;
+      var sp2 = low ? 17 : 13;
       for (z = -RF; z < RF; z += sp2) for (x = -RF; x < RF; x += sp2) {
-        px = x + (R() - 0.5) * sp2 * 1.8; pz = z + (R() - 0.5) * sp2 * 1.8; r = Math.hypot(px, pz);
-        if (r < RING - 30 || r > RF || R() < 0.2) continue;
-        var pa = r < RING ? [groundH(px, pz), 1] : peakAt(px, pz), y = pa[0], steep = Math.sqrt(Math.max(0, 1 - pa[1] * pa[1])) / Math.max(pa[1], 0.05), tl = 320 + 80 * fbm(px / 520 + 3, pz / 520, 3);
-        if (steep > 0.8 || y > tl + R() * 30) continue;
-        if (forestMask(px, pz) + 0.3 - 0.6 * sstep(tl - 140, tl, y) < 0.1 + R() * 0.15) continue;
-        pts.push([px, pz, y - 1.5 - 5 * steep, 1 - 0.55 * sstep(tl - 120, tl, y)]);
+        px = x + (R() - 0.5) * sp2 * 1.6; pz = z + (R() - 0.5) * sp2 * 1.6;
+        var r = Math.hypot(px, pz);
+        if (r < RING - 30 || r > RF) continue;
+        f = forestAt(px, pz);
+        if (!f || R() >= f[0]) continue;
+        pts.push([px, pz, f[1], f[2], f[3]]);
       }
       pts.sort(function (a, b) { return (a[0] * a[0] + a[1] * a[1]) - (b[0] * b[0] + b[1] * b[1]); }); // near to far, from the lot
-      var geo = impostorGeo(T), tile = new Float32Array(pts.length), im, m4 = new T.Matrix4(), q = new T.Quaternion(), e = new T.Euler(), p = new T.Vector3(), s = new T.Vector3(), c = new T.Color();
+      var n = pts.length, tile = new Float32Array(n), size = new Float32Array(n);
       pts.forEach(function (pt, i) {
-        // stands: lodgepole in patches, subalpine fir mixed into the spruce, more of both higher up
-        var n = fbm(pt[0] / 160 - 3, pt[1] / 160 + 8, 2), k = n > 0.18 ? 3 : (R() < 0.3 ? 2 : (R() < 0.5 ? 0 : 1));
-        tile[i] = k;
+        // stands: lodgepole in patches, subalpine fir mixed into the spruce
+        var nz = fbm(pt[0] / 160 - 3, pt[1] / 160 + 8, 2);
+        tile[i] = nz > 0.18 ? 3 : (R() < 0.3 ? 2 : (R() < 0.5 ? 0 : 1));
+        size[i] = ((tile[i] === 3 ? 44 : 48) + R() * 26) * pt[4] / 60;
       });
+
+      // The forest map, over the whole ring of peaks, drawn from the trees themselves where there are trees: r is how
+      // much of the ground their crowns cover (the shaded floor and the shadows), g how far above the treeline.
+      // Past RF, where the peaks draw the canopy, r comes from the chance of a tree instead.
+      var N = low ? 384 : 512, H = N / 2, cell = 2 * FAR / N, cov = new Float32Array(N * N), far = new Float32Array(H * H), abv = new Float32Array(H * H), data = new Uint8Array(N * N * 4);
+      for (var j = 0; j < H; j++) for (var i = 0; i < H; i++) {
+        var wx = ((i + 0.5) / H * 2 - 1) * FAR, wz = ((j + 0.5) / H * 2 - 1) * FAR, rr = Math.hypot(wx, wz);
+        if (rr < RF - 300 || rr > FAR + 300) continue;
+        f = forestAt(wx, wz);
+        if (f) { far[j * H + i] = f[0] * sstep(RF - 250, RF + 50, rr); abv[j * H + i] = f[4]; }
+      }
+      function half(A, u, v) { // bilinear, in half-map texels
+        u = clamp(u, 0, H - 1.001); v = clamp(v, 0, H - 1.001); var i0 = Math.floor(u), j0 = Math.floor(v), fu = u - i0, fv = v - j0;
+        return (A[j0 * H + i0] * (1 - fu) + A[j0 * H + i0 + 1] * fu) * (1 - fv) + (A[(j0 + 1) * H + i0] * (1 - fu) + A[(j0 + 1) * H + i0 + 1] * fu) * fv;
+      }
+      var CROWN = [8.5, 8.5, 5.2, 6]; // crown radius at full size, ft
+      for (var t = 0; t < n; t++) {
+        var cr = CROWN[tile[t]] * size[t] + 2, cx = (pts[t][0] / FAR + 1) / 2 * N - 0.5, cz = (pts[t][1] / FAR + 1) / 2 * N - 0.5, rc = cr / cell + 0.5;
+        for (j = Math.max(0, Math.floor(cz - rc)); j <= Math.min(N - 1, Math.ceil(cz + rc)); j++) for (i = Math.max(0, Math.floor(cx - rc)); i <= Math.min(N - 1, Math.ceil(cx + rc)); i++) {
+          var dd = Math.hypot(i - cx, j - cz) * cell, a = clamp((cr + cell / 2 - dd) / cell, 0, 1) * Math.min(1, Math.PI * cr * cr / (cell * cell));
+          cov[j * N + i] += a;
+        }
+      }
+      var b0 = Math.floor((1 - (RF + 30) / FAR) / 2 * N), b1 = N - 1 - b0; // the trees' square
+      for (j = 0; j < N; j++) for (i = 0; i < N; i++) {
+        var s = 0, w = 1;
+        if (i >= b0 && i <= b1 && j >= b0 && j <= b1) {
+          w = 0;
+          for (var dj = -1; dj <= 1; dj++) for (var di = -1; di <= 1; di++) { var k = di || dj ? 1 : 3; s += Math.min(1, cov[(j + dj) * N + i + di]) * k; w += k; }
+        }
+        var o = (j * N + i) * 4, hu = (i + 0.5) / 2 - 0.5, hv = (j + 0.5) / 2 - 0.5;
+        data[o] = Math.round(255 * Math.max(s / w, half(far, hu, hv))); data[o + 1] = Math.round(255 * half(abv, hu, hv)); data[o + 3] = 255;
+      }
+      var tx = new T.DataTexture(data, N, N, T.RGBAFormat);
+      tx.magFilter = T.LinearFilter; tx.minFilter = T.LinearMipmapLinearFilter; tx.generateMipmaps = true; tx.needsUpdate = true;
+
+      // the trees: one draw of baked impostors
+      var geo = impostorGeo(T), im, m4 = new T.Matrix4(), q = new T.Quaternion(), e = new T.Euler(), p = new T.Vector3(), sc = new T.Vector3(), c = new T.Color();
       geo.setAttribute('aTile', new T.InstancedBufferAttribute(tile, 1));
-      im = new T.InstancedMesh(geo, M.impostor, pts.length);
+      im = new T.InstancedMesh(geo, M.impostor, n);
+      // Each tree is a flat picture with a level bottom edge; on a slope it is sunk until the downhill edge of its
+      // lowest branches (about this many ft out, per tree kind and full size) meets the ground.
+      var BASE_R = [8, 8, 4.8, 3];
       pts.forEach(function (pt, i) {
-        var h = ((tile[i] === 3 ? 44 : 48) + R() * 26) * pt[3], k = h / 60, w = 60 * IMP_HT / 2 * k, ht = 60 * IMP_HT * k;
-        e.set(0, R() * 6.2832, 0); q.setFromEuler(e); p.set(pt[0], pt[2], pt[1]); s.set(w, ht, w);
-        m4.compose(p, q, s); im.setMatrixAt(i, m4);
+        var k = size[i], w = 60 * IMP_HT / 2 * k, ht = 60 * IMP_HT * k;
+        e.set(0, R() * 6.2832, 0); q.setFromEuler(e); p.set(pt[0], pt[2] - 0.8 - pt[3] * BASE_R[tile[i]] * k, pt[1]); sc.set(w, ht, w);
+        m4.compose(p, q, sc); im.setMatrixAt(i, m4);
         var v = 0.62 + R() * 0.42; c.setRGB(v * (0.95 + R() * 0.1), v * (0.97 + R() * 0.06), v * (0.95 + R() * 0.1)); im.setColorAt(i, c);
       });
       im.frustumCulled = false; im.renderOrder = 1; farG.add(im);
+      return tx;
     })();
+    forestU.value = forestMap;
 
     /* near trees, where the plain view's trees stand */
     var nearG = new T.Group(); root.add(nearG); var treeList = [], leafMeshes = [], twigMeshes = [];
@@ -1220,7 +1303,7 @@ var REAL = (function () {
       if (usePost) P.render(scene, camera, W, H, exposure); else renderer.render(scene, camera);
     };
     self.trees = function () { return treeList; };
-    self.debug = function () { return { M: M, SU: SU, imp: imp, refl: refl, sky: skyBg, envGround: envGround, peaks: peaks, model: model, X: X, guard: guard, ratioCap: ratioCap, usePost: usePost, grassShare: grassShare }; };
+    self.debug = function () { return { M: M, SU: SU, imp: imp, refl: refl, forestMap: forestMap, sky: skyBg, envGround: envGround, peaks: peaks, model: model, X: X, guard: guard, ratioCap: ratioCap, usePost: usePost, grassShare: grassShare }; };
     return self;
   }
 
