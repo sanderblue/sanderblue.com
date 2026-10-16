@@ -48,15 +48,15 @@ prompts/             price-check.md, a prompt for re-checking the estimate's pri
 
 The 3D model opens in the Realistic view, `src/real.js`. The Realistic chip turns it off, and `?plain` in the address (`/mountain-house/?plain`) opens the page in the plain view. The plain view, the flyby and the drawing set cover render exactly as they did before the Realistic view existed: the PDF's cover is still drawn from the plain view, and turning Realistic off puts the plain view back exactly. While it is on, it adds:
 
-- A sky and the light it gives: a blue sky with a sun glow, the same sky as an environment map, and a haze that matches the horizon.
-- The building's own materials, upgraded and put back when it turns off. Paint colors are treated as sRGB, the siding and seams get normal maps, and wood and gravel get photo textures.
-- Rolling ground beyond the lot and a ring of peaks, and the leach field as a low grassy rise in place of the plain view's placeholder.
-- Engelmann spruce, lodgepole pine and aspen where the plain view's trees stand, with card trees and spires further out.
+- A sky and the light it gives: a blue sky with a sun glow and fair-weather clouds, the same sky as an environment map, and a haze that matches the horizon.
+- The building's own materials, upgraded and put back when it turns off. Paint colors are treated as sRGB, the siding and seams get normal maps, and wood and gravel get photo textures (the drive with wheel ruts). On desktop the glass and metal reflect the real surroundings, from a cube captured once the sun or season settles.
+- Rolling ground beyond the lot and a ring of peaks, and the leach field as a low grassy rise in place of the plain view's placeholder. The peaks are shaded per pixel from one small noise texture: forest below the treeline, rock on the steep faces, snow where the slope holds it, and thicker haze low down.
+- Engelmann spruce, lodgepole pine and aspen where the plain view's trees stand. Beyond the lot and up the lower slopes, the forest is baked impostors: each kind of tree is drawn once into an atlas (colors, and normals with how much snow it holds), and every far tree is two crossed quads lit with those normals, in one draw.
 - Summer grass and wildflowers.
 - Winter snow: a rounded roof blanket that curls over the north eave, drifts, tree wells, and plowed gravel with windrows.
 - A post pass for ambient occlusion and filmic tone.
 
-Phones and other touch screens get a lighter version aimed at 60 fps on an iPhone 13 Pro. It drops the post pass, draws at 1.5 times the screen's pixels instead of 2, and uses simpler and fewer distant trees, half the grass and a smaller shadow map. That comes to about 0.7 million triangles a frame in summer, against 1.75 million before the trim.
+Phones and other touch screens get a lighter version aimed at 60 fps on an iPhone 13 Pro. It drops the post pass, draws at 1.5 times the screen's pixels instead of 2, and uses smaller tree pictures, fewer distant trees and a coarser peak mesh, half the grass, a smaller shadow map and no reflection cube. That comes to about 0.6 million triangles a frame in summer, against 1.75 million before the trim.
 
 On any device, a frame-rate guard watches the first seconds after the view turns on, starting once the textures are in (or after 6 seconds if they never arrive), so the page loading around it doesn't count against the device. If frames come slower than about 45 fps, it steps down in this order: half the grass, a lower pixel ratio, then no post pass on desktop, or a quarter of the grass and no tree shadows on phones. A browser that caps animation at 30 fps to save power also gets these steps.
 

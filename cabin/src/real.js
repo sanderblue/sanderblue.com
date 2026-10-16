@@ -10,7 +10,15 @@ var REAL = (function () {
   function rng(seed) { return function () { seed = (seed + 0x6D2B79F5) | 0; var t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
   function clamp(x, a, b) { return x < a ? a : x > b ? b : x; }
   function sstep(a, b, x) { var t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); }
-  function hash(x, y) { var h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123; return h - Math.floor(h); }
+  // the value at lattice point x, y (integers); neighboring samples share lattice points, so a small cache of the
+  // last values seen saves most of the sines, and returns exactly what the sine would
+  var HC = 16384, hcX = new Int32Array(HC).fill(-2147483648), hcY = new Int32Array(HC), hcV = new Float64Array(HC);
+  function hash(x, y) {
+    var s = (Math.imul(x, 73856093) ^ Math.imul(y, 19349663)) & (HC - 1);
+    if (hcX[s] === x && hcY[s] === y) return hcV[s];
+    var h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123; h -= Math.floor(h);
+    hcX[s] = x; hcY[s] = y; hcV[s] = h; return h;
+  }
   function noise(x, y) {
     var xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
     var u = xf * xf * xf * (xf * (xf * 6 - 15) + 10), v = yf * yf * yf * (yf * (yf * 6 - 15) + 10);
@@ -65,6 +73,11 @@ var REAL = (function () {
   var WORLD_V = ['#include <common>', '$\nvarying vec3 vRW;\nvarying vec3 vRN;'];
   var WORLD_V2 = ['#include <project_vertex>', '$\n{ vec4 rw = vec4( transformed, 1.0 ); vec3 rn = objectNormal;\n#ifdef USE_INSTANCING\nrw = instanceMatrix * rw; rn = mat3( instanceMatrix ) * rn;\n#endif\nvRW = ( modelMatrix * rw ).xyz; vRN = normalize( mat3( modelMatrix ) * rn ); }'];
   var WORLD_F = ['#include <common>', '$\nvarying vec3 vRW;\nvarying vec3 vRN;\nfloat rHash( vec3 p ) { return fract( sin( dot( p, vec3( 12.9898, 78.233, 37.719 ) ) ) * 43758.5453 ); }\nfloat rNoise( vec2 p ) { vec2 i = floor( p ), f = fract( p ); f = f * f * ( 3.0 - 2.0 * f ); float a = rHash( vec3( i, 0.0 ) ), b = rHash( vec3( i + vec2( 1.0, 0.0 ), 0.0 ) ), c = rHash( vec3( i + vec2( 0.0, 1.0 ), 0.0 ) ), d = rHash( vec3( i + vec2( 1.0, 1.0 ), 0.0 ) ); return mix( mix( a, b, f.x ), mix( c, d, f.x ), f.y ); }'];
+  // Alpha-tested foliage thins out with distance, because lower mip levels average alpha down. This grows alpha
+  // with the mip level (from the texture size and the UV derivatives) so cards keep their coverage far away.
+  function cover(size) {
+    return '\n#if __VERSION__ >= 300\n{ vec2 cdx = dFdx( vUv * ' + size + ' ), cdy = dFdy( vUv * ' + size + ' ); float lod = 0.5 * log2( max( max( dot( cdx, cdx ), dot( cdy, cdy ) ), 1.0 ) ); diffuseColor.a *= 1.0 + lod * 0.28; }\n#endif';
+  }
   // two-sided cards and blades keep one normal on both faces, so their back faces are not lit from inside
   var NO_FLIP = ['#include <normal_fragment_begin>', ''];
   function noFlip(T) { return [NO_FLIP[0], T.ShaderChunk.normal_fragment_begin.replace('normal = normal * faceDirection;', '')]; }
@@ -107,7 +120,7 @@ var REAL = (function () {
     }
     S.build.forEach(function (r) { mark(r, 0.4, 1); });
     S.hard.forEach(function (r) { mark(r, 0.25, 1); });
-    S.plow.forEach(function (r) { mark(r, 0.5, 2); });
+    S.plow.forEach(function (r) { mark(r, -0.3, 2); }); // grass creeps a little over the gravel's edge
     // The leach field as a low grassy rise: about 5 in on top, easing out over 11 ft past its edge. moundRise()
     // dips just under the ground at the very edge so the rise meets the terrain with no line; moundH() is the
     // part above ground, for the grass and snow that sit on it.
@@ -186,7 +199,7 @@ var REAL = (function () {
     });
     // lodgepole pine: paired yellow-green needles in tufts at the twig ends
     X.pine = cardTex(512, 256, function (g, w, h) {
-      var cols = ['#2f3b1f', '#3a4824', '#46552b', '#536233', '#62713c', '#6f7f45'];
+      var cols = ['#27331f', '#2f3c24', '#37462a', '#405030', '#4a5b37', '#55673f'];
       function twig(x0, y0, ang, len, depth) {
         var x1 = x0 + Math.cos(ang) * len, y1 = y0 + Math.sin(ang) * len;
         g.strokeStyle = '#4a3c2c'; g.lineWidth = depth ? 2.5 : 4; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke();
@@ -204,7 +217,7 @@ var REAL = (function () {
     });
     // aspen: a cluster of round leaves
     X.leaves = cardTex(256, 256, function (g, w, h) {
-      var cols = ['#4d6b22', '#5c7a2a', '#6c8b31', '#7d9a3a', '#8faa46', '#a4b955', '#5a7428'];
+      var cols = ['#3d5a1d', '#4a6823', '#57762a', '#648332', '#73903b', '#839d45', '#486322'];
       g.strokeStyle = '#6a6052'; g.lineWidth = 2;
       for (var i = 0; i < 9; i++) { g.beginPath(); g.moveTo(w / 2, h - 8); g.lineTo(w / 2 + (R() - 0.5) * w * 0.8, h / 2 + (R() - 0.5) * h * 0.7); g.stroke(); }
       for (var j = 0; j < 150; j++) {
@@ -245,12 +258,22 @@ var REAL = (function () {
   // A clear high-altitude sky: deep blue overhead, hazy at the horizon, a glow around the sun and its disc.
   // Colors are linear light; sunSky() sets them from the sun's height.
   var SKY_F = [
-    'uniform vec3 uSun; uniform vec3 uZenith; uniform vec3 uHorizon; uniform vec3 uGlow; uniform vec3 uBelow; uniform float uDisc; uniform float uGain; varying vec3 vDir;',
+    'uniform vec3 uSun; uniform vec3 uZenith; uniform vec3 uHorizon; uniform vec3 uGlow; uniform vec3 uBelow; uniform float uDisc; uniform float uGain; uniform sampler2D uPk; varying vec3 vDir;',
+    // fair-weather clouds on a flat layer: density from the peaks' noise texture, lit on the side toward the sun
+    'float cloud( vec2 p ) { return texture2D( uPk, p * 0.21 + 0.2 ).r * 0.62 + texture2D( uPk, p * 0.57 + 0.37 ).r * 0.38; }',
     'void main() {',
     '  vec3 d = normalize( vDir ); float h = d.y, mu = max( dot( d, uSun ), 0.0 );',
     '  vec3 c = mix( uHorizon, uZenith, pow( clamp( h, 0.0, 1.0 ), 0.42 ) );',
     '  c += uHorizon * 0.22 * exp( -max( h, 0.0 ) * 16.0 );',
     '  c += uGlow * ( 0.1 * pow( mu, 5.0 ) + 0.45 * pow( mu, 60.0 ) );',
+    '  if ( h > 0.0 ) {',
+    '    vec2 cp = d.xz / ( h + 0.1 ); float n = cloud( cp ), day = clamp( dot( uGlow, vec3( 0.47 ) ), 0.0, 1.0 );',
+    '    float cov = smoothstep( 0.55, 0.7, n ) * smoothstep( 0.0, 0.16, h ) * ( 0.25 + 0.75 * day );',
+    '    float lit = clamp( 0.8 + ( n - cloud( cp + normalize( uSun.xz + 1e-4 ) * 0.08 ) ) * 7.0, 0.4, 1.15 );',
+    '    vec3 sunW = mix( uGlow, vec3( dot( uGlow, vec3( 0.333 ) ) ), 0.6 );',
+    '    vec3 cc = mix( uHorizon * 0.9, sunW * 0.85 + uZenith * 0.55, lit ) + uGlow * 0.5 * pow( mu, 12.0 ) * ( 1.0 - cov );',
+    '    c = mix( c, cc, cov * 0.9 );',
+    '  }',
     '  c += uGlow * uDisc * 60.0 * smoothstep( 0.99986, 0.99994, mu );',
     '  c = mix( c, uBelow, smoothstep( 0.0, -0.06, h ) );',
     '  gl_FragColor = vec4( c * uGain, 1.0 );',
@@ -259,7 +282,7 @@ var REAL = (function () {
     '}'].join('\n');
   var SKY_V = 'varying vec3 vDir; void main() { vec4 w = modelMatrix * vec4( position, 1.0 ); vDir = w.xyz - cameraPosition; gl_Position = projectionMatrix * viewMatrix * w; gl_Position.z = gl_Position.w; }';
   function skyMesh(T, u, disc, gain) {
-    var uni = { uSun: u.uSun, uZenith: u.uZenith, uHorizon: u.uHorizon, uGlow: u.uGlow, uBelow: u.uBelow, uDisc: { value: disc ? 1 : 0 }, uGain: { value: gain } };
+    var uni = { uSun: u.uSun, uZenith: u.uZenith, uHorizon: u.uHorizon, uGlow: u.uGlow, uBelow: u.uBelow, uPk: u.uPk, uDisc: { value: disc ? 1 : 0 }, uGain: { value: gain } };
     var m = new T.Mesh(new T.BoxGeometry(1, 1, 1), new T.ShaderMaterial({ uniforms: uni, vertexShader: SKY_V, fragmentShader: SKY_F, side: T.BackSide, depthWrite: false }));
     m.frustumCulled = false; m.renderOrder = -1000;
     return m;
@@ -278,16 +301,17 @@ var REAL = (function () {
   /* ---------- terrain, peaks and the forest beyond the lot ---------- */
   var RING = 1450, FAR = 4300, SEG = 192;
   function radii(r0, r1, step0, grow) { var out = [r0], r = r0, s = step0; while (r < r1 - 1e-6) { r = Math.min(r1, r + s); out.push(r); s *= grow; } return out; }
-  function polarGeo(T, rs, height, color, uvScale) {
-    var pos = [], uv = [], col = [], idx = [], n = SEG + 1;
+  function polarGeo(T, rs, height, color, uvScale, seg) {
+    seg = seg || SEG;
+    var pos = [], uv = [], col = [], idx = [], n = seg + 1;
     rs.forEach(function (r) {
-      for (var k = 0; k <= SEG; k++) {
-        var a = k / SEG * Math.PI * 2, x = Math.cos(a) * r, z = Math.sin(a) * r, y = height(x, z, r, a);
+      for (var k = 0; k <= seg; k++) {
+        var a = k / seg * Math.PI * 2, x = Math.cos(a) * r, z = Math.sin(a) * r, y = height(x, z, r, a);
         pos.push(x, y, z); uv.push(x * uvScale, z * uvScale);
         if (color) { var c = color(x, z, r, a, y); col.push(c[0], c[1], c[2]); }
       }
     });
-    for (var i = 0; i < rs.length - 1; i++) for (var k = 0; k < SEG; k++) {
+    for (var i = 0; i < rs.length - 1; i++) for (var k = 0; k < seg; k++) {
       var a0 = i * n + k, b0 = a0 + 1, a1 = a0 + n, b1 = a1 + 1;
       idx.push(a0, b0, a1, b0, b1, a1);
     }
@@ -297,10 +321,12 @@ var REAL = (function () {
     g.setIndex(idx); g.computeVertexNormals();
     return g;
   }
-  // how high the peaks stand around the compass: the Tenmile Range to the west, lower country to the north
+  // how high the peaks stand around the compass: the Tenmile Range to the west, lower country to the north, and a
+  // high massif to the north-northeast, which the opening view looks at over the forest
   function peakEnvelope(a) {
     var w = Math.max(0, Math.cos(a - Math.PI)), e = Math.max(0, Math.cos(a)), s = Math.max(0, Math.cos(a - Math.PI / 2)), n = Math.max(0, Math.cos(a + Math.PI / 2));
-    return 330 + 330 * w * w + 170 * e + 220 * s - 150 * n;
+    var m = Math.atan2(Math.sin(a + 0.95), Math.cos(a + 0.95)) / 0.5;
+    return 330 + 330 * w * w + 170 * e + 220 * s - 150 * n + 430 * Math.exp(-m * m);
   }
   function peakH(x, z, r, a) {
     var t = sstep(RING, RING + 900, r) * (1 - 0.25 * sstep(FAR - 700, FAR, r));
@@ -312,36 +338,63 @@ var REAL = (function () {
     var v = 1 - 0.32 * k + 0.08 * fbm(x / 60, z / 60, 2);
     return [v, v, v * (1 - 0.06 * k)];
   }
-  function peakColors(geo) {
-    var p = geo.attributes.position.array, nrm = geo.attributes.normal.array, n = p.length / 3, sum = new Float32Array(n * 3), win = new Float32Array(n * 3);
-    for (var i = 0; i < n; i++) {
-      var x = p[i * 3], y = p[i * 3 + 1], z = p[i * 3 + 2], ny = nrm[i * 3 + 1], j = fbm(x / 140, z / 140, 3);
-      var tree = 300 + 60 * j, steep = 1 - sstep(0.55, 0.85, ny), o = i * 3;
-      // summer: forest, then tundra and rock above the trees, a few snowfields left on the highest north faces
-      var forest = [0.030, 0.048, 0.032], tundra = [0.12, 0.11, 0.07], rock = [0.15, 0.15, 0.16], snow = [0.80, 0.84, 0.90];
-      var above = sstep(tree - 30, tree + 30, y), c = forest.map(function (v, q) { return v + (tundra[q] - v) * above; });
-      c = c.map(function (v, q) { return v + (rock[q] - v) * Math.max(steep, above * sstep(380, 520, y)); });
-      var field = sstep(520, 600, y + 60 * j - 40 * (z / Math.max(1, Math.sqrt(x * x + z * z)))) * sstep(0.6, 0.8, ny);
-      c = c.map(function (v, q) { return v + (snow[q] - v) * field; });
-      sum[o] = c[0]; sum[o + 1] = c[1]; sum[o + 2] = c[2];
-      // winter: snow everywhere the slope holds it, gray-green where the forest shows through, bare on the steepest rock
-      var wf = [0.18, 0.21, 0.21], wsnow = [0.78, 0.82, 0.88], wrock = [0.20, 0.20, 0.22];
-      var below = 1 - above, cw = wsnow.map(function (v, q) { return v + (wf[q] - v) * below * (0.55 + 0.25 * j); });
-      cw = cw.map(function (v, q) { return v + (wrock[q] - v) * sstep(0.35, 0.6, 1 - ny); });
-      win[o] = cw[0]; win[o + 1] = cw[1]; win[o + 2] = cw[2];
+  // The peaks are colored per pixel from height, slope and noise: forest crowns below the treeline, tundra and
+  // rock above it, snow wherever the slope holds it in winter. A noise bump creases the faces so ridges and gullies
+  // catch the sun, and the air thins with height, so the foot of a peak sits deeper in the haze than its summit.
+  // All of it reads one small tiling noise texture (see peakNoise), so mip mapping filters what is finer than a
+  // pixel and a pixel costs a handful of lookups rather than a hundred hashes. uPkS turns its stored slopes into
+  // slope per 70 ft at the 560 ft tile.
+  var PEAK_F = [
+    ['#include <common>', '$\nuniform float uWin;\nuniform float uRing;\nuniform sampler2D uPk;\nuniform float uPkS;'],
+    ['#include <color_fragment>', [
+      'vec3 pkN = normalize( vRN ); float pkH;',
+      '{ vec2 q = ( vRW.xz + vRW.y * vec2( 0.55, -0.35 ) ) / 560.0; vec4 a = texture2D( uPk, q ), b = texture2D( uPk, mat2( 0.8, 0.6, -0.6, 0.8 ) * q * 0.43 + 0.37 );',
+      '  pkH = a.r * 0.62 + b.r * 0.38; vec2 g = ( ( a.gb - 0.5 ) * 0.62 + mat2( 0.8, -0.6, 0.6, 0.8 ) * ( b.gb - 0.5 ) * 0.38 * 0.43 ) * uPkS;',
+      '  pkN = normalize( pkN - vec3( g.x, 0.0, g.y ) * ( 0.12 + 0.5 * ( 1.0 - pkN.y ) ) ); }',
+      '{ float big = texture2D( uPk, vRW.xz / 4200.0 + 0.5 ).r, y = vRW.y + ( pkH - 0.5 ) * 60.0, tree = 320.0 + 140.0 * ( big - 0.5 ), slope = pkN.y;',
+      '  float above = smoothstep( tree - 20.0, tree + 20.0, y ), thin = smoothstep( tree - 110.0, tree, y );',
+      '  float can = 0.5 * texture2D( uPk, vRW.xz / 256.0 ).a + 0.3 * texture2D( uPk, vRW.xz / 704.0 + 0.3 ).a + 0.2 * texture2D( uPk, vRW.xz / 600.0 + 0.7 ).r;',
+      '  float crowns = smoothstep( 0.18 + 0.38 * thin, 0.36 + 0.38 * thin, can ) * ( 1.0 - above );',
+      '  float fine = texture2D( uPk, vRW.xz / 192.0 + 0.11 ).a, strata = 0.5 + 0.5 * sin( ( vRW.y + ( pkH - 0.5 ) * 90.0 ) / ( 4.0 + 3.0 * texture2D( uPk, vRW.xz / 1600.0 ).r ) );',
+      '  vec3 rock = mix( vec3( 0.06, 0.059, 0.058 ), vec3( 0.16, 0.152, 0.14 ), pkH ) * ( 0.92 + 0.14 * strata );',
+      '  vec3 ground = mix( vec3( 0.02, 0.025, 0.016 ), mix( vec3( 0.06, 0.07, 0.035 ), vec3( 0.095, 0.092, 0.055 ), texture2D( uPk, vRW.xz / 1984.0 + 0.6 ).a ), above );',
+      '  vec3 sumC = mix( ground, vec3( 0.017, 0.029, 0.021 ) * ( 0.75 + 0.5 * fine ), crowns );',
+      '  sumC = mix( sumC, rock, max( 1.0 - smoothstep( 0.5, 0.74, slope + ( pkH - 0.5 ) * 0.3 ), above * smoothstep( 430.0, 580.0, y ) * 0.75 ) );',
+      '  float field = smoothstep( 500.0, 590.0, y - 90.0 * pkN.z + 80.0 * ( pkH - 0.5 ) ) * smoothstep( 0.55, 0.75, slope ) * smoothstep( 0.4, 0.56, pkH );',
+      '  vec3 snowC = vec3( 0.8, 0.84, 0.9 ) * ( 0.93 + 0.1 * pkH );',
+      '  sumC = mix( sumC, snowC, field );',
+      '  vec3 winC = mix( snowC, vec3( 0.026, 0.04, 0.034 ) * ( 0.8 + 0.4 * fine ), crowns * 0.9 );',
+      '  winC = mix( winC, rock * 0.92, 1.0 - smoothstep( 0.4, 0.6, slope + ( pkH - 0.5 ) * 0.4 ) );',
+      '  diffuseColor.rgb *= mix( sumC, winC, uWin ) * ( 0.82 + 0.36 * pkH ); }'].join('\n')],
+    ['#include <normal_fragment_maps>', '$\nnormal = normalize( ( viewMatrix * vec4( pkN, 0.0 ) ).xyz );'],
+    ['#include <fog_fragment>', '$\n#ifdef USE_FOG\n{ float d = length( vRW - cameraPosition ), thick = exp( -max( vRW.y, 0.0 ) / 1400.0 ); gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, ( 1.0 - exp( -d / 5200.0 * thick ) ) * 0.85 * smoothstep( uRing, uRing + 700.0, length( vRW.xz ) ) ); }\n#endif']
+  ];
+  // A 256 px tiling noise for the peaks: r is four octaves of value noise (8 to 64 cells a tile), g and b its slope
+  // across x and y, a a single octave of 64 cells.
+  function peakNoise(T, aniso) {
+    var N = 256, data = new Uint8Array(N * N * 4), H = new Float32Array(N * N);
+    function lattice(c, seed) { var g = new Float32Array(c * c), r = rng(seed); for (var i = 0; i < c * c; i++) g[i] = r(); return { c: c, g: g }; }
+    function vn(L, u, v) {
+      var c = L.c, x = u * c, y = v * c, xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, sx = xf * xf * (3 - 2 * xf), sy = yf * yf * (3 - 2 * yf);
+      var x0 = xi % c, x1 = (xi + 1) % c, y0 = yi % c, y1 = (yi + 1) % c, a = L.g[y0 * c + x0], b = L.g[y0 * c + x1], d = L.g[y1 * c + x0], e = L.g[y1 * c + x1];
+      return a + (b - a) * sx + (d - a) * sy + (a - b - d + e) * sx * sy;
     }
-    return { summer: sum, winter: win };
+    var oct = [8, 16, 32, 64].map(function (c, i) { return lattice(c, 101 + i); }), st = lattice(64, 211), x, y, m = 0;
+    for (y = 0; y < N; y++) for (x = 0; x < N; x++) { var s = 0, a = 0.5; for (var o = 0; o < 4; o++) { s += a * vn(oct[o], x / N, y / N); a *= 0.5; } H[y * N + x] = s / 0.9375; }
+    function dx(x, y) { return (H[y * N + (x + 1) % N] - H[y * N + (x + N - 1) % N]) / 2; }
+    function dy(x, y) { return (H[((y + 1) % N) * N + x] - H[((y + N - 1) % N) * N + x]) / 2; }
+    for (y = 0; y < N; y++) for (x = 0; x < N; x++) m = Math.max(m, Math.abs(dx(x, y)), Math.abs(dy(x, y)));
+    var S = 0.48 / m;
+    for (y = 0; y < N; y++) for (x = 0; x < N; x++) {
+      var i = (y * N + x) * 4;
+      data[i] = Math.round(H[y * N + x] * 255); data[i + 1] = Math.round((0.5 + dx(x, y) * S) * 255); data[i + 2] = Math.round((0.5 + dy(x, y) * S) * 255); data[i + 3] = Math.round(vn(st, x / N, y / N) * 255);
+    }
+    var t = new T.DataTexture(data, N, N, T.RGBAFormat);
+    t.wrapS = t.wrapT = T.RepeatWrapping; t.magFilter = T.LinearFilter; t.minFilter = T.LinearMipmapLinearFilter; t.generateMipmaps = true; t.anisotropy = aniso || 4; t.needsUpdate = true;
+    return { tex: t, slope: N * 70 / 560 / S }; // stored slope per texel, back to slope per 70 ft
   }
-  // the far forest: a few thousand simple spires on the ground beyond the lot
-  // simple: a two-tier, six-sided spire (48 triangles instead of 168) for phones
-  function spireGeo(T, simple) {
-    if (simple) return new T.LatheGeometry([[0.001, 0.0], [0.21, 0.06], [0.1, 0.36], [0.15, 0.4], [0.0, 1.0]].map(function (q) { return new T.Vector2(q[0], q[1]); }), 6);
-    var pts = [[0.001, 0.0], [0.21, 0.05], [0.12, 0.2], [0.19, 0.22], [0.10, 0.37], [0.165, 0.39], [0.08, 0.53], [0.135, 0.55], [0.06, 0.69], [0.10, 0.71], [0.035, 0.85], [0.06, 0.86], [0.0, 1.0]].map(function (q) { return new T.Vector2(q[0], q[1]); });
-    return new T.LatheGeometry(pts, 7);
-  }
-
   /* ---------- near trees: lodgepole pine, Engelmann spruce, aspen ---------- */
-  var TREE_H = { pine: 60, spruce: 60, aspen: 40 };
+  var TREE_H = { pine: 60, spruce: 60, fir: 60, aspen: 40 };
   function card(out, c, u, w, len, wid, nrm, snow) {
     var o = out.pos.length / 3;
     [[-0.5, -0.5, 0, 0], [0.5, -0.5, 1, 0], [0.5, 0.5, 1, 1], [-0.5, 0.5, 0, 1]].forEach(function (q) {
@@ -364,40 +417,110 @@ var REAL = (function () {
     for (i = 0; i < uv.length; i += 2) uv[i] *= 2;
     return g;
   }
+  // kind: 'spruce' (Engelmann: dense, broad, branches to the ground), 'fir' (subalpine: the same, a narrow
+  // spire) or 'pine' (lodgepole: a tall clean trunk, a fuller crown in its upper part)
   function conifer(T, kind, seed, density, coarse) {
-    var R = rng(seed), H = TREE_H[kind], spruce = kind === 'spruce', out = { pos: [], nor: [], uv: [], snow: [], idx: [] }, cs = coarse ? 1.7 : 1;
-    var base = spruce ? 0.04 + R() * 0.04 : 0.28 + R() * 0.1, Rmax = spruce ? 8.8 + R() * 1.6 : 6.4 + R() * 1.4, mid = H * (base + (1 - base) * 0.45);
+    var R = rng(seed), H = TREE_H[kind], spruce = kind !== 'pine', fir = kind === 'fir', out = { pos: [], nor: [], uv: [], snow: [], idx: [] }, cs = coarse ? 1.7 : 1;
+    var base = spruce ? 0.04 + R() * 0.04 : 0.24 + R() * 0.1, Rmax = spruce ? (8.8 + R() * 1.6) * (fir ? 0.58 : 1) : 5.8 + R() * 1.4, mid = H * (base + (1 - base) * 0.45);
     function rad(t) { return spruce ? Rmax * Math.pow(1 - t, 0.92) : Rmax * (t < 0.18 ? 0.55 + 2.5 * t : Math.pow((1 - t) / 0.82, 0.75)); }
     var y = H * base;
     while (y < H * 0.975) {
-      var t = (y - H * base) / (H * (1 - base)), rr = rad(t), nb = (spruce ? 5 : 4) + Math.floor(R() * 3), a0 = R() * Math.PI * 2;
+      var t = (y - H * base) / (H * (1 - base)), rr = rad(t), nb = 5 + Math.floor(R() * 3), a0 = R() * Math.PI * 2;
       for (var b = 0; b < nb; b++) {
         if (R() > density) continue;
-        var a = a0 + b * Math.PI * 2 / nb + (R() - 0.5) * 0.7, L = Math.max(0.8, rr * (0.75 + R() * 0.35));
+        var a = a0 + b * Math.PI * 2 / nb + (R() - 0.5) * 0.7, L = Math.max(0.8, rr * (spruce ? 0.75 + R() * 0.35 : 0.6 + R() * 0.65));
         var pitch = spruce ? -(0.22 + 0.3 * R()) + 0.25 * t : 0.08 + 0.3 * R();
         var dir = [Math.cos(a) * Math.cos(pitch), Math.sin(pitch), Math.sin(a) * Math.cos(pitch)];
         var side = norm3(cross3(dir, [0, 1, 0])), upw = cross3(side, dir);
-        var nc = Math.max(1, Math.round(L / ((spruce ? 1.5 : 1.4) * cs)));
+        var nc = Math.max(1, Math.round(L / ((spruce ? 1.5 : 1.15) * cs)));
         for (var c = 0; c < nc; c++) {
           var s = L * (spruce ? 0.25 + 0.75 * (c + 0.5) / nc : 0.35 + 0.65 * (c + 0.5) / nc);
           var droop = spruce ? -0.12 * s * s / L : 0.05 * s;
           var ctr = [dir[0] * s, y + dir[1] * s + droop, dir[2] * s];
           var size = (0.8 + R() * 0.4) * (spruce ? 0.55 + 0.45 * (1 - t) : 0.75 + 0.25 * (1 - t));
-          var len = (spruce ? 2.6 : 2.7) * size * Math.sqrt(cs), wid = (spruce ? 1.35 : 1.5) * size * Math.sqrt(cs);
+          var len = (spruce ? 2.6 : 3.0) * size * Math.sqrt(cs), wid = (spruce ? 1.35 : 1.8) * size * Math.sqrt(cs);
           var lit = norm3([ctr[0], (ctr[1] - mid) * 0.25 + 0.55 * Math.max(rr, 1), ctr[2]]);
           for (var k = 0; k < 2; k++) {
             var roll = (R() - 0.5) * 1.1 + k * 1.45, cr = Math.cos(roll), sr = Math.sin(roll);
             var wv = [side[0] * cr + upw[0] * sr, side[1] * cr + upw[1] * sr, side[2] * cr + upw[2] * sr], pn = cross3(dir, wv);
-            card(out, ctr, dir, wv, len, wid, lit, Math.abs(pn[1]) * (0.75 + 0.25 * t) + (lit[1] > 0.3 ? 0.15 : 0));
+            // little snow reaches in by the trunk, under the branches above
+            card(out, ctr, dir, wv, len, wid, lit, (Math.abs(pn[1]) * (0.75 + 0.25 * t) + (lit[1] > 0.3 ? 0.15 : 0)) * (0.1 + 0.9 * sstep(1.4, 4.2, s)));
           }
         }
       }
-      y += (spruce ? 1.0 : 1.05) * cs * (0.85 + 0.3 * R());
+      y += (spruce ? 1.0 : 0.85) * cs * (0.85 + 0.3 * R());
     }
     // the leader at the top
     for (var q = 0; q < 3; q++) { var aq = q * 2.1; card(out, [0, H * 0.985, 0], [0, 1, 0], [Math.cos(aq), 0, Math.sin(aq)], 2.4, 0.9, [0, 1, 0], 0.6); }
-    return { foliage: cardsGeo(T, out), trunk: trunkGeo(T, H, spruce ? 0.62 : 0.48, 0.06, H / 6.5), H: H, R: Rmax };
+    return { foliage: cardsGeo(T, out), trunk: trunkGeo(T, H, spruce ? (fir ? 0.5 : 0.62) : 0.4, 0.06, H / 6.5), H: H, R: Rmax };
   }
+  /* ---------- far trees: baked impostors ---------- */
+  // Each kind of far tree is drawn once, from the side, into an atlas: its colors (square-root encoded, so dark
+  // needles keep their detail in 8 bits) and its normals, with how much it holds snow in the alpha. A far tree is
+  // then two crossed quads showing that picture, lit with the baked normals: it shades, takes snow and fades
+  // into the haze like a near tree, for four triangles.
+  var IMP = [['spruce', 41], ['spruce', 42], ['fir', 44], ['pine', 43]], IMP_HT = 1.03;
+  // vAo stands in for the shadows and ambient occlusion a near tree gets: needles deep in the crown and low on
+  // the tree are darker than the tips
+  var BAKE_V = 'attribute float aSnow; uniform vec2 uHR; varying vec2 vUv; varying vec3 vN; varying float vS; varying float vAo; void main() { vUv = uv; vN = normal; vS = aSnow; float h = clamp( position.y / uHR.x, 0.0, 1.0 ), rc = max( 1.2, uHR.y * ( 1.0 - h ) * 1.15 ); vAo = mix( 0.42, 1.0, smoothstep( 0.15, 0.95, length( position.xz ) / rc ) ) * mix( 0.72, 1.0, h ); gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); }';
+  var BAKE_TRUNK_V = 'varying vec2 vUv; varying vec3 vN; varying float vS; void main() { vUv = uv; vN = normal; vS = 0.0; gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); }';
+  function bakeImpostors(T, renderer, X, tileH) {
+    var tileW = tileH / 2, n = IMP.length, opts = { generateMipmaps: true, minFilter: T.LinearMipmapLinearFilter, magFilter: T.LinearFilter };
+    var col = new T.WebGLRenderTarget(tileW * n, tileH, opts), nrm = new T.WebGLRenderTarget(tileW * n, tileH, opts);
+    var FOL_C = 'uniform sampler2D map; varying vec2 vUv; varying float vAo; void main() { vec4 t = texture2D( map, vUv ); if ( t.a < 0.4 ) discard; gl_FragColor = vec4( sqrt( t.rgb * vAo ), 1.0 ); }';
+    var FOL_N = 'uniform sampler2D map; varying vec2 vUv; varying vec3 vN; varying float vS; void main() { if ( texture2D( map, vUv ).a < 0.4 ) discard; gl_FragColor = vec4( normalize( vN ) * 0.5 + 0.5, clamp( vS, 0.0, 1.0 ) ); }';
+    var TRUNK_C = 'uniform vec3 uColor; void main() { gl_FragColor = vec4( sqrt( uColor ), 1.0 ); }';
+    var TRUNK_N = 'varying vec3 vN; void main() { gl_FragColor = vec4( normalize( vN ) * 0.5 + 0.5, 0.0 ); }';
+    // the needles' mean color (square-root encoded, as baked) from the card texture; the factor is how much the
+    // crown darkening (vAo) takes off on average, deeper in the spruce than in the open pine crown
+    function fill(tex, k) {
+      var d = tex.image.getContext('2d').getImageData(0, 0, tex.image.width, tex.image.height).data, s = [0, 0, 0], n = 0;
+      for (var i = 0; i < d.length; i += 4) if (d[i + 3] > 102) { for (var c = 0; c < 3; c++) { var x = d[i + c] / 255; s[c] += x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); } n++; }
+      return s.map(function (v) { return Math.sqrt(v / Math.max(n, 1)) * k; });
+    }
+    var fills = { pine: fill(X.pine, 0.82), spruce: fill(X.spruce, 0.68) };
+    // one material per pass and part, shared by the four trees (their uniforms change per tree)
+    var U = { map: { value: null }, uHR: { value: new T.Vector2() }, uColor: { value: new T.Color(0.075, 0.064, 0.058) }, c: { value: new T.Vector4() } };
+    function mat(vs, fs) { return new T.ShaderMaterial({ uniforms: U, vertexShader: vs, fragmentShader: fs, side: T.DoubleSide }); }
+    var passes = [{ rt: col, fol: mat(BAKE_V, FOL_C), trunk: mat(BAKE_TRUNK_V, TRUNK_C) }, { rt: nrm, fol: mat(BAKE_V, FOL_N), trunk: mat(BAKE_TRUNK_V, TRUNK_N), bg: [0.5, 0.8, 0.9] }];
+    // The empty space gets the needles' average color and a sideways-up normal at zero alpha, so smaller mip levels
+    // fade the edges toward the tree, not toward black. (A clear can't do it: three.js premultiplies the clear color
+    // by its alpha.)
+    var bgM = new T.ShaderMaterial({ uniforms: U, vertexShader: 'void main() { gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); }', fragmentShader: 'uniform vec4 c; void main() { gl_FragColor = c; }' });
+    var keep = { tm: renderer.toneMapping, ac: renderer.autoClear, rt: renderer.getRenderTarget() };
+    renderer.toneMapping = T.NoToneMapping; renderer.autoClear = false;
+    try {
+      IMP.forEach(function (k, i) {
+        var g = conifer(T, k[0], k[1], 1), H = g.H * IMP_HT, cam = new T.OrthographicCamera(-H / 4, H / 4, H, 0, 0.1, 200), sc = new T.Scene();
+        cam.position.set(0, 0, 100); cam.lookAt(0, 0, 0);
+        var fol = new T.Mesh(g.foliage), trunk = new T.Mesh(g.trunk), bg = new T.Mesh(new T.PlaneGeometry(H, H * 2), bgM); sc.add(trunk); sc.add(fol);
+        bg.position.set(0, H / 2, -90); sc.add(bg);
+        U.map.value = k[0] === 'pine' ? X.pine : X.spruce; U.uHR.value.set(g.H, g.R);
+        passes.forEach(function (ps) {
+          var f = ps.bg || (k[0] === 'pine' ? fills.pine : fills.spruce); U.c.value.set(f[0], f[1], f[2], 0);
+          fol.material = ps.fol; trunk.material = ps.trunk;
+          ps.rt.viewport.set(i * tileW, 0, tileW, tileH); ps.rt.scissor.set(i * tileW, 0, tileW, tileH); ps.rt.scissorTest = true;
+          renderer.setRenderTarget(ps.rt); renderer.clear();
+          renderer.render(sc, cam);
+        });
+        g.foliage.dispose(); g.trunk.dispose(); bg.geometry.dispose();
+      });
+    } finally {
+      renderer.setRenderTarget(keep.rt); renderer.toneMapping = keep.tm; renderer.autoClear = keep.ac;
+      passes.forEach(function (ps) { ps.fol.dispose(); ps.trunk.dispose(); }); bgM.dispose();
+    }
+    return { color: col, normal: nrm, tiles: n };
+  }
+  // two crossed quads, base at the ground; aQ is each quad's own turn (cos, sin) about the trunk
+  function impostorGeo(T) {
+    var a = new T.PlaneGeometry(1, 1); a.translate(0, 0.5, 0);
+    var b = a.clone(); b.rotateY(Math.PI / 2);
+    var g = merge(T, [a, b]), q = [];
+    for (var i = 0; i < g.attributes.position.count; i++) q.push(i < a.attributes.position.count ? 1 : 0, i < a.attributes.position.count ? 0 : 1);
+    g.setAttribute('aQ', new T.Float32BufferAttribute(q, 2));
+    return g;
+  }
+
   function aspen(T, seed) {
     var R = rng(seed), H = TREE_H.aspen, wood = [trunkGeo(T, H * 0.96, 0.36, 0.07, H / 4)], leaves = { pos: [], nor: [], uv: [], snow: [], idx: [] }, twigs = { pos: [], nor: [], uv: [], snow: [], idx: [] };
     for (var b = 0; b < 11; b++) {
@@ -610,16 +733,18 @@ var REAL = (function () {
     'vec3 viewPos( vec2 uv ) { float d = texture2D( tDepth, uv ).x; vec4 p = uProjInv * vec4( uv * 2.0 - 1.0, d * 2.0 - 1.0, 1.0 ); return p.xyz / p.w; }',
     'void main() {',
     '  float d0 = texture2D( tDepth, vUv ).x; if ( d0 >= 0.99999 ) { gl_FragColor = vec4( 1.0 ); return; }',
-    '  vec3 p = viewPos( vUv ); vec3 n = normalize( cross( dFdx( p ), dFdy( p ) ) );',
+    // past a few hundred feet the depth buffer is too coarse for this (it would draw contour lines on the peaks)
+    '  vec3 p = viewPos( vUv ); float fade = 1.0 - smoothstep( 220.0, 480.0, -p.z ); if ( fade <= 0.0 ) { gl_FragColor = vec4( 1.0 ); return; }',
+    '  vec3 n = normalize( cross( dFdx( p ), dFdy( p ) ) );',
     '  float rad = min( uRadius * uProj[ 1 ][ 1 ] / -p.z * 0.5, 0.06 );',
     '  float ang = fract( 52.9829189 * fract( dot( gl_FragCoord.xy, vec2( 0.06711056, 0.00583715 ) ) ) ) * 6.2831853, ao = 0.0;',
     '  for ( int i = 0; i < 12; i ++ ) {',
     '    float f = ( float( i ) + 0.5 ) / 12.0, a = ang + float( i ) * 2.399963;',
     '    vec2 off = vec2( cos( a ) / uAspect, sin( a ) ) * rad * sqrt( f );',
     '    vec3 v = viewPos( vUv + off ) - p; float dist = length( v );',
-    '    ao += max( 0.0, dot( n, v ) / ( dist + 1e-4 ) - 0.1 ) * ( 1.0 - smoothstep( uRadius * 0.5, uRadius * 1.6, dist ) );',
+    '    ao += max( 0.0, dot( n, v ) / ( dist + 1e-4 ) - 0.24 ) * ( 1.0 - smoothstep( uRadius * 0.5, uRadius * 1.6, dist ) );',
     '  }',
-    '  gl_FragColor = vec4( vec3( clamp( 1.0 - uStrength * ao / 12.0, 0.0, 1.0 ) ), 1.0 );',
+    '  gl_FragColor = vec4( vec3( clamp( 1.0 - uStrength * 1.3 * fade * ao / 12.0, 0.0, 1.0 ) ), 1.0 );',
     '}'].join('\n');
   var BLUR_F = [
     '#include <packing>',
@@ -656,16 +781,17 @@ var REAL = (function () {
     var aoM = mat(AO_F, { tDepth: { value: null }, uProj: { value: new T.Matrix4() }, uProjInv: { value: new T.Matrix4() }, uRadius: { value: 2.2 }, uStrength: { value: 1.25 }, uAspect: { value: 1 } });
     var blurM = mat(BLUR_F, { tAO: { value: null }, tDepth: { value: null }, uTexel: { value: new T.Vector2() }, uNear: { value: 0.5 }, uFar: { value: 9000 } });
     var compM = mat(COMP_F, { tColor: { value: null }, tAO: { value: null }, uExposure: { value: 1 }, uAO: { value: 0.85 } });
+    function free() { [main, ao1, ao2].forEach(function (t) { if (t) { if (t.depthTexture) t.depthTexture.dispose(); t.dispose(); } }); main = ao1 = ao2 = null; }
     function size(W, H) {
       if (W === w && H === h) return; w = W; h = H;
-      [main, ao1, ao2].forEach(function (t) { if (t) { if (t.depthTexture) t.depthTexture.dispose(); t.dispose(); } });
+      free();
       main = new T.WebGLRenderTarget(W, H, { type: T.HalfFloatType, samples: 4 });
       main.depthTexture = new T.DepthTexture(W, H); main.depthTexture.type = T.UnsignedIntType;
       ao1 = new T.WebGLRenderTarget(Math.ceil(W / 2), Math.ceil(H / 2)); ao2 = ao1.clone();
     }
     function pass(m, target) { quad.material = m; renderer.setRenderTarget(target); renderer.render(qs, cam); }
     return {
-      dispose: function () { [main, ao1, ao2].forEach(function (t) { if (t) { if (t.depthTexture) t.depthTexture.dispose(); t.dispose(); } }); main = ao1 = ao2 = null; w = h = 0; },
+      dispose: function () { free(); w = h = 0; },
       render: function (scene, camera, W, H, exposure) {
         size(W, H);
         // r147 applies the renderer's tone mapping even inside a render target; the composite does it once, here
@@ -688,24 +814,25 @@ var REAL = (function () {
     var renderer = v.renderer, scene = v.scene, MAT = v.MAT, aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
     var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     var low = coarse || Math.min(screen.width, screen.height) < 600 || !renderer.capabilities.isWebGL2;
-    var X = drawTextures(T, aniso), time = { value: 0 }, sunDir = { value: new T.Vector3(0, 1, 0) }, sunI = { value: 1 }, snowOn = { value: 1 };
+    var X = drawTextures(T, aniso), time = { value: 0 }, sunDir = { value: new T.Vector3(0, 1, 0) }, snowOn = { value: 1 };
     var root = new T.Group(), roofG = new T.Group(); root.visible = false; roofG.visible = false; scene.add(root); scene.add(roofG);
     var self = { root: root, low: low }, season = null, TX = null, loading = false, farG = new T.Group(); root.add(farG); // the forest beyond the lot
 
     /* materials */
-    function snowShader(m, key, attr) {
+    // cards whose aSnow attribute says how much snow they hold
+    function snowShader(m, key) {
       return patch(m, key, { uSnow: snowOn },
-        [WORLD_V, WORLD_V2, ['#include <common>', '$\n' + (attr ? 'attribute float aSnow;\n' : '') + 'varying float vSnowF;'], ['#include <begin_vertex>', '$\n' + (attr ? 'vSnowF = aSnow;' : '{ vec3 sn = objectNormal;\n#ifdef USE_INSTANCING\nsn = mat3( instanceMatrix ) * sn;\n#endif\nvSnowF = normalize( mat3( modelMatrix ) * sn ).y; }')]],
-        [WORLD_F, ['#include <common>', '$\nuniform float uSnow;\nvarying float vSnowF;'], ['#include <color_fragment>', '$\n{ float sn = uSnow * smoothstep( ' + (attr ? '0.42, 0.78' : '0.28, 0.58') + ', vSnowF + ( rNoise( vRW.xz * 0.9 + vRW.y ) - 0.5 ) * 0.45 ); diffuseColor.rgb = mix( diffuseColor.rgb, vec3( 0.84, 0.87, 0.92 ), sn ); }'], noFlip(T)]);
+        [WORLD_V, WORLD_V2, ['#include <common>', '$\nattribute float aSnow;\nvarying float vSnowF;'], ['#include <begin_vertex>', '$\nvSnowF = aSnow;']],
+        [WORLD_F, ['#include <common>', '$\nuniform float uSnow;\nvarying float vSnowF;'], ['#include <map_fragment>', '$' + cover('vec2( ' + m.map.image.width + '.0, ' + m.map.image.height + '.0 )')], ['#include <color_fragment>', '$\n{ float sn = uSnow * smoothstep( 0.42, 0.78, vSnowF + ( rNoise( vRW.xz * 0.9 + vRW.y ) - 0.5 ) * 0.45 ); diffuseColor.rgb = mix( diffuseColor.rgb, vec3( 0.84, 0.87, 0.92 ), sn ); }'], noFlip(T)]);
     }
     var M = {};
     M.terrain = new T.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 1 });
-    M.peaks = new T.MeshStandardMaterial({ vertexColors: true, roughness: 1 });
-    M.spire = snowShader(new T.MeshStandardMaterial({ color: 0xffffff, roughness: 1 }), 'spire', false);
-    M.pine = snowShader(new T.MeshStandardMaterial({ map: X.pine, alphaTest: 0.4, side: T.DoubleSide, roughness: 0.9 }), 'pine', true);
-    M.spruce = snowShader(new T.MeshStandardMaterial({ map: X.spruce, alphaTest: 0.4, side: T.DoubleSide, roughness: 0.9 }), 'spruce', true);
-    M.twigs = snowShader(new T.MeshStandardMaterial({ map: X.twigs, alphaTest: 0.4, side: T.DoubleSide, roughness: 1 }), 'twigs', true);
-    M.leaves = patch(new T.MeshStandardMaterial({ map: X.leaves, alphaTest: 0.38, side: T.DoubleSide, roughness: 0.75 }), 'leaves', {}, [], [noFlip(T)]);
+    var pk = peakNoise(T, aniso);
+    M.peaks = patch(new T.MeshStandardMaterial({ roughness: 1 }), 'peaks', { uWin: snowOn, uRing: { value: RING }, uPk: { value: pk.tex }, uPkS: { value: pk.slope } }, [WORLD_V, WORLD_V2], [WORLD_F].concat(PEAK_F));
+    M.pine = snowShader(new T.MeshStandardMaterial({ map: X.pine, alphaTest: 0.4, side: T.DoubleSide, roughness: 0.9 }), 'pine');
+    M.spruce = snowShader(new T.MeshStandardMaterial({ map: X.spruce, alphaTest: 0.4, side: T.DoubleSide, roughness: 0.9 }), 'spruce');
+    M.twigs = snowShader(new T.MeshStandardMaterial({ map: X.twigs, alphaTest: 0.4, side: T.DoubleSide, roughness: 1 }), 'twigs');
+    M.leaves = patch(new T.MeshStandardMaterial({ map: X.leaves, alphaTest: 0.38, side: T.DoubleSide, roughness: 0.75 }), 'leaves', {}, [], [['#include <map_fragment>', '$' + cover('vec2( ' + X.leaves.image.width + '.0, ' + X.leaves.image.height + '.0 )')], noFlip(T)]);
     M.bark = new T.MeshStandardMaterial({ color: 0x2a221c, roughness: 1 });
     M.aspenBark = new T.MeshStandardMaterial({ map: X.aspenBark, roughness: 0.85 });
     M.grass = patch(new T.MeshStandardMaterial({ color: 0xffffff, roughness: 0.88, side: T.DoubleSide }), 'grass', { uTime: time },
@@ -716,12 +843,13 @@ var REAL = (function () {
     // Ground snow and the terrain in winter must look identical where they meet: same color, roughness,
     // grain (both map world x and z) and sparkle. SNOW_RGB is that color; uSpark switches the terrain's sparkle.
     var SNOW_RGB = [0.9, 0.92, 0.95], spark = { value: 1 }, vcol = { value: 0 };
-    var SPARKLE = ['#include <emissivemap_fragment>', '$\n{ vec3 cell = floor( vRW * 22.0 ); float r = rHash( cell ); vec3 rn = normalize( vec3( rHash( cell + 1.7 ), rHash( cell + 3.1 ) + 0.6, rHash( cell + 5.3 ) ) - vec3( 0.5, 0.5, 0.5 ) );\n vec3 vd = normalize( cameraPosition - vRW ); float g = pow( max( dot( reflect( -uSunDir, rn ), vd ), 0.0 ), 260.0 ) * step( 0.9, r );\n totalEmissiveRadiance += vec3( g * 6.0 * uSunI * uSpark * ( 1.0 - smoothstep( 25.0, 110.0, length( cameraPosition - vRW ) ) ) ); }'];
-    var SPARKLE_U = ['#include <common>', '$\nuniform vec3 uSunDir;\nuniform float uSunI;\nuniform float uSpark;'];
+    // the glints ride on the sun's light after its shadow (the sun is the last light lights_fragment_begin visits)
+    var SPARKLE = ['#include <lights_fragment_begin>', '$\n#if NUM_DIR_LIGHTS > 0\n{ vec3 cell = floor( vRW * 22.0 ); float r = rHash( cell ); vec3 rn = normalize( vec3( rHash( cell + 1.7 ), rHash( cell + 3.1 ) + 0.6, rHash( cell + 5.3 ) ) - vec3( 0.5, 0.5, 0.5 ) );\n vec3 vd = normalize( cameraPosition - vRW ); float g = pow( max( dot( reflect( -uSunDir, rn ), vd ), 0.0 ), 260.0 ) * step( 0.9, r );\n reflectedLight.directSpecular += directLight.color * ( g * 2.6 * uSpark * ( 1.0 - smoothstep( 25.0, 110.0, length( cameraPosition - vRW ) ) ) ); }\n#endif'];
+    var SPARKLE_U = ['#include <common>', '$\nuniform vec3 uSunDir;\nuniform float uSpark;'];
     M.snow = new T.MeshStandardMaterial({ roughness: 0.8 }); M.snow.color.setRGB(SNOW_RGB[0], SNOW_RGB[1], SNOW_RGB[2]);
-    patch(M.snow, 'snow', { uSunDir: sunDir, uSunI: sunI, uSpark: { value: 1 } }, [WORLD_V, WORLD_V2], [WORLD_F, SPARKLE_U, SPARKLE]);
+    patch(M.snow, 'snow', { uSunDir: sunDir, uSpark: { value: 1 } }, [WORLD_V, WORLD_V2], [WORLD_F, SPARKLE_U, SPARKLE]);
     var tile = { value: 1 }, hole = { value: new T.Vector4(1, 1, -1, -1) };
-    patch(M.terrain, 'terrain', { uTile: tile, uHole: hole, uSunDir: sunDir, uSunI: sunI, uSpark: spark, uVCol: vcol }, [WORLD_V, WORLD_V2], [WORLD_F, SPARKLE_U, SPARKLE,
+    patch(M.terrain, 'terrain', { uTile: tile, uHole: hole, uSunDir: sunDir, uSpark: spark, uVCol: vcol }, [WORLD_V, WORLD_V2], [WORLD_F, SPARKLE_U, SPARKLE,
       ['#include <color_fragment>', '#if defined( USE_COLOR )\ndiffuseColor.rgb *= mix( vec3( 1.0 ), vColor, uVCol );\n#endif'],
       ['#include <common>', '$\nuniform float uTile;\nuniform vec4 uHole;\nuniform float uVCol;'],
       ['#include <clipping_planes_fragment>', '$\nif ( vRW.x > uHole.x && vRW.x < uHole.z && vRW.z > uHole.y && vRW.z < uHole.w ) discard;'],
@@ -730,9 +858,11 @@ var REAL = (function () {
       ['#include <normal_fragment_maps>', T.ShaderChunk.normal_fragment_maps.replace('texture2D( normalMap, vUv )', 'texture2D( normalMap, vUv * uTile )')]]);
 
     /* sky and the light it gives */
-    var SU = { uSun: { value: new T.Vector3(0, 1, 0) }, uZenith: { value: new T.Color() }, uHorizon: { value: new T.Color() }, uGlow: { value: new T.Color() }, uBelow: { value: new T.Color() } };
+    var SU = { uSun: { value: new T.Vector3(0, 1, 0) }, uZenith: { value: new T.Color() }, uHorizon: { value: new T.Color() }, uGlow: { value: new T.Color() }, uBelow: { value: new T.Color() }, uPk: { value: pk.tex } };
     var skyBg = skyMesh(T, SU, true, 1), envScene = new T.Scene(), skyEnv = skyMesh(T, SU, false, 1.35), pmrem = new T.PMREMGenerator(renderer), envRT = null, envDirty = true, envAt = 0;
-    skyBg.scale.setScalar(8000); root.add(skyBg);
+    // Far things are drawn after near ones, so what the near ones hide is never shaded: the forest, then the peaks,
+    // then the sky (which sits on the far plane) last of the opaque objects.
+    skyBg.scale.setScalar(8000); skyBg.renderOrder = 1000; root.add(skyBg);
     skyEnv.scale.setScalar(50); envScene.add(skyEnv);
     var envGround = new T.Mesh(new T.CircleGeometry(80, 32), new T.MeshBasicMaterial({ color: 0xffffff, side: T.DoubleSide }));
     envGround.rotation.x = -Math.PI / 2; envGround.position.y = -3; envScene.add(envGround);
@@ -740,41 +870,102 @@ var REAL = (function () {
       var old = envRT; envRT = pmrem.fromScene(envScene, 0, 0.1, 100); scene.environment = envRT.texture; if (old) old.dispose();
       envDirty = false; envAt = performance.now();
     }
+    // Desktop only: the glass and metal reflect the real surroundings (forest, peaks, snow), from a cube captured at
+    // the middle of the house with the house hidden. It is captured again once the sun or the season has settled,
+    // not while the sun slider moves. Everything else keeps the sky's light.
+    var floatTargets = renderer.extensions.has('EXT_color_buffer_float') || renderer.extensions.has('EXT_color_buffer_half_float');
+    var refl = low || !floatTargets ? null : { rt: new T.WebGLCubeRenderTarget(256, { type: T.HalfFloatType }), dirty: true, at: 0, ready: false, off: false }, reflMats = [];
+    if (refl) refl.cam = new T.CubeCamera(1, 9000, refl.rt);
+    function reflOn() { return !!refl && refl.ready && !refl.off; }
+    function reflDirty() { if (refl) { refl.dirty = true; refl.at = performance.now(); } }
+    function reflShow() { reflMats.forEach(function (m) { m.envMap = reflOn() ? refl.rt.texture : null; m.needsUpdate = true; }); glassLight(); }
+    function captureRefl() {
+      var hide = [roofG].concat(model.grass, built0 && built0.groups || []), was = hide.map(function (o) { return o.visible; }), au = renderer.shadowMap.autoUpdate;
+      refl.dirty = false; // a capture that throws is not retried every frame
+      try {
+        hide.forEach(function (o) { o.visible = false; }); renderer.shadowMap.autoUpdate = false;
+        refl.cam.position.set(0, 7, 0); refl.cam.update(renderer, scene); // CubeCamera renders without tone mapping
+      } finally {
+        renderer.shadowMap.autoUpdate = au; hide.forEach(function (o, i) { o.visible = was[i]; });
+      }
+      if (!refl.ready) { refl.ready = true; reflShow(); } // until now they reflected the sky, not an empty cube
+    }
 
     /* terrain, peaks, far forest */
     var tRings = radii(0, 150, 6, 1.0).concat(radii(150, RING, 6, 1.045).slice(1));
     var terrain = new T.Mesh(polarGeo(T, tRings, function (x, z) { return groundH(x, z); }, terrainColor, 1 / 6.5), M.terrain);
     terrain.receiveShadow = true; root.add(terrain);
-    var pGeo = polarGeo(T, radii(RING, FAR, 40, 1.06), peakH, null, 1 / 6.5), pc = peakColors(pGeo);
-    var peakCol = { summer: new T.BufferAttribute(pc.summer, 3), winter: new T.BufferAttribute(pc.winter, 3) };
-    pGeo.setAttribute('color', peakCol.winter);
-    var peaks = new T.Mesh(pGeo, M.peaks); root.add(peaks);
+    var pSeg = low ? 384 : 640, pRings = radii(RING, FAR, RING * 2 * Math.PI / pSeg, 1 + 2 * Math.PI / pSeg), pGeo = polarGeo(T, pRings, peakH, null, 1 / 6.5, pSeg); // cells about square
+    // The terrain's outer edge is a straight line between its SEG vertices, which the peaks' finer first ring would
+    // not follow, leaving cracks. That ring is laid along the edge instead, 0.6 ft under it.
     (function () {
-      var R = rng(31), sp = low ? 34 : 16, pts = [], mid = [], MID = low ? 0 : 470;
+      var P = pGeo.attributes.position.array;
+      for (var k = 0; k <= pSeg; k++) {
+        var f = k / pSeg * SEG, j = Math.min(SEG - 1, Math.floor(f)), u = f - j, a0 = j / SEG * Math.PI * 2, a1 = (j + 1) / SEG * Math.PI * 2;
+        var x0 = Math.cos(a0) * RING, z0 = Math.sin(a0) * RING, x1 = Math.cos(a1) * RING, z1 = Math.sin(a1) * RING;
+        P[k * 3] = x0 + (x1 - x0) * u; P[k * 3 + 2] = z0 + (z1 - z0) * u;
+        P[k * 3 + 1] = groundH(x0, z0) * (1 - u) + groundH(x1, z1) * u - 0.6;
+      }
+      pGeo.computeVertexNormals();
+    })();
+    // the height and the up component of the normal of the peaks' mesh at x, z, read off its polar grid
+    function peakAt(x, z) {
+      var r = Math.hypot(x, z), a = Math.atan2(z, x), lo = 0, hi = pRings.length - 1, n = pSeg + 1, P = pGeo.attributes.position.array, N = pGeo.attributes.normal.array;
+      if (a < 0) a += Math.PI * 2;
+      while (hi - lo > 1) { var mid = (lo + hi) >> 1; if (pRings[mid] <= r) lo = mid; else hi = mid; }
+      var fr = clamp((r - pRings[lo]) / (pRings[hi] - pRings[lo]), 0, 1), fk = a / (Math.PI * 2) * pSeg, k = Math.min(pSeg - 1, Math.floor(fk)); fk -= k;
+      function lerp2(A) { var i0 = lo * n + k, i1 = hi * n + k; return (A[i0 * 3 + 1] * (1 - fk) + A[i0 * 3 + 4] * fk) * (1 - fr) + (A[i1 * 3 + 1] * (1 - fk) + A[i1 * 3 + 4] * fk) * fr; }
+      return [lerp2(P), lerp2(N)];
+    }
+    var peaks = new T.Mesh(pGeo, M.peaks); peaks.renderOrder = 2; root.add(peaks);
+    // the forest beyond the lot: one draw of baked impostors
+    var imp = bakeImpostors(T, renderer, X, low ? 512 : 1024), impN = { value: imp.normal.texture };
+    M.impostor = new T.MeshStandardMaterial({ map: imp.color.texture, alphaTest: 0.5, side: T.DoubleSide, roughness: 0.9 });
+    patch(M.impostor, 'impostor', { uNrm: impN, uSnow: snowOn, uTiles: { value: imp.tiles } },
+      [WORLD_V, WORLD_V2, ['#include <common>', '$\nattribute vec2 aQ;\nattribute float aTile;\nuniform float uTiles;\nvarying vec2 vRot;'],
+       ['#include <uv_vertex>', '$\nvUv.x = ( vUv.x + aTile ) / uTiles;'],
+       ['#include <begin_vertex>', '$\n{ vec2 ir = normalize( vec2( instanceMatrix[ 0 ][ 0 ], -instanceMatrix[ 0 ][ 2 ] ) ); vRot = vec2( ir.x * aQ.x - ir.y * aQ.y, ir.y * aQ.x + ir.x * aQ.y ); }']],
+      [WORLD_F, ['#include <common>', '$\nuniform sampler2D uNrm;\nuniform float uSnow;\nvarying vec2 vRot;'],
+       ['#include <map_fragment>', '{ vec4 tex = texture2D( map, vUv ); diffuseColor *= vec4( tex.rgb * tex.rgb, tex.a ); }' + cover('vec2( ' + imp.color.width + '.0, ' + imp.color.height + '.0 )')],
+       ['#include <color_fragment>', '$\n{ float sn = uSnow * smoothstep( 0.32, 0.7, texture2D( uNrm, vUv ).a + ( rNoise( vRW.xz * 0.9 + vRW.y ) - 0.5 ) * 0.45 ); diffuseColor.rgb = mix( diffuseColor.rgb, vec3( 0.84, 0.87, 0.92 ), sn ); }'],
+       noFlip(T),
+       ['#include <normal_fragment_maps>', '$\n{ vec3 tn = texture2D( uNrm, vUv ).xyz * 2.0 - 1.0; tn.z *= faceDirection; vec3 nw = vec3( vRot.x * tn.x + vRot.y * tn.z, tn.y, -vRot.y * tn.x + vRot.x * tn.z ); normal = normalize( ( viewMatrix * vec4( nw, 0.0 ) ).xyz ); }']]);
+    (function () {
+      var R = rng(31), sp = low ? 18 : 12, pts = [];
       for (var z = -RING; z < RING; z += sp) for (var x = -RING; x < RING; x += sp) {
         var px = x + (R() - 0.5) * sp, pz = z + (R() - 0.5) * sp, r = Math.hypot(px, pz);
         if (r < 210 || r > RING - 30 || outside(LOT, px, pz) < 26) continue;
+        if (R() > 0.35 + 0.65 * sstep(210, 470, r)) continue; // thinner near the clearing
         if (px < LOT.x0 && Math.abs(pz + 9) < 22) continue; // the road in from the west
         if (forestMask(px, pz) + 0.25 * sstep(300, 900, r) < 0.12 + R() * 0.12) continue;
-        if (r < MID) { if (R() < 0.62) mid.push([px, pz]); } else pts.push([px, pz]);
+        pts.push([px, pz, groundH(px, pz) - 0.5, 1]);
       }
-      var im = new T.InstancedMesh(spireGeo(T, low), M.spire, pts.length), m4 = new T.Matrix4(), q = new T.Quaternion(), e = new T.Euler(), p = new T.Vector3(), s = new T.Vector3(), c = new T.Color();
+      // on up the lower slopes of the peaks, off the steepest ground, thinning and shrinking toward the treeline
+      var sp2 = low ? 20 : 16, RF = 2900;
+      for (z = -RF; z < RF; z += sp2) for (x = -RF; x < RF; x += sp2) {
+        px = x + (R() - 0.5) * sp2 * 1.8; pz = z + (R() - 0.5) * sp2 * 1.8; r = Math.hypot(px, pz);
+        if (r < RING - 30 || r > RF || R() < 0.2) continue;
+        var pa = r < RING ? [groundH(px, pz), 1] : peakAt(px, pz), y = pa[0], steep = Math.sqrt(Math.max(0, 1 - pa[1] * pa[1])) / Math.max(pa[1], 0.05), tl = 320 + 80 * fbm(px / 520 + 3, pz / 520, 3);
+        if (steep > 0.8 || y > tl + R() * 30) continue;
+        if (forestMask(px, pz) + 0.3 - 0.6 * sstep(tl - 140, tl, y) < 0.1 + R() * 0.15) continue;
+        pts.push([px, pz, y - 1.5 - 5 * steep, 1 - 0.55 * sstep(tl - 120, tl, y)]);
+      }
+      pts.sort(function (a, b) { return (a[0] * a[0] + a[1] * a[1]) - (b[0] * b[0] + b[1] * b[1]); }); // near to far, from the lot
+      var geo = impostorGeo(T), tile = new Float32Array(pts.length), im, m4 = new T.Matrix4(), q = new T.Quaternion(), e = new T.Euler(), p = new T.Vector3(), s = new T.Vector3(), c = new T.Color();
       pts.forEach(function (pt, i) {
-        var h = 38 + R() * 34; e.set(0, R() * 6.3, 0); q.setFromEuler(e); p.set(pt[0], groundH(pt[0], pt[1]) - 1, pt[1]); s.set(h * (0.85 + R() * 0.3), h, h * (0.85 + R() * 0.3));
+        // stands: lodgepole in patches, subalpine fir mixed into the spruce, more of both higher up
+        var n = fbm(pt[0] / 160 - 3, pt[1] / 160 + 8, 2), k = n > 0.18 ? 3 : (R() < 0.3 ? 2 : (R() < 0.5 ? 0 : 1));
+        tile[i] = k;
+      });
+      geo.setAttribute('aTile', new T.InstancedBufferAttribute(tile, 1));
+      im = new T.InstancedMesh(geo, M.impostor, pts.length);
+      pts.forEach(function (pt, i) {
+        var h = ((tile[i] === 3 ? 44 : 48) + R() * 26) * pt[3], k = h / 60, w = 60 * IMP_HT / 2 * k, ht = 60 * IMP_HT * k;
+        e.set(0, R() * 6.2832, 0); q.setFromEuler(e); p.set(pt[0], pt[2], pt[1]); s.set(w, ht, w);
         m4.compose(p, q, s); im.setMatrixAt(i, m4);
-        var k = 0.55 + R() * 0.6; c.setRGB(0.014 * k, (0.026 + R() * 0.008) * k, 0.02 * k); im.setColorAt(i, c);
+        var v = 0.62 + R() * 0.42; c.setRGB(v * (0.95 + R() * 0.1), v * (0.97 + R() * 0.06), v * (0.95 + R() * 0.1)); im.setColorAt(i, c);
       });
-      im.frustumCulled = false; farG.add(im);
-      if (!mid.length) return;
-      var kinds = [conifer(T, 'spruce', 41, 1, true), conifer(T, 'spruce', 42, 1, true), conifer(T, 'pine', 43, 1, true)];
-      kinds.forEach(function (g, gi) {
-        var mine = mid.filter(function (pt, i) { return i % kinds.length === gi; }), mat = gi < 2 ? M.spruce : M.pine;
-        [[g.trunk, M.bark], [g.foliage, mat]].forEach(function (gm) {
-          var mi = new T.InstancedMesh(gm[0], gm[1], mine.length), RR = rng(50 + gi);
-          mine.forEach(function (pt, i) { var h = (gi < 2 ? 48 : 44) + RR() * 22, k = h / 60; e.set(0, RR() * 6.3, 0); q.setFromEuler(e); p.set(pt[0], groundH(pt[0], pt[1]), pt[1]); s.set(k, k, k); m4.compose(p, q, s); mi.setMatrixAt(i, m4); });
-          mi.frustumCulled = false; farG.add(mi);
-        });
-      });
+      im.frustumCulled = false; im.renderOrder = 1; farG.add(im);
     })();
 
     /* near trees, where the plain view's trees stand */
@@ -824,7 +1015,8 @@ var REAL = (function () {
     function setGrass(f) { grassShare = f; model.grass.forEach(function (m) { if (m.userData.full !== undefined) m.count = Math.round(m.userData.full * f); }); }
     function buildModel(R) {
       clearModel();
-      var S = siteInfo(R);
+      var S = siteInfo(R), dr = S.plow.filter(function (r) { return Math.abs(r.z1 - r.z0 - 10) < 0.6 && r.x1 - r.x0 > 10; });
+      if (dr.length) driveU.value.set(Math.min.apply(null, dr.map(function (r) { return r.x0; })), (dr[0].z0 + dr[0].z1) / 2, Math.max.apply(null, dr.map(function (r) { return r.x1; })), 1); else driveU.value.set(0, 0, 0, 0);
       model.grass = grassField(T, S, treeList, M, low ? 11000 : 95000, time);
       model.grass.forEach(function (m) { root.add(m); });
       setGrass(grassShare);
@@ -842,8 +1034,16 @@ var REAL = (function () {
         ['#include <map_fragment>', '#ifdef USE_MAP\ndiffuseColor *= tri( map );\n#endif'],
         ['#include <roughnessmap_fragment>', 'float roughnessFactor = roughness;\n#ifdef USE_ROUGHNESSMAP\nroughnessFactor *= tri( roughnessMap ).g;\n#endif']];
     };
+    // gravel: patches of darker, coarser stone and warmer dust, and two packed wheel ruts down the drive (uDrive is
+    // its x0, center z and x1, and w = 1 when there is one), so it doesn't read as poured concrete
+    var driveU = { value: new T.Vector4(0, 0, 0, 0) };
+    var GRAVEL_F = TRI_F().map(function (e) {
+      return e[0] !== '#include <map_fragment>' ? e : [e[0], '#ifdef USE_MAP\n{ vec4 g = tri( map ); float n1 = rNoise( vRW.xz / 7.0 ), n2 = rNoise( vRW.xz / 1.7 + 3.0 );\n g.rgb *= 0.6 + 0.6 * n1 + 0.2 * ( n2 - 0.5 ); g.rgb *= mix( vec3( 0.95, 0.97, 1.0 ), vec3( 1.14, 1.0, 0.8 ), smoothstep( 0.35, 0.8, n1 ) );\n if ( uDrive.w > 0.5 && vRW.x > uDrive.x && vRW.x < uDrive.z ) { float dz = abs( abs( vRW.z - uDrive.y ) - 2.6 ); g.rgb *= 1.0 - 0.36 * exp( -dz * dz / 0.55 ) * ( 0.7 + 0.3 * n2 ); }\n diffuseColor *= g; }\n#endif'];
+    }).concat([['#include <common>', '$\nuniform vec4 uDrive;']]);
     var INSIDE = /^(int|fix|furn|floor|wallf|insul|plumb|elec)$/;
-    var hidden = [];
+    var hidden = [], glass = [], daylight = 1;
+    // outside glass reflects less as the light goes, so a lit room shows through at dusk
+    function glassLight() { glass.forEach(function (m) { m.envMapIntensity = (reflOn() ? 2 : 1.3) * (0.25 + 0.75 * daylight); }); }
     function upgrade(built, on) {
       hidden.forEach(function (o) { o.visible = true; }); hidden = [];
       saved.forEach(function (s) {
@@ -852,11 +1052,11 @@ var REAL = (function () {
         // the baseline goes back to the plain opacity (apply() only records one for materials it hasn't seen)
         if (s.glass && s.m.userData.baseT !== undefined) s.m.userData.baseO = s.baseO !== undefined ? s.baseO : s.p.opacity;
       });
-      saved = [];
+      saved = []; glass = []; reflMats = [];
       if (!on || !built) return;
       var seen = [];
       function keep(m) {
-        var p = { map: m.map, normalMap: m.normalMap, roughnessMap: m.roughnessMap, roughness: m.roughness, metalness: m.metalness, envMapIntensity: m.envMapIntensity, onBeforeCompile: m.onBeforeCompile, customProgramCacheKey: m.customProgramCacheKey };
+        var p = { map: m.map, normalMap: m.normalMap, roughnessMap: m.roughnessMap, roughness: m.roughness, metalness: m.metalness, envMap: m.envMap, envMapIntensity: m.envMapIntensity, onBeforeCompile: m.onBeforeCompile, customProgramCacheKey: m.customProgramCacheKey };
         var s = { m: m, c: m.color.getHex(), p: p };
         // glass is the one material whose opacity changes here; the viewer's apply() keeps its own opacity
         // baseline in userData.baseO (for see-through), so that is saved and put back too
@@ -878,12 +1078,14 @@ var REAL = (function () {
           else if (n === 'dark') { m.roughness = 0.42; m.metalness = 0.35; }
           else if (n === 'black') { m.roughness = 0.4; m.metalness = 0.35; }
           else if (n === 'frame') { m.roughness = 0.5; }
-          else if (n === 'glass') { m.color.setRGB(0.1, 0.13, 0.15); m.opacity = 0.58; if (m.userData.baseO !== undefined) m.userData.baseO = 0.58; m.roughness = 0.02; m.metalness = 0.5; m.envMapIntensity = 1.3; }
-          else if ((n === 'cedar' || n === 'lvl' || n === 'wood' || n === 'pt') && TX) { m.map = TX.planks.color; m.roughnessMap = TX.planks.rough; if (n === 'cedar') m.color.setRGB(0.82, 0.55, 0.38); else if (n === 'pt') m.color.setRGB(0.62, 0.6, 0.45); else m.color.setRGB(0.9, 0.7, 0.5); m.roughness = 1; patch(m, 'tri-wood', { uTri: { value: 1 / 3.28 } }, TRI_V, TRI_F()); }
-          else if (n === 'gravel' && TX) { m.map = TX.gravel.color; m.roughnessMap = TX.gravel.rough; m.color.setRGB(0.42, 0.4, 0.37); m.roughness = 1; patch(m, 'tri-gravel', { uTri: { value: 1 / 6.5 } }, TRI_V, TRI_F()); }
+          else if (n === 'glass') { m.color.setRGB(0.1, 0.13, 0.15); m.opacity = 0.6; if (m.userData.baseO !== undefined) m.userData.baseO = 0.6; m.roughness = 0.02; m.metalness = 0.5; if (!inside) glass.push(m); }
+          if (refl && !inside && (n === 'glass' || n === 'seam' || n === 'dark' || n === 'black')) { reflMats.push(m); if (reflOn()) m.envMap = refl.rt.texture; }
+          if ((n === 'cedar' || n === 'lvl' || n === 'wood' || n === 'pt') && TX) { m.map = TX.planks.color; m.roughnessMap = TX.planks.rough; if (n === 'cedar') m.color.setRGB(0.82, 0.55, 0.38); else if (n === 'pt') m.color.setRGB(0.62, 0.6, 0.45); else m.color.setRGB(0.9, 0.7, 0.5); m.roughness = 1; patch(m, 'tri-wood', { uTri: { value: 1 / 3.28 } }, TRI_V, TRI_F()); }
+          else if (n === 'gravel' && TX) { m.map = TX.gravel.color; m.roughnessMap = TX.gravel.rough; m.color.setRGB(0.24, 0.22, 0.19); m.roughness = 1; patch(m, 'tri-gravel', { uTri: { value: 1 / 6.5 }, uDrive: driveU }, TRI_V, GRAVEL_F); }
           m.needsUpdate = true;
         });
       });
+      glassLight();
     }
 
     /* photo textures, loaded once */
@@ -903,7 +1105,7 @@ var REAL = (function () {
     function applyTextures() {
       if (!TX) return;
       TX.snow.normal.repeat.set(0.4, 0.4); TX.snow.rough.repeat.set(0.4, 0.4); M.snow.normalMap = TX.snow.normal; M.snow.normalScale.set(0.35, 0.35); M.snow.roughnessMap = TX.snow.rough; M.snow.needsUpdate = true;
-      M.bark.map = TX.bark.color; M.bark.normalMap = TX.bark.normal; M.bark.roughnessMap = TX.bark.rough; M.bark.color.setRGB(0.42, 0.39, 0.36); M.bark.needsUpdate = true;
+      M.bark.map = TX.bark.color; M.bark.normalMap = TX.bark.normal; M.bark.roughnessMap = TX.bark.rough; M.bark.color.setRGB(0.32, 0.31, 0.31); M.bark.needsUpdate = true;
       setSeason(season, true);
     }
 
@@ -918,13 +1120,11 @@ var REAL = (function () {
       } else { M.terrain.map = null; M.terrain.normalMap = null; M.terrain.roughnessMap = null; if (sum) M.terrain.color.setHex(0x56603a); else M.terrain.color.setRGB(SNOW_RGB[0], SNOW_RGB[1], SNOW_RGB[2]); }
       M.terrain.roughness = sum ? 1 : 0.8; spark.value = sum ? 0 : 1; vcol.value = sum ? 1 : 0;
       M.terrain.needsUpdate = true;
-      peaks.geometry.setAttribute('color', sum ? peakCol.summer : peakCol.winter);
       leafMeshes.forEach(function (m) { m.visible = sum; }); twigMeshes.forEach(function (m) { m.visible = !sum; });
       showSeason(); // ground snow, roof snow and grass follow the season
-      envDirty = true;
+      envDirty = true; reflDirty();
     }
 
-    var floatTargets = renderer.extensions.has('EXT_color_buffer_float') || renderer.extensions.has('EXT_color_buffer_half_float');
     var P = low || !floatTargets ? null : post(T, renderer), shadow = { size: v.sun.shadow.mapSize.x, ext: v.sun.shadow.camera.right };
     function setShadow(size, ext) {
       var sh = v.sun.shadow, c = sh.camera;
@@ -958,7 +1158,7 @@ var REAL = (function () {
     var STEPS = [
       function () { setGrass(grassShare * 0.5); },
       function () { ratioCap = low ? 1 : 1.5; v.setPixelRatio(ratio()); },
-      function () { if (P && usePost) usePost = false; else { setGrass(grassShare * 0.5); nearG.children.forEach(function (m) { m.castShadow = false; }); } }
+      function () { if (P && usePost) { usePost = false; if (refl) { refl.off = true; reflShow(); } } else { setGrass(grassShare * 0.5); nearG.children.forEach(function (m) { m.castShadow = false; }); } }
     ];
     self.enable = function (on, R, land, built) {
       enabled = on; root.visible = on; roofG.visible = on; built0 = built;
@@ -969,10 +1169,10 @@ var REAL = (function () {
         if (!model.roofSnow) buildModel(R);
         if (!TX && !loading) {
           loading = true;
-          loadTextures(function (t) { TX = t; applyTextures(); if (enabled) { upgrade(built0, true); v.refresh(); } guard.ready = true; guard.skip = Math.max(guard.skip, 30); });
+          loadTextures(function (t) { TX = t; applyTextures(); if (enabled) { upgrade(built0, true); v.refresh(); } reflDirty(); guard.ready = true; guard.skip = Math.max(guard.skip, 30); });
           setTimeout(function () { guard.ready = true; }, 6000); // textures that never come (a file:// page) don't hold it back
         }
-        setShadow(low ? 1024 : 4096, low ? 72 : 90); envDirty = true;
+        setShadow(low ? 1024 : 4096, low ? 72 : 90); envDirty = true; reflDirty();
       } else {
         scene.environment = null; setShadow(shadow.size, shadow.ext);
         if (envRT) { envRT.dispose(); envRT = null; } if (P) P.dispose();
@@ -981,11 +1181,12 @@ var REAL = (function () {
       v.camera.far = on ? 9000 : 2600; v.camera.updateProjectionMatrix();
     };
     self.release = function () { upgrade(null, false); };
-    self.rebuild = function (R, built) { built0 = built; if (!enabled) { clearModel(); return; } buildModel(R); upgrade(built, true); };
+    self.rebuild = function (R, built) { built0 = built; if (!enabled) { clearModel(); return; } buildModel(R); upgrade(built, true); reflDirty(); };
     self.season = function (s) { setSeason(s); };
     self.sun = function (s, up) {
+      daylight = up; glassLight();
       SU.uSun.value.copy(s.v); sunSky(SU, s.alt, up);
-      sunDir.value.copy(s.v); sunI.value = s.alt > 0 ? 1 : 0;
+      sunDir.value.copy(s.v);
       var sum = season === 'summer';
       envGround.material.color.setRGB(sum ? 0.05 : 0.32, sum ? 0.06 : 0.34, sum ? 0.035 : 0.37).multiplyScalar(0.25 + 0.75 * up);
       v.sun.intensity = s.alt > 0 ? 2.35 * Math.min(1, s.alt * 4) : 0;
@@ -994,7 +1195,7 @@ var REAL = (function () {
       // distant ground fades into the horizon haze; below the horizon the sky shows that same haze
       horizon.copy(SU.uHorizon.value).multiplyScalar(1.1); SU.uBelow.value.copy(horizon).multiplyScalar(0.8);
       v.scene.background = null; v.fog.color.copy(horizon);
-      envDirty = true;
+      envDirty = true; reflDirty();
     };
     // visibility: s is the viewer state in effect, e the explode amount. The last call is kept so a season
     // change, which the viewer makes without calling apply(), can swap snow and grass straight away.
@@ -1013,12 +1214,13 @@ var REAL = (function () {
       watch(now);
       v.fog.near = 700; v.fog.far = 11000;
       if (envDirty && now - envAt > 150) makeEnv();
+      if (refl && !refl.off && refl.dirty && now - refl.at > 350) captureRefl();
     };
     self.render = function (scene, camera, W, H, exposure) {
       if (usePost) P.render(scene, camera, W, H, exposure); else renderer.render(scene, camera);
     };
     self.trees = function () { return treeList; };
-    self.debug = function () { return { M: M, SU: SU, sky: skyBg, envGround: envGround, peaks: peaks, model: model, X: X, guard: guard, ratioCap: ratioCap, usePost: usePost, grassShare: grassShare }; };
+    self.debug = function () { return { M: M, SU: SU, imp: imp, refl: refl, sky: skyBg, envGround: envGround, peaks: peaks, model: model, X: X, guard: guard, ratioCap: ratioCap, usePost: usePost, grassShare: grassShare }; };
     return self;
   }
 
