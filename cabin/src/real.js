@@ -351,7 +351,7 @@ var REAL = (function () {
   var FOREST_F = ['#include <common>', '$\nuniform sampler2D uForest;\nuniform float uForestS;\nuniform vec3 uSunDir;\n' +
     'float fCover( vec2 p ) { return texture2D( uForest, p * uForestS + 0.5 ).r; }\n' +
     'float fShadow( vec3 w, float hp ) { vec2 d = uSunDir.xz / max( uSunDir.y, 0.12 ); float k = 1.0 - clamp( hp / 55.0, 0.0, 1.0 );\n' +
-    '  return clamp( ( fCover( w.xz + d * ( hp + 6.0 ) ) + fCover( w.xz + d * ( hp + 18.0 ) ) + fCover( w.xz + d * ( hp + 34.0 ) ) ) * 0.7 * k, 0.0, 1.0 ); }'];
+    '  float c = 55.0 - min( hp, 55.0 ); return clamp( ( fCover( w.xz + d * ( 4.0 + c * 0.04 ) ) + fCover( w.xz + d * ( 4.0 + c * 0.3 ) ) + fCover( w.xz + d * ( 4.0 + c * 0.6 ) ) ) * 0.7 * k, 0.0, 1.0 ); }'];
   function SHADOW(hp) { return ['#include <lights_fragment_begin>', '$\n{ float sh = 1.0 - 0.85 * fShadow( vRW, ' + hp + ' ); reflectedLight.directDiffuse *= sh; reflectedLight.directSpecular *= sh; }']; }
   // aerial perspective past the lot: thicker low down, the same for the ground, the peaks and the far trees
   var HAZE = ['#include <fog_fragment>', '$\n#ifdef USE_FOG\n{ float d = length( vRW - cameraPosition ), thick = exp( -max( vRW.y, 0.0 ) / 1400.0 ); gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, ( 1.0 - exp( -d / 6800.0 * thick ) ) * 0.8 * smoothstep( 250.0, 900.0, d ) ); }\n#endif'];
@@ -377,8 +377,10 @@ var REAL = (function () {
       '  sumC = mix( sumC, snowC, field );',
       '  vec3 winC = mix( snowC, vec3( 0.2, 0.23, 0.27 ), smoothstep( 0.0, 0.7, fc ) * ( 1.0 - above ) );',
       '  winC = mix( winC, vec3( 0.026, 0.04, 0.034 ) * ( 0.8 + 0.4 * fine ), crowns * 0.9 );',
-      // rock on the steep faces, in ribs running down the fall line with snow-filled gullies between
-      '  vec2 cd = normalize( vec2( -vRN.z, vRN.x ) + 1e-4 ); float rib = texture2D( uPk, vec2( dot( vRW.xz, cd ) / 260.0, vRW.y / 1100.0 ) + 0.21 ).r;',
+      // rock on the steep faces, in ribs running down the fall line with snow-filled gullies between. The faces around
+      // the ring fall roughly toward the lot, so the ribs are laid out by the angle around it (63 tiles to the turn, two
+      // lookups that each fade out where their angle wraps).
+      '  float rv = vRW.y / 1100.0 + 0.21, rw = smoothstep( -0.3, 0.3, vRW.x / length( vRW.xz ) ), rib = mix( texture2D( uPk, vec2( atan( -vRW.z, -vRW.x ) * 10.0268, rv ) ).r, texture2D( uPk, vec2( atan( vRW.z, vRW.x ) * 10.0268, rv ) ).r, rw );',
       '  float rk = ( 1.0 - smoothstep( 0.47, 0.53, slope + ( pkH - 0.5 ) * 0.3 + ( fine - 0.5 ) * 0.18 ) ) * smoothstep( 0.42, 0.56, rib * 0.7 + fine * 0.3 );',
       '  winC = mix( winC, rock * 0.85, rk );',
       '  diffuseColor.rgb *= mix( sumC, winC, uWin ) * ( 0.82 + 0.36 * pkH ); }'].join('\n')],
@@ -865,7 +867,7 @@ var REAL = (function () {
     var SPARKLE = ['#include <lights_fragment_begin>', '$\n#if NUM_DIR_LIGHTS > 0\n{ vec3 cell = floor( vRW * 22.0 ); float r = rHash( cell ); vec3 rn = normalize( vec3( rHash( cell + 1.7 ), rHash( cell + 3.1 ) + 0.6, rHash( cell + 5.3 ) ) - vec3( 0.5, 0.5, 0.5 ) );\n vec3 vd = normalize( cameraPosition - vRW ); float g = pow( max( dot( reflect( -uSunDir, rn ), vd ), 0.0 ), 260.0 ) * step( 0.9, r );\n reflectedLight.directSpecular += directLight.color * ( g * 2.6 * uSpark * ( 1.0 - smoothstep( 25.0, 110.0, length( cameraPosition - vRW ) ) ) ); }\n#endif'];
     var SPARKLE_U = ['#include <common>', '$\nuniform vec3 uSunDir;\nuniform float uSpark;'];
     M.snow = new T.MeshStandardMaterial({ roughness: 0.8 }); M.snow.color.setRGB(SNOW_RGB[0], SNOW_RGB[1], SNOW_RGB[2]);
-    patch(M.snow, 'snow', { uSunDir: sunDir, uSpark: { value: 1 }, uForest: forestU, uForestS: forestS }, [WORLD_V, WORLD_V2], [WORLD_F, SPARKLE_U, SPARKLE, [FOREST_F[0], FOREST_F[1].replace('uniform vec3 uSunDir;\n', '')], SHADOW('0.0')]);
+    patch(M.snow, 'snow', { uSunDir: sunDir, uSpark: { value: 1 }, uForest: forestU, uForestS: forestS }, [WORLD_V, WORLD_V2], [WORLD_F, SPARKLE_U, SPARKLE, [FOREST_F[0], FOREST_F[1].replace('uniform vec3 uSunDir;\n', '')], SHADOW('0.0'), HAZE]);
     var tile = { value: 1 }, hole = { value: new T.Vector4(1, 1, -1, -1) };
     patch(M.terrain, 'terrain', { uTile: tile, uHole: hole, uSunDir: sunDir, uSpark: spark, uVCol: vcol, uForest: forestU, uForestS: forestS }, [WORLD_V, WORLD_V2], [WORLD_F, SPARKLE_U, SPARKLE,
       [FOREST_F[0], FOREST_F[1].replace('uniform vec3 uSunDir;\n', '')], SHADOW('0.0'), HAZE,
@@ -1001,10 +1003,11 @@ var REAL = (function () {
       // The forest map, over the whole ring of peaks, drawn from the trees themselves where there are trees: r is how
       // much of the ground their crowns cover (the shaded floor and the shadows), g how far above the treeline.
       // Past RF, where the peaks draw the canopy, r comes from the chance of a tree instead.
-      var N = low ? 384 : 512, H = N / 2, cell = 2 * FAR / N, cov = new Float32Array(N * N), far = new Float32Array(H * H), abv = new Float32Array(H * H), data = new Uint8Array(N * N * 4);
+      var N = low ? (renderer.capabilities.isWebGL2 ? 384 : 256) : 512, H = N / 2, // WebGL1 mipmaps only powers of two
+          cell = 2 * FAR / N, cov = new Float32Array(N * N), far = new Float32Array(H * H), abv = new Float32Array(H * H), data = new Uint8Array(N * N * 4);
       for (var j = 0; j < H; j++) for (var i = 0; i < H; i++) {
         var wx = ((i + 0.5) / H * 2 - 1) * FAR, wz = ((j + 0.5) / H * 2 - 1) * FAR, rr = Math.hypot(wx, wz);
-        if (rr < RF - 300 || rr > FAR + 300) continue;
+        if (rr < RING - 60 || rr > FAR + 300) continue;
         f = forestAt(wx, wz);
         if (f) { far[j * H + i] = f[0] * sstep(RF - 250, RF + 50, rr); abv[j * H + i] = f[4]; }
       }
