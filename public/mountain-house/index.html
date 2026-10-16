@@ -13693,10 +13693,13 @@ var REAL = (function () {
     // Frame-rate guard. After the view turns on it watches the time between frames, 45 frames at a time.
     // While the median gap is over 22 ms (under about 45 fps) it takes the next step down, then watches again.
     // A browser that caps animation at 30 fps to save power (iPhone Low Power Mode, Chrome's Energy Saver)
-    // also gets the lighter steps, which suits a device saving power.
-    var guard = { on: false, step: 0, last: 0, skip: 0, dts: [] };
+    // also gets the lighter steps, which suits a device saving power. It starts watching 30 frames after the
+    // textures are in, once their shaders are rebuilt (or 6 s on, if they never arrive): the page loading
+    // around it, the texture uploads and the shader builds would otherwise look like a slow device.
+    var guard = { on: false, ready: false, step: 0, last: 0, skip: 0, dts: [] };
     function watch(now) {
       if (!guard.on) return;
+      if (!guard.ready) { guard.last = now; return; }
       var dt = now - guard.last; guard.last = now;
       if (dt > 250) { guard.dts = []; guard.skip = Math.max(guard.skip, 10); return; } // paused or off screen: start the count again
       if (guard.skip > 0) { guard.skip--; return; }
@@ -13714,11 +13717,15 @@ var REAL = (function () {
     self.enable = function (on, R, land, built) {
       enabled = on; root.visible = on; roofG.visible = on; built0 = built;
       v.setPixelRatio(on ? ratio() : null);
-      if (on && guard.step < STEPS.length) { guard.on = true; guard.last = 0; guard.dts = []; guard.skip = 30; }
+      if (on && guard.step < STEPS.length) { guard.on = true; guard.last = 0; guard.dts = []; guard.skip = 30; guard.ready = !!TX; }
       if (on) {
         if (!treesBuilt) { buildTrees(land); treesBuilt = true; }
         if (!model.roofSnow) buildModel(R);
-        if (!TX && !loading) { loading = true; loadTextures(function (t) { TX = t; applyTextures(); if (enabled) { upgrade(built0, true); v.refresh(); } }); }
+        if (!TX && !loading) {
+          loading = true;
+          loadTextures(function (t) { TX = t; applyTextures(); if (enabled) { upgrade(built0, true); v.refresh(); } guard.ready = true; guard.skip = Math.max(guard.skip, 30); });
+          setTimeout(function () { guard.ready = true; }, 6000); // textures that never come (a file:// page) don't hold it back
+        }
         setShadow(low ? 1024 : 4096, low ? 72 : 90); envDirty = true;
       } else {
         scene.environment = null; setShadow(shadow.size, shadow.ext);
@@ -16371,6 +16378,9 @@ var APP = (function () {
       console.error('viewer failed', err && err.stack || err); $('glnote').hidden = false;
     }
     A.renderAll();
+    // The 3D model opens in the Realistic view, turned on after the first render so the cabin is built once.
+    // ?plain in the address opens the plain view instead.
+    if (A.viewer && !/[?&]plain(?:[=&]|$)/.test(location.search)) { A.viewer.set('real', true); syncToggles(); }
     function useDl(dl) {
       A.dl = dl; if (!dl) return;
       ['dl-csv', 'dl-csv2', 'dl-json', 'dl-svg'].forEach(function (id) { $(id).hidden = false; });

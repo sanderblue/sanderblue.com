@@ -11,7 +11,7 @@ The page ships as a single self-contained file, `public/mountain-house/index.htm
 | `npm run cabin:build` | Assembles `src/` into `public/mountain-house/index.html` and copies `src/assets/` to `public/mountain-house/assets/`. |
 | `npm run cabin:build -- --check` | Exits 1 if the committed page or assets don't match `src/`. |
 | `npm run cabin:check` | Runs the engine in Node with the default choices and prints the total, parts count and design checks. Exits 1 on a failed check or a parts-list problem. `-- --lean` runs the "Lean build" preset; `-- --set heat=propane --set loft=true` changes single choices. |
-| `npm run cabin:test` | Runs the built page in headless Chrome and checks the 3D viewer's Realistic view: turning it on and off (also with a season change, design changes, see-through or a selected part on the way) leaves the plain view's renders identical; the season buttons swap snow and grass; textures load once; no shader or console errors through the viewer controls; the frame-rate guard steps down in order on desktop and phones. About 30 seconds. Needs Google Chrome (or `CHROME_PATH`) and a built page. |
+| `npm run cabin:test` | Runs the built page in headless Chrome and checks the 3D viewer's Realistic view: the page opens in it, and in the plain view with `?plain`; turning it on and off (also with a season change, design changes, see-through or a selected part on the way) leaves the plain view's renders identical; the season buttons swap snow and grass; textures load once; no shader or console errors through the viewer controls; the frame-rate guard waits for the textures and steps down in order on desktop and phones. About 40 seconds. Needs Google Chrome (or `CHROME_PATH`) and a built page. |
 | `npm run cabin:pdf` | Prints every sheet (default choices) to `public/mountain-house/rime-cabin-drawings.pdf` with the installed Google Chrome. `-- --out <file>` writes elsewhere. Set `CHROME_PATH` if Chrome isn't in `/Applications`. Needs network access for the Google Fonts. |
 
 ## Making a change
@@ -46,11 +46,11 @@ prompts/             price-check.md, a prompt for re-checking the estimate's pri
 
 ## Realistic view
 
-The Realistic chip on the 3D model turns on `src/real.js`. It is off by default and built the first time it is turned on, so the plain view, the flyby and the drawing set cover render exactly as before. While it is on, it adds:
+The 3D model opens in the Realistic view, `src/real.js`. The Realistic chip turns it off, and `?plain` in the address (`/mountain-house/?plain`) opens the page in the plain view. The plain view, the flyby and the drawing set cover render exactly as they did before the Realistic view existed: the PDF's cover is still drawn from the plain view, and turning Realistic off puts the plain view back exactly. While it is on, it adds:
 
 - A sky and the light it gives: a blue sky with a sun glow, the same sky as an environment map, and a haze that matches the horizon.
 - The building's own materials, upgraded and put back when it turns off. Paint colors are treated as sRGB, the siding and seams get normal maps, and wood and gravel get photo textures.
-- Rolling ground beyond the lot and a ring of peaks.
+- Rolling ground beyond the lot and a ring of peaks, and the leach field as a low grassy rise in place of the plain view's placeholder.
 - Engelmann spruce, lodgepole pine and aspen where the plain view's trees stand, with card trees and spires further out.
 - Summer grass and wildflowers.
 - Winter snow: a rounded roof blanket that curls over the north eave, drifts, tree wells, and plowed gravel with windrows.
@@ -58,9 +58,9 @@ The Realistic chip on the 3D model turns on `src/real.js`. It is off by default 
 
 Phones and other touch screens get a lighter version aimed at 60 fps on an iPhone 13 Pro. It drops the post pass, draws at 1.5 times the screen's pixels instead of 2, and uses simpler and fewer distant trees, half the grass and a smaller shadow map. That comes to about 0.7 million triangles a frame in summer, against 1.75 million before the trim.
 
-On any device, a frame-rate guard watches the first few seconds after the view turns on. If frames come slower than about 45 fps, it steps down in this order: half the grass, a lower pixel ratio, then no post pass on desktop, or a quarter of the grass and no tree shadows on phones. A browser that caps animation at 30 fps to save power also gets these steps.
+On any device, a frame-rate guard watches the first seconds after the view turns on, starting once the textures are in (or after 6 seconds if they never arrive), so the page loading around it doesn't count against the device. If frames come slower than about 45 fps, it steps down in this order: half the grass, a lower pixel ratio, then no post pass on desktop, or a quarter of the grass and no tree shadows on phones. A browser that caps animation at 30 fps to save power also gets these steps.
 
-The textures load from `assets/textures/` beside the page, about 2 MB, only when the view is first turned on. Until they arrive, or if they can't load (a `file://` page), the same surfaces show in plain colors.
+The textures load from `assets/textures/` beside the page, about 2 MB, when the page opens (or when the view is first turned on, after `?plain`). Until they arrive, or if they can't load (a `file://` page), the same surfaces show in plain colors.
 
 Textures are CC0 from [Poly Haven](https://polyhaven.com), resized to 1K or 512 px and saved as WebP:
 

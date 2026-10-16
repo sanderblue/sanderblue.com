@@ -240,6 +240,9 @@ var APP = (function () {
       console.error('viewer failed', err && err.stack || err); $('glnote').hidden = false;
     }
     A.renderAll();
+    // The 3D model opens in the Realistic view, turned on after the first render so the cabin is built once.
+    // ?plain in the address opens the plain view instead.
+    if (A.viewer && !/[?&]plain(?:[=&]|$)/.test(location.search)) { A.viewer.set('real', true); syncToggles(); }
     function useDl(dl) {
       A.dl = dl; if (!dl) return;
       ['dl-csv', 'dl-csv2', 'dl-json', 'dl-svg'].forEach(function (id) { $(id).hidden = false; });

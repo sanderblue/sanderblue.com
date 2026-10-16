@@ -1,6 +1,8 @@
-// Runs the built cabin page in headless Chrome and checks the 3D viewer's Realistic view: that it leaves the
-// plain view exactly as it was, swaps snow and grass with the season, loads its textures once, draws without
-// shader or console errors, and that its frame-rate guard steps down in order on desktop and phones.
+// Runs the built cabin page in headless Chrome and checks the 3D viewer's Realistic view: that the page opens
+// in it (and in the plain view with ?plain), that it leaves the plain view exactly as it was, swaps snow and
+// grass with the season, loads its textures once, draws without shader or console errors, and that its
+// frame-rate guard waits for the page to settle and steps down in order on desktop and phones.
+// Most checks open the page with ?plain, so they start from a page that never turned the Realistic view on.
 // Usage: npm run cabin:test   (run npm run cabin:build first; uses the installed Google Chrome, or CHROME_PATH)
 // Exits 1 if any check fails. Checks compare renders made in the same browser, so they don't depend on the GPU.
 import { spawn } from 'node:child_process';
@@ -70,8 +72,8 @@ try {
   dt.on('Runtime.consoleAPICalled', (p) => { if (p.type === 'error') errors.push(p.args.map((a) => a.value ?? a.description ?? '').join(' ').slice(0, 300)); });
   dt.on('Runtime.exceptionThrown', (p) => errors.push((p.exceptionDetails.exception?.description || p.exceptionDetails.text).slice(0, 300)));
 
-  async function load() {
-    await dt.send('Page.navigate', { url: URL_PAGE });
+  async function load(query = '?plain') {
+    await dt.send('Page.navigate', { url: URL_PAGE + query });
     await sleep(300);
     await waitFor('the 3D viewer', async () => (await dt.send('Runtime.evaluate', { expression: '!!(window.APP && APP.viewer)', returnByValue: true })).result.value, 60000);
     await run("document.getElementById('viewer').scrollIntoView(); await frames(3);");
@@ -105,6 +107,18 @@ try {
   await load();
   const gpu = await run("var g = document.createElement('canvas').getContext('webgl2'), x = g && g.getExtension('WEBGL_debug_renderer_info'); return x ? g.getParameter(x.UNMASKED_RENDERER_WEBGL) : (g ? 'WebGL2' : 'no WebGL2');");
   console.log(`Rime Cabin 3D checks in headless Chrome (${gpu})`);
+
+  await check('The page opens in the Realistic view, and in the plain view with ?plain', async () => {
+    await load('');
+    const on = await run(`var b = document.querySelector('[data-toggle=real]'); return { pressed: b.getAttribute('aria-pressed'), real: st.real, textures: await textures() };`);
+    await load('?plain');
+    const off = await run(`var b = document.querySelector('[data-toggle=real]'); return { pressed: b.getAttribute('aria-pressed'), real: st.real, built: !!real() };`);
+    const p = [];
+    if (on.pressed !== 'true' || on.real !== true) p.push(`opened with Realistic ${on.real ? 'on' : 'off'} and its chip ${on.pressed === 'true' ? '' : 'not '}pressed`);
+    if (!on.textures) p.push('the textures never arrived');
+    if (off.pressed !== 'false' || off.real !== false || off.built) p.push('?plain still turned the Realistic view on');
+    return p.join('; ');
+  });
 
   await check('Plain view unchanged after Realistic on and off', async () => {
     await load();
@@ -182,6 +196,7 @@ try {
   // the guard: page frames are paused, and frames of a chosen length are fed in by hand
   const guardRun = `v.set('real', true); var r = real(), feed = r.frame, t = 1e7; r.frame = function () {};
     function frames60(n, ms) { for (var i = 0; i < n; i++) { t += ms; feed(t, v.debug().camera); } }
+    await textures(); // the guard starts watching once they are in
     var out = {}; frames60(120, 1000 / 60); out.at60 = guardState();
     v.set('real', false); v.set('real', true); frames60(120, 20); out.at50 = guardState();
     v.set('real', false); v.set('real', true); frames60(90, 33.3); out.slow1 = guardState(); frames60(65, 33.3); out.slow2 = guardState();
@@ -195,6 +210,18 @@ try {
     if (g.slow4.on || g.slow4.step !== 3) p.push('it did not stop after its last step');
     return p.join('; ');
   }
+  await check('Frame-rate guard waits for the textures, or 6 s if they never come', async () => {
+    await load();
+    const g = await run(`var load = THREE.ImageLoader.prototype.load; THREE.ImageLoader.prototype.load = function () { return new Image(); }; // they never arrive
+      v.set('real', true); var r = real(), feed = r.frame, t = 1e7; r.frame = function () {};
+      function slow(n) { for (var i = 0; i < n; i++) { t += 40; feed(t, v.debug().camera); } }
+      slow(200); var before = guardState(); await wait(6500); slow(90); var after = guardState();
+      THREE.ImageLoader.prototype.load = load; r.frame = feed; return { before: before, after: after };`);
+    if (g.before.step !== 0 || !g.before.on) return `it stepped down before the textures came: ${JSON.stringify(g.before)}`;
+    if (g.after.step !== 1) return `it never started after 6 s: ${JSON.stringify(g.after)}`;
+    return '';
+  });
+
   await check('Frame-rate guard on desktop: half the grass, 1.5x pixels, then no post pass', async () => {
     await load();
     const g = await run(guardRun);
